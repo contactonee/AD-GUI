@@ -1,0 +1,8 @@
+C:\Users\bazhr1\Desktop\Active Directory Management\Active Directory Management\bin\Debug\Active Directory Management.exe
+C:\Users\bazhr1\Desktop\Active Directory Management\Active Directory Management\bin\Debug\Active Directory Management.pdb
+C:\Users\bazhr1\Desktop\Active Directory Management\Active Directory Management\obj\Debug\Active Directory Management.csprojResolveAssemblyReference.cache
+C:\Users\bazhr1\Desktop\Active Directory Management\Active Directory Management\obj\Debug\Active_Directory_Management.Properties.Resources.resources
+C:\Users\bazhr1\Desktop\Active Directory Management\Active Directory Management\obj\Debug\Active Directory Management.csproj.GenerateResource.Cache
+C:\Users\bazhr1\Desktop\Active Directory Management\Active Directory Management\obj\Debug\Active Directory Management.exe
+C:\Users\bazhr1\Desktop\Active Directory Management\Active Directory Management\obj\Debug\Active Directory Management.pdb
+C:\Users\bazhr1\Desktop\Active Directory Management\Active Directory Management\obj\Debug\Active_Directory_Management.mainForm.resources
