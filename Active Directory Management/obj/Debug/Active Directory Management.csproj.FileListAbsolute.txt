@@ -6,3 +6,4 @@ C:\Users\bazhr1\Desktop\Active Directory Management\Active Directory Management\
 C:\Users\bazhr1\Desktop\Active Directory Management\Active Directory Management\obj\Debug\Active Directory Management.exe
 C:\Users\bazhr1\Desktop\Active Directory Management\Active Directory Management\obj\Debug\Active Directory Management.pdb
 C:\Users\bazhr1\Desktop\Active Directory Management\Active Directory Management\obj\Debug\Active_Directory_Management.mainForm.resources
+C:\Users\bazhr1\Desktop\Active Directory Management\Active Directory Management\bin\Debug\Active Directory Management.exe.config
