@@ -34,12 +34,20 @@
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.internalLabel = new System.Windows.Forms.Label();
+            this.divLabel = new System.Windows.Forms.Label();
+            this.positionLabel = new System.Windows.Forms.Label();
+            this.positionTextBox = new System.Windows.Forms.TextBox();
+            this.internalCombo = new System.Windows.Forms.ComboBox();
+            this.roomCombo = new System.Windows.Forms.ComboBox();
+            this.divCombo = new System.Windows.Forms.ComboBox();
             this.roomLabel = new System.Windows.Forms.Label();
             this.departmentLabel = new System.Windows.Forms.Label();
             this.cityCombo = new System.Windows.Forms.ComboBox();
             this.departmentCombo = new System.Windows.Forms.ComboBox();
             this.cityLabel = new System.Windows.Forms.Label();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.mobileTextBox = new System.Windows.Forms.MaskedTextBox();
             this.nameTranslitTextBox = new System.Windows.Forms.TextBox();
             this.adressLabel = new System.Windows.Forms.Label();
             this.nameTextBox = new System.Windows.Forms.TextBox();
@@ -56,24 +64,16 @@
             this.birthdayLabel = new System.Windows.Forms.Label();
             this.birthdayDatePicker = new System.Windows.Forms.DateTimePicker();
             this.tabPage2 = new System.Windows.Forms.TabPage();
-            this.divCombo = new System.Windows.Forms.ComboBox();
-            this.roomCombo = new System.Windows.Forms.ComboBox();
-            this.internalCombo = new System.Windows.Forms.ComboBox();
-            this.positionTextBox = new System.Windows.Forms.TextBox();
-            this.positionLabel = new System.Windows.Forms.Label();
-            this.divLabel = new System.Windows.Forms.Label();
-            this.internalLabel = new System.Windows.Forms.Label();
-            this.cdCheck = new System.Windows.Forms.CheckBox();
-            this.usbDiskCheck = new System.Windows.Forms.CheckBox();
-            this.usbDeviceCheck = new System.Windows.Forms.CheckBox();
-            this.cloudCheck = new System.Windows.Forms.CheckBox();
-            this.internetCombo = new System.Windows.Forms.ComboBox();
-            this.internetLabel = new System.Windows.Forms.Label();
-            this.unlimitedRadio = new System.Windows.Forms.RadioButton();
-            this.limitedRadio = new System.Windows.Forms.RadioButton();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.expirationDatePicker = new System.Windows.Forms.DateTimePicker();
-            this.mobileTextBox = new System.Windows.Forms.MaskedTextBox();
+            this.unlimitedRadio = new System.Windows.Forms.RadioButton();
+            this.limitedRadio = new System.Windows.Forms.RadioButton();
+            this.internetLabel = new System.Windows.Forms.Label();
+            this.internetCombo = new System.Windows.Forms.ComboBox();
+            this.cloudCheck = new System.Windows.Forms.CheckBox();
+            this.usbDeviceCheck = new System.Windows.Forms.CheckBox();
+            this.usbDiskCheck = new System.Windows.Forms.CheckBox();
+            this.cdCheck = new System.Windows.Forms.CheckBox();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.groupBox2.SuspendLayout();
@@ -156,6 +156,94 @@
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Информация о сотруднике";
             // 
+            // internalLabel
+            // 
+            this.internalLabel.AutoSize = true;
+            this.internalLabel.Location = new System.Drawing.Point(289, 49);
+            this.internalLabel.Name = "internalLabel";
+            this.internalLabel.Size = new System.Drawing.Size(101, 13);
+            this.internalLabel.TabIndex = 44;
+            this.internalLabel.Text = "Внутренний номер";
+            // 
+            // divLabel
+            // 
+            this.divLabel.AutoSize = true;
+            this.divLabel.Enabled = false;
+            this.divLabel.Location = new System.Drawing.Point(81, 76);
+            this.divLabel.Name = "divLabel";
+            this.divLabel.Size = new System.Drawing.Size(38, 13);
+            this.divLabel.TabIndex = 43;
+            this.divLabel.Text = "Отдел";
+            // 
+            // positionLabel
+            // 
+            this.positionLabel.AutoSize = true;
+            this.positionLabel.Location = new System.Drawing.Point(54, 103);
+            this.positionLabel.Name = "positionLabel";
+            this.positionLabel.Size = new System.Drawing.Size(65, 13);
+            this.positionLabel.TabIndex = 42;
+            this.positionLabel.Text = "Должность";
+            // 
+            // positionTextBox
+            // 
+            this.positionTextBox.Location = new System.Drawing.Point(125, 100);
+            this.positionTextBox.Name = "positionTextBox";
+            this.positionTextBox.Size = new System.Drawing.Size(123, 20);
+            this.positionTextBox.TabIndex = 41;
+            // 
+            // internalCombo
+            // 
+            this.internalCombo.FormattingEnabled = true;
+            this.internalCombo.Items.AddRange(new object[] {
+            "Департамент 1",
+            "Департамент 2",
+            "Департамент 3",
+            "Департамент 4",
+            "Департамент 5",
+            "Департамент 6",
+            "Департамент 7"});
+            this.internalCombo.Location = new System.Drawing.Point(396, 46);
+            this.internalCombo.Name = "internalCombo";
+            this.internalCombo.Size = new System.Drawing.Size(123, 21);
+            this.internalCombo.Sorted = true;
+            this.internalCombo.TabIndex = 40;
+            // 
+            // roomCombo
+            // 
+            this.roomCombo.FormattingEnabled = true;
+            this.roomCombo.Items.AddRange(new object[] {
+            "Департамент 1",
+            "Департамент 2",
+            "Департамент 3",
+            "Департамент 4",
+            "Департамент 5",
+            "Департамент 6",
+            "Департамент 7"});
+            this.roomCombo.Location = new System.Drawing.Point(396, 19);
+            this.roomCombo.Name = "roomCombo";
+            this.roomCombo.Size = new System.Drawing.Size(123, 21);
+            this.roomCombo.Sorted = true;
+            this.roomCombo.TabIndex = 39;
+            // 
+            // divCombo
+            // 
+            this.divCombo.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.divCombo.Enabled = false;
+            this.divCombo.FormattingEnabled = true;
+            this.divCombo.Items.AddRange(new object[] {
+            "Отдел 1",
+            "Отдел 2",
+            "Отдел 3",
+            "Отдел 4",
+            "Отдел 5",
+            "Отдел 6",
+            "Отдел 7"});
+            this.divCombo.Location = new System.Drawing.Point(125, 73);
+            this.divCombo.Name = "divCombo";
+            this.divCombo.Size = new System.Drawing.Size(123, 21);
+            this.divCombo.Sorted = true;
+            this.divCombo.TabIndex = 38;
+            // 
             // roomLabel
             // 
             this.roomLabel.AutoSize = true;
@@ -183,13 +271,12 @@
             "Актау",
             "Алматы",
             "Астана",
+            "Уральск",
             "Минск",
-            "Москва",
-            "Уральск"});
+            "Москва"});
             this.cityCombo.Location = new System.Drawing.Point(125, 19);
             this.cityCombo.Name = "cityCombo";
             this.cityCombo.Size = new System.Drawing.Size(123, 21);
-            this.cityCombo.Sorted = true;
             this.cityCombo.TabIndex = 33;
             this.cityCombo.SelectedIndexChanged += new System.EventHandler(this.cityCombo_SelectedIndexChanged);
             // 
@@ -247,6 +334,14 @@
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Личные данные";
             // 
+            // mobileTextBox
+            // 
+            this.mobileTextBox.Location = new System.Drawing.Point(125, 97);
+            this.mobileTextBox.Mask = "+7 (000) 000-0000";
+            this.mobileTextBox.Name = "mobileTextBox";
+            this.mobileTextBox.Size = new System.Drawing.Size(197, 20);
+            this.mobileTextBox.TabIndex = 44;
+            // 
             // nameTranslitTextBox
             // 
             this.nameTranslitTextBox.Location = new System.Drawing.Point(453, 19);
@@ -270,6 +365,7 @@
             this.nameTextBox.Name = "nameTextBox";
             this.nameTextBox.Size = new System.Drawing.Size(197, 20);
             this.nameTextBox.TabIndex = 22;
+            this.nameTextBox.TextChanged += new System.EventHandler(this.nameTextBox_TextChanged);
             // 
             // adressTextBox
             // 
@@ -302,6 +398,7 @@
             this.surnameTextBox.Name = "surnameTextBox";
             this.surnameTextBox.Size = new System.Drawing.Size(197, 20);
             this.surnameTextBox.TabIndex = 24;
+            this.surnameTextBox.TextChanged += new System.EventHandler(this.surnameTextBox_TextChanged);
             // 
             // surnameLabel
             // 
@@ -390,155 +487,25 @@
             this.tabPage2.Text = "Опции";
             this.tabPage2.UseVisualStyleBackColor = true;
             // 
-            // divCombo
+            // groupBox3
             // 
-            this.divCombo.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.divCombo.Enabled = false;
-            this.divCombo.FormattingEnabled = true;
-            this.divCombo.Items.AddRange(new object[] {
-            "Отдел 1",
-            "Отдел 2",
-            "Отдел 3",
-            "Отдел 4",
-            "Отдел 5",
-            "Отдел 6",
-            "Отдел 7"});
-            this.divCombo.Location = new System.Drawing.Point(125, 73);
-            this.divCombo.Name = "divCombo";
-            this.divCombo.Size = new System.Drawing.Size(123, 21);
-            this.divCombo.Sorted = true;
-            this.divCombo.TabIndex = 38;
+            this.groupBox3.Controls.Add(this.expirationDatePicker);
+            this.groupBox3.Controls.Add(this.unlimitedRadio);
+            this.groupBox3.Controls.Add(this.limitedRadio);
+            this.groupBox3.Location = new System.Drawing.Point(395, 21);
+            this.groupBox3.Name = "groupBox3";
+            this.groupBox3.Size = new System.Drawing.Size(200, 100);
+            this.groupBox3.TabIndex = 8;
+            this.groupBox3.TabStop = false;
+            this.groupBox3.Text = "Срок действия учетной записи";
             // 
-            // roomCombo
+            // expirationDatePicker
             // 
-            this.roomCombo.FormattingEnabled = true;
-            this.roomCombo.Items.AddRange(new object[] {
-            "Департамент 1",
-            "Департамент 2",
-            "Департамент 3",
-            "Департамент 4",
-            "Департамент 5",
-            "Департамент 6",
-            "Департамент 7"});
-            this.roomCombo.Location = new System.Drawing.Point(396, 19);
-            this.roomCombo.Name = "roomCombo";
-            this.roomCombo.Size = new System.Drawing.Size(123, 21);
-            this.roomCombo.Sorted = true;
-            this.roomCombo.TabIndex = 39;
-            // 
-            // internalCombo
-            // 
-            this.internalCombo.FormattingEnabled = true;
-            this.internalCombo.Items.AddRange(new object[] {
-            "Департамент 1",
-            "Департамент 2",
-            "Департамент 3",
-            "Департамент 4",
-            "Департамент 5",
-            "Департамент 6",
-            "Департамент 7"});
-            this.internalCombo.Location = new System.Drawing.Point(396, 46);
-            this.internalCombo.Name = "internalCombo";
-            this.internalCombo.Size = new System.Drawing.Size(123, 21);
-            this.internalCombo.Sorted = true;
-            this.internalCombo.TabIndex = 40;
-            // 
-            // positionTextBox
-            // 
-            this.positionTextBox.Location = new System.Drawing.Point(125, 100);
-            this.positionTextBox.Name = "positionTextBox";
-            this.positionTextBox.Size = new System.Drawing.Size(123, 20);
-            this.positionTextBox.TabIndex = 41;
-            // 
-            // positionLabel
-            // 
-            this.positionLabel.AutoSize = true;
-            this.positionLabel.Location = new System.Drawing.Point(54, 103);
-            this.positionLabel.Name = "positionLabel";
-            this.positionLabel.Size = new System.Drawing.Size(65, 13);
-            this.positionLabel.TabIndex = 42;
-            this.positionLabel.Text = "Должность";
-            // 
-            // divLabel
-            // 
-            this.divLabel.AutoSize = true;
-            this.divLabel.Enabled = false;
-            this.divLabel.Location = new System.Drawing.Point(81, 76);
-            this.divLabel.Name = "divLabel";
-            this.divLabel.Size = new System.Drawing.Size(38, 13);
-            this.divLabel.TabIndex = 43;
-            this.divLabel.Text = "Отдел";
-            // 
-            // internalLabel
-            // 
-            this.internalLabel.AutoSize = true;
-            this.internalLabel.Location = new System.Drawing.Point(289, 49);
-            this.internalLabel.Name = "internalLabel";
-            this.internalLabel.Size = new System.Drawing.Size(101, 13);
-            this.internalLabel.TabIndex = 44;
-            this.internalLabel.Text = "Внутренний номер";
-            // 
-            // cdCheck
-            // 
-            this.cdCheck.AutoSize = true;
-            this.cdCheck.Location = new System.Drawing.Point(26, 21);
-            this.cdCheck.Name = "cdCheck";
-            this.cdCheck.Size = new System.Drawing.Size(118, 17);
-            this.cdCheck.TabIndex = 0;
-            this.cdCheck.Text = "Доступ к CD/DVD";
-            this.cdCheck.UseVisualStyleBackColor = true;
-            // 
-            // usbDiskCheck
-            // 
-            this.usbDiskCheck.AutoSize = true;
-            this.usbDiskCheck.Location = new System.Drawing.Point(26, 44);
-            this.usbDiskCheck.Name = "usbDiskCheck";
-            this.usbDiskCheck.Size = new System.Drawing.Size(138, 17);
-            this.usbDiskCheck.TabIndex = 1;
-            this.usbDiskCheck.Text = "Доступ к USB дискам";
-            this.usbDiskCheck.UseVisualStyleBackColor = true;
-            // 
-            // usbDeviceCheck
-            // 
-            this.usbDeviceCheck.AutoSize = true;
-            this.usbDeviceCheck.Location = new System.Drawing.Point(26, 67);
-            this.usbDeviceCheck.Name = "usbDeviceCheck";
-            this.usbDeviceCheck.Size = new System.Drawing.Size(165, 17);
-            this.usbDeviceCheck.TabIndex = 2;
-            this.usbDeviceCheck.Text = "Доступ к USB устройствам";
-            this.usbDeviceCheck.UseVisualStyleBackColor = true;
-            // 
-            // cloudCheck
-            // 
-            this.cloudCheck.AutoSize = true;
-            this.cloudCheck.Location = new System.Drawing.Point(26, 90);
-            this.cloudCheck.Name = "cloudCheck";
-            this.cloudCheck.Size = new System.Drawing.Size(150, 17);
-            this.cloudCheck.TabIndex = 3;
-            this.cloudCheck.Text = "Личная папка (Диск K:\\)";
-            this.cloudCheck.UseVisualStyleBackColor = true;
-            // 
-            // internetCombo
-            // 
-            this.internetCombo.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.internetCombo.FormattingEnabled = true;
-            this.internetCombo.Items.AddRange(new object[] {
-            "Отсутствует",
-            "Ограниченный",
-            "Полный"});
-            this.internetCombo.Location = new System.Drawing.Point(133, 152);
-            this.internetCombo.Name = "internetCombo";
-            this.internetCombo.Size = new System.Drawing.Size(121, 21);
-            this.internetCombo.TabIndex = 4;
-            // 
-            // internetLabel
-            // 
-            this.internetLabel.AutoSize = true;
-            this.internetLabel.Location = new System.Drawing.Point(23, 155);
-            this.internetLabel.Name = "internetLabel";
-            this.internetLabel.Size = new System.Drawing.Size(104, 13);
-            this.internetLabel.TabIndex = 5;
-            this.internetLabel.Text = "Доступ в Интернет";
+            this.expirationDatePicker.Enabled = false;
+            this.expirationDatePicker.Location = new System.Drawing.Point(6, 65);
+            this.expirationDatePicker.Name = "expirationDatePicker";
+            this.expirationDatePicker.Size = new System.Drawing.Size(137, 20);
+            this.expirationDatePicker.TabIndex = 9;
             // 
             // unlimitedRadio
             // 
@@ -564,33 +531,67 @@
             this.limitedRadio.UseVisualStyleBackColor = true;
             this.limitedRadio.CheckedChanged += new System.EventHandler(this.limitedRadio_CheckedChanged);
             // 
-            // groupBox3
+            // internetLabel
             // 
-            this.groupBox3.Controls.Add(this.expirationDatePicker);
-            this.groupBox3.Controls.Add(this.unlimitedRadio);
-            this.groupBox3.Controls.Add(this.limitedRadio);
-            this.groupBox3.Location = new System.Drawing.Point(395, 21);
-            this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Size = new System.Drawing.Size(200, 100);
-            this.groupBox3.TabIndex = 8;
-            this.groupBox3.TabStop = false;
-            this.groupBox3.Text = "Срок действия учетной записи";
+            this.internetLabel.AutoSize = true;
+            this.internetLabel.Location = new System.Drawing.Point(23, 155);
+            this.internetLabel.Name = "internetLabel";
+            this.internetLabel.Size = new System.Drawing.Size(104, 13);
+            this.internetLabel.TabIndex = 5;
+            this.internetLabel.Text = "Доступ в Интернет";
             // 
-            // expirationDatePicker
+            // internetCombo
             // 
-            this.expirationDatePicker.Enabled = false;
-            this.expirationDatePicker.Location = new System.Drawing.Point(6, 65);
-            this.expirationDatePicker.Name = "expirationDatePicker";
-            this.expirationDatePicker.Size = new System.Drawing.Size(137, 20);
-            this.expirationDatePicker.TabIndex = 9;
+            this.internetCombo.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.internetCombo.FormattingEnabled = true;
+            this.internetCombo.Items.AddRange(new object[] {
+            "Отсутствует",
+            "Ограниченный",
+            "Полный"});
+            this.internetCombo.Location = new System.Drawing.Point(133, 152);
+            this.internetCombo.Name = "internetCombo";
+            this.internetCombo.Size = new System.Drawing.Size(121, 21);
+            this.internetCombo.TabIndex = 4;
             // 
-            // mobileTextBox
+            // cloudCheck
             // 
-            this.mobileTextBox.Location = new System.Drawing.Point(125, 97);
-            this.mobileTextBox.Mask = "+7 (000) 000-0000";
-            this.mobileTextBox.Name = "mobileTextBox";
-            this.mobileTextBox.Size = new System.Drawing.Size(197, 20);
-            this.mobileTextBox.TabIndex = 44;
+            this.cloudCheck.AutoSize = true;
+            this.cloudCheck.Location = new System.Drawing.Point(26, 90);
+            this.cloudCheck.Name = "cloudCheck";
+            this.cloudCheck.Size = new System.Drawing.Size(150, 17);
+            this.cloudCheck.TabIndex = 3;
+            this.cloudCheck.Text = "Личная папка (Диск K:\\)";
+            this.cloudCheck.UseVisualStyleBackColor = true;
+            // 
+            // usbDeviceCheck
+            // 
+            this.usbDeviceCheck.AutoSize = true;
+            this.usbDeviceCheck.Location = new System.Drawing.Point(26, 67);
+            this.usbDeviceCheck.Name = "usbDeviceCheck";
+            this.usbDeviceCheck.Size = new System.Drawing.Size(165, 17);
+            this.usbDeviceCheck.TabIndex = 2;
+            this.usbDeviceCheck.Text = "Доступ к USB устройствам";
+            this.usbDeviceCheck.UseVisualStyleBackColor = true;
+            // 
+            // usbDiskCheck
+            // 
+            this.usbDiskCheck.AutoSize = true;
+            this.usbDiskCheck.Location = new System.Drawing.Point(26, 44);
+            this.usbDiskCheck.Name = "usbDiskCheck";
+            this.usbDiskCheck.Size = new System.Drawing.Size(138, 17);
+            this.usbDiskCheck.TabIndex = 1;
+            this.usbDiskCheck.Text = "Доступ к USB дискам";
+            this.usbDiskCheck.UseVisualStyleBackColor = true;
+            // 
+            // cdCheck
+            // 
+            this.cdCheck.AutoSize = true;
+            this.cdCheck.Location = new System.Drawing.Point(26, 21);
+            this.cdCheck.Name = "cdCheck";
+            this.cdCheck.Size = new System.Drawing.Size(118, 17);
+            this.cdCheck.TabIndex = 0;
+            this.cdCheck.Text = "Доступ к CD/DVD";
+            this.cdCheck.UseVisualStyleBackColor = true;
             // 
             // MainForm
             // 

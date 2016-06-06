@@ -21,8 +21,24 @@ namespace Active_Directory_Management
             cityCombo.SelectedIndex = 0;
         }
 
-        private string makeTranslit(object sender, string input)
+
+        private bool checkChar(string input)
         {
+            foreach(char ch in input)
+                if((ch < 'А' || ch > 'я') && ch != 'ё' && ch != 'Ё')
+                    return false;
+            return true;
+        }
+        private void makeTranslit(TextBox sender, TextBox translit)
+        {
+            string input = sender.Text;
+            if (!checkChar(input))
+            {
+                sender.ForeColor = Color.Red;
+                translit.Text = "";
+                return;
+            }
+            sender.ForeColor = Color.Black;
             Dictionary<char, string> dict = new Dictionary<char, string>();
             dict['Й'] = "Y";
             dict['Ц'] = "C";
@@ -92,18 +108,9 @@ namespace Active_Directory_Management
 
             string result = "";
             foreach (char ch in input)
-            {
-                try
-                {
-                    result += dict[ch];
-                }
-                catch
-                {
-                    return "Неккоректный символ";
-                }
-            }
+                result += dict[ch];
 
-            return result;
+            translit.Text = result;
         }
         private void closeApplication(object sender, EventArgs e)
         {
@@ -111,8 +118,45 @@ namespace Active_Directory_Management
         }
         private void createUser(object sender, EventArgs e)
         {
-            DirectoryEntry newUser = ldapConnection.Children.Add("cn=" + nameTextBox.Text + " " + surnameTextBox.Text, "user");
+
+            // Проверка занятости имени
+            DirectorySearcher searcher = new DirectorySearcher("LDAP://DC=nng,DC=kz");
+            string samAccountName = surnameTranslitTextBox.Text.Substring(0, Math.Min(surnameTranslitTextBox.Text.Length, 4)).ToLower() + nameTranslitTextBox.Text.Substring(0, 1).ToLower();
+            int cnt = 1;
+            searcher.Filter = "samAccountName=" + samAccountName + cnt.ToString();
+            while (searcher.FindOne() != null)
+            {
+                cnt++;
+                searcher.Filter = "samAccountName=" + samAccountName + cnt.ToString();
+            }
+
+            samAccountName += cnt.ToString();
+            // Свободное имя найдено, создание аккаунта
+            DirectoryEntry newUser = ldapConnection.Children.Add("cn=" + surnameTranslitTextBox.Text + " " + nameTranslitTextBox.Text, "user");
+            newUser.Properties["samAccountName"].Value = samAccountName;
+            newUser.Properties["userPrincipalName"].Value = samAccountName + "@nng.kz";
+
+            newUser.Properties["givenName"].Value = nameTextBox.Text;
+            newUser.Properties["sn"].Value = surnameTextBox.Text;
+
+            newUser.Properties["displayName"].Value = surnameTranslitTextBox.Text + " " + nameTranslitTextBox.Text;
+            newUser.Properties["middleName"].Value = middleNameTextBox.Text;
+
+            newUser.Properties["mobile"].Value = mobileTextBox.Text;
+            newUser.Properties["streetAddress"].Value = adressTextBox.Text;
+
+            newUser.Properties["l"].Value = cityCombo.Text;
+            if (cityCombo.SelectedIndex < 4)
+                newUser.Properties["c"].Value = "KZ";
+            else if (cityCombo.SelectedIndex == 4)
+                newUser.Properties["c"].Value = "BY";
+            else
+                newUser.Properties["c"].Value = "RU";
+            newUser.Properties["title"].Value = positionTextBox.Text;
+            newUser.Properties["telephoneNumber"].Value = internalCombo.Text;
+            newUser.Properties["physicalDeliveryOfficeName"].Value = roomCombo.Text;
             newUser.CommitChanges();
+
         }
 
         private void limitedRadio_CheckedChanged(object sender, EventArgs e)
@@ -143,6 +187,16 @@ namespace Active_Directory_Management
             divCombo.Enabled = true;
 
             //otherwise disable
+        }
+
+        private void nameTextBox_TextChanged(object sender, EventArgs e)
+        {
+            makeTranslit(nameTextBox, nameTranslitTextBox);
+        }
+
+        private void surnameTextBox_TextChanged(object sender, EventArgs e)
+        {
+            makeTranslit(surnameTextBox, surnameTranslitTextBox);
         }
     }
 }
