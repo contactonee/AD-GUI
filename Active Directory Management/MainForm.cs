@@ -13,6 +13,8 @@ namespace Active_Directory_Management
     public partial class MainForm : Form
     {
         private DirectoryEntry ldapConnection = new DirectoryEntry("LDAP://OU=TestOU,OU=Users,OU=Aktau,DC=nng,DC=kz");
+        
+
         public MainForm()
         {
             InitializeComponent();
@@ -149,18 +151,16 @@ namespace Active_Directory_Management
             samAccountName += cnt.ToString();
             // Свободное имя найдено, создание аккаунта
             DirectoryEntry newUser = ldapConnection.Children.Add("cn=" + surnameTranslitTextBox.Text + " " + nameTranslitTextBox.Text, "user");
+
+            // Set personal information
             newUser.Properties["samAccountName"].Value = samAccountName;
             newUser.Properties["userPrincipalName"].Value = samAccountName + "@nng.kz";
-
             newUser.Properties["givenName"].Value = nameTextBox.Text;
             newUser.Properties["sn"].Value = surnameTextBox.Text;
-
             newUser.Properties["displayName"].Value = surnameTranslitTextBox.Text + " " + nameTranslitTextBox.Text;
             newUser.Properties["middleName"].Value = middleNameTextBox.Text;
-
             newUser.Properties["mobile"].Value = mobileTextBox.Text;
             newUser.Properties["streetAddress"].Value = adressTextBox.Text;
-
             newUser.Properties["l"].Value = cityCombo.Text;
             if (cityCombo.SelectedIndex < 4)
                 newUser.Properties["c"].Value = "KZ";
@@ -172,17 +172,30 @@ namespace Active_Directory_Management
             newUser.Properties["telephoneNumber"].Value = internalCombo.Text;
             newUser.Properties["physicalDeliveryOfficeName"].Value = roomCombo.Text;
             newUser.Properties["extensionAttribute1"].Value = birthdayDatePicker.Value.ToString("dd.MM.yyyy");
-            newUser.CommitChanges();
+            try
+            {
+                newUser.CommitChanges();
+            }
+            catch
+            {
+                MessageBox.Show("Проверьте правильность введенных данных", "Внимание", MessageBoxButtons.OK);
+                return;
+            }
+            // End set personal information
 
+
+            // Set password
             newUser.Invoke("SetPassword", new object[] { "12345678" });
             newUser.Properties["pwdLastSet"].Value = 0;
-
             newUser.CommitChanges();
+            // End set password
 
+            // Enable user
             newUser.Properties["userAccountControl"].Value = 0x200;
-            
             newUser.CommitChanges();
+            // End enable user
 
+            // Add to groups
             if (cdCheck.Checked)
                 addGroup(newUser, "CN=CD,OU=TestOU,OU=Users,OU=Aktau,DC=nng,DC=kz");
 
@@ -203,6 +216,7 @@ namespace Active_Directory_Management
                 newUser.Properties["accountExpires"].Value = expirationDatePicker.Value.AddDays(1).ToFileTime().ToString();
                 newUser.CommitChanges();
             }
+            // End add to groups
 
             newUser.Close();
         }
@@ -236,20 +250,16 @@ namespace Active_Directory_Management
 
             //otherwise disable
         }
-
         private void nameTextBox_TextChanged(object sender, EventArgs e)
         {
             makeTranslit(nameTextBox, nameTranslitTextBox);
+            
+            
         }
-
         private void surnameTextBox_TextChanged(object sender, EventArgs e)
         {
             makeTranslit(surnameTextBox, surnameTranslitTextBox);
-        }
-
-        private void positionTextBox_TextChanged(object sender, EventArgs e)
-        {
-
+            
         }
     }
 }

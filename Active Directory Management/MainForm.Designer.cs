@@ -190,7 +190,6 @@
             this.positionTextBox.Name = "positionTextBox";
             this.positionTextBox.Size = new System.Drawing.Size(123, 20);
             this.positionTextBox.TabIndex = 41;
-            this.positionTextBox.TextChanged += new System.EventHandler(this.positionTextBox_TextChanged);
             // 
             // internalCombo
             // 
