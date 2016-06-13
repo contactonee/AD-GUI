@@ -25,6 +25,9 @@ namespace Active_Directory_Management
             unlimitedRadio.Select();
             cityCombo.SelectedIndex = 0;
             internetCombo.SelectedIndex = 0;
+            expirationDatePicker.Value = DateTime.Today.AddMonths(1);
+            birthdayDatePicker.Value = DateTime.Today.AddYears(-70);
+            
         }
 
         private bool checkChar(string input)
@@ -121,6 +124,14 @@ namespace Active_Directory_Management
         {
             Application.Exit();
         }
+        private void addGroup(DirectoryEntry user, string groupDN)
+        {
+            DirectoryEntry group = new DirectoryEntry("LDAP://" + groupDN);
+            group.Properties["member"].Add((string)user.Properties["distinguishedName"].Value);
+            group.CommitChanges();
+            group.Close();
+            user.Close();
+        }
         private void createUser(object sender, EventArgs e)
         {
 
@@ -160,6 +171,7 @@ namespace Active_Directory_Management
             newUser.Properties["title"].Value = positionTextBox.Text;
             newUser.Properties["telephoneNumber"].Value = internalCombo.Text;
             newUser.Properties["physicalDeliveryOfficeName"].Value = roomCombo.Text;
+            newUser.Properties["extensionAttribute1"].Value = birthdayDatePicker.Value.ToString("dd.MM.yyyy");
             newUser.CommitChanges();
 
             newUser.Invoke("SetPassword", new object[] { "12345678" });
@@ -167,46 +179,31 @@ namespace Active_Directory_Management
 
             newUser.CommitChanges();
 
-            newUser.Properties["userAccountControl"].Value = 0x10200;
+            newUser.Properties["userAccountControl"].Value = 0x200;
             
             newUser.CommitChanges();
 
             if (cdCheck.Checked)
-            {
-                DirectoryEntry group = new DirectoryEntry("LDAP://CN=CD,OU=TestOU,OU=Users,OU=Aktau,DC=nng,DC=kz");
-                group.Properties["member"].Add(newUser.Properties["distinguishedName"].Value.ToString());
-                group.CommitChanges();
-                group.Close();
-            }
+                addGroup(newUser, "CN=CD,OU=TestOU,OU=Users,OU=Aktau,DC=nng,DC=kz");
+
             if (usbDiskCheck.Checked)
-            {
-                DirectoryEntry group = new DirectoryEntry("LDAP://CN=USB Disk,OU=TestOU,OU=Users,OU=Aktau,DC=nng,DC=kz");
-                group.Properties["member"].Add(newUser.Properties["distinguishedName"].Value.ToString());
-                group.CommitChanges();
-                group.Close();
-            }
+                addGroup(newUser, "CN=USB Disk,OU=TestOU,OU=Users,OU=Aktau,DC=nng,DC=kz");
+
             if (usbDeviceCheck.Checked)
-            {
-                DirectoryEntry group = new DirectoryEntry("LDAP://CN=USB Device,OU=TestOU,OU=Users,OU=Aktau,DC=nng,DC=kz");
-                group.Properties["member"].Add(newUser.Properties["distinguishedName"].Value.ToString());
-                group.CommitChanges();
-                group.Close();
-            }
+                addGroup(newUser, "CN=USB Device,OU=TestOU,OU=Users,OU=Aktau,DC=nng,DC=kz");
+
             if (internetCombo.SelectedIndex == 1)
-            {
-                DirectoryEntry group = new DirectoryEntry("LDAP://CN=Limited Access,OU=TestOU,OU=Users,OU=Aktau,DC=nng,DC=kz");
-                group.Properties["member"].Add(newUser.Properties["distinguishedName"].Value.ToString());
-                group.CommitChanges();
-                group.Close();
-            }
+                addGroup(newUser, "CN=Limited Access,OU=TestOU,OU=Users,OU=Aktau,DC=nng,DC=kz");
+
             if (internetCombo.SelectedIndex == 2)
+                addGroup(newUser, "CN=Full Access,OU=TestOU,OU=Users,OU=Aktau,DC=nng,DC=kz");
+
+            if (limitedRadio.Checked)
             {
-                DirectoryEntry group = new DirectoryEntry("LDAP://CN=Full Access,OU=TestOU,OU=Users,OU=Aktau,DC=nng,DC=kz");
-                group.Properties["member"].Add(newUser.Properties["distinguishedName"].Value.ToString());
-                
-                group.CommitChanges();
-                group.Close();
+                newUser.Properties["accountExpires"].Value = expirationDatePicker.Value.AddDays(1).ToFileTime().ToString();
+                newUser.CommitChanges();
             }
+
             newUser.Close();
         }
 
