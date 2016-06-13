@@ -16,11 +16,16 @@ namespace Active_Directory_Management
         public MainForm()
         {
             InitializeComponent();
+            
+        }
+
+        private void onLoad(object sender, EventArgs e)
+        {
             ldapConnection.AuthenticationType = AuthenticationTypes.Secure;
             unlimitedRadio.Select();
             cityCombo.SelectedIndex = 0;
+            internetCombo.SelectedIndex = 0;
         }
-
 
         private bool checkChar(string input)
         {
@@ -157,6 +162,52 @@ namespace Active_Directory_Management
             newUser.Properties["physicalDeliveryOfficeName"].Value = roomCombo.Text;
             newUser.CommitChanges();
 
+            newUser.Invoke("SetPassword", new object[] { "12345678" });
+            newUser.Properties["pwdLastSet"].Value = 0;
+
+            newUser.CommitChanges();
+
+            newUser.Properties["userAccountControl"].Value = 0x10200;
+            
+            newUser.CommitChanges();
+
+            if (cdCheck.Checked)
+            {
+                DirectoryEntry group = new DirectoryEntry("LDAP://CN=CD,OU=TestOU,OU=Users,OU=Aktau,DC=nng,DC=kz");
+                group.Properties["member"].Add(newUser.Properties["distinguishedName"].Value.ToString());
+                group.CommitChanges();
+                group.Close();
+            }
+            if (usbDiskCheck.Checked)
+            {
+                DirectoryEntry group = new DirectoryEntry("LDAP://CN=USB Disk,OU=TestOU,OU=Users,OU=Aktau,DC=nng,DC=kz");
+                group.Properties["member"].Add(newUser.Properties["distinguishedName"].Value.ToString());
+                group.CommitChanges();
+                group.Close();
+            }
+            if (usbDeviceCheck.Checked)
+            {
+                DirectoryEntry group = new DirectoryEntry("LDAP://CN=USB Device,OU=TestOU,OU=Users,OU=Aktau,DC=nng,DC=kz");
+                group.Properties["member"].Add(newUser.Properties["distinguishedName"].Value.ToString());
+                group.CommitChanges();
+                group.Close();
+            }
+            if (internetCombo.SelectedIndex == 1)
+            {
+                DirectoryEntry group = new DirectoryEntry("LDAP://CN=Limited Access,OU=TestOU,OU=Users,OU=Aktau,DC=nng,DC=kz");
+                group.Properties["member"].Add(newUser.Properties["distinguishedName"].Value.ToString());
+                group.CommitChanges();
+                group.Close();
+            }
+            if (internetCombo.SelectedIndex == 2)
+            {
+                DirectoryEntry group = new DirectoryEntry("LDAP://CN=Full Access,OU=TestOU,OU=Users,OU=Aktau,DC=nng,DC=kz");
+                group.Properties["member"].Add(newUser.Properties["distinguishedName"].Value.ToString());
+                
+                group.CommitChanges();
+                group.Close();
+            }
+            newUser.Close();
         }
 
         private void limitedRadio_CheckedChanged(object sender, EventArgs e)
@@ -197,6 +248,11 @@ namespace Active_Directory_Management
         private void surnameTextBox_TextChanged(object sender, EventArgs e)
         {
             makeTranslit(surnameTextBox, surnameTranslitTextBox);
+        }
+
+        private void positionTextBox_TextChanged(object sender, EventArgs e)
+        {
+
         }
     }
 }
