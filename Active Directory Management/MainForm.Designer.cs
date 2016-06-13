@@ -604,6 +604,7 @@
             this.Controls.Add(this.button1);
             this.Name = "MainForm";
             this.Text = "Form1";
+            this.Load += new System.EventHandler(this.onLoad);
             this.tabControl1.ResumeLayout(false);
             this.tabPage1.ResumeLayout(false);
             this.groupBox2.ResumeLayout(false);

@@ -13,14 +13,24 @@ namespace Active_Directory_Management
     public partial class MainForm : Form
     {
         private DirectoryEntry ldapConnection = new DirectoryEntry("LDAP://OU=TestOU,OU=Users,OU=Aktau,DC=nng,DC=kz");
+        
+
         public MainForm()
         {
             InitializeComponent();
+            
+        }
+
+        private void onLoad(object sender, EventArgs e)
+        {
             ldapConnection.AuthenticationType = AuthenticationTypes.Secure;
             unlimitedRadio.Select();
             cityCombo.SelectedIndex = 0;
+            internetCombo.SelectedIndex = 0;
+            expirationDatePicker.Value = DateTime.Today.AddMonths(1);
+            birthdayDatePicker.Value = DateTime.Today.AddYears(-70);
+            
         }
-
 
         private bool checkChar(string input)
         {
@@ -116,6 +126,14 @@ namespace Active_Directory_Management
         {
             Application.Exit();
         }
+        private void addGroup(DirectoryEntry user, string groupDN)
+        {
+            DirectoryEntry group = new DirectoryEntry("LDAP://" + groupDN);
+            group.Properties["member"].Add((string)user.Properties["distinguishedName"].Value);
+            group.CommitChanges();
+            group.Close();
+            user.Close();
+        }
         private void createUser(object sender, EventArgs e)
         {
 
@@ -133,18 +151,16 @@ namespace Active_Directory_Management
             samAccountName += cnt.ToString();
             // Свободное имя найдено, создание аккаунта
             DirectoryEntry newUser = ldapConnection.Children.Add("cn=" + surnameTranslitTextBox.Text + " " + nameTranslitTextBox.Text, "user");
+
+            // Set personal information
             newUser.Properties["samAccountName"].Value = samAccountName;
             newUser.Properties["userPrincipalName"].Value = samAccountName + "@nng.kz";
-
             newUser.Properties["givenName"].Value = nameTextBox.Text;
             newUser.Properties["sn"].Value = surnameTextBox.Text;
-
             newUser.Properties["displayName"].Value = surnameTranslitTextBox.Text + " " + nameTranslitTextBox.Text;
             newUser.Properties["middleName"].Value = middleNameTextBox.Text;
-
             newUser.Properties["mobile"].Value = mobileTextBox.Text;
             newUser.Properties["streetAddress"].Value = adressTextBox.Text;
-
             newUser.Properties["l"].Value = cityCombo.Text;
             if (cityCombo.SelectedIndex < 4)
                 newUser.Properties["c"].Value = "KZ";
@@ -155,8 +171,54 @@ namespace Active_Directory_Management
             newUser.Properties["title"].Value = positionTextBox.Text;
             newUser.Properties["telephoneNumber"].Value = internalCombo.Text;
             newUser.Properties["physicalDeliveryOfficeName"].Value = roomCombo.Text;
-            newUser.CommitChanges();
+            newUser.Properties["extensionAttribute1"].Value = birthdayDatePicker.Value.ToString("dd.MM.yyyy");
+            try
+            {
+                newUser.CommitChanges();
+            }
+            catch
+            {
+                MessageBox.Show("Проверьте правильность введенных данных", "Внимание", MessageBoxButtons.OK);
+                return;
+            }
+            // End set personal information
 
+
+            // Set password
+            newUser.Invoke("SetPassword", new object[] { "12345678" });
+            newUser.Properties["pwdLastSet"].Value = 0;
+            newUser.CommitChanges();
+            // End set password
+
+            // Enable user
+            newUser.Properties["userAccountControl"].Value = 0x200;
+            newUser.CommitChanges();
+            // End enable user
+
+            // Add to groups
+            if (cdCheck.Checked)
+                addGroup(newUser, "CN=CD,OU=TestOU,OU=Users,OU=Aktau,DC=nng,DC=kz");
+
+            if (usbDiskCheck.Checked)
+                addGroup(newUser, "CN=USB Disk,OU=TestOU,OU=Users,OU=Aktau,DC=nng,DC=kz");
+
+            if (usbDeviceCheck.Checked)
+                addGroup(newUser, "CN=USB Device,OU=TestOU,OU=Users,OU=Aktau,DC=nng,DC=kz");
+
+            if (internetCombo.SelectedIndex == 1)
+                addGroup(newUser, "CN=Limited Access,OU=TestOU,OU=Users,OU=Aktau,DC=nng,DC=kz");
+
+            if (internetCombo.SelectedIndex == 2)
+                addGroup(newUser, "CN=Full Access,OU=TestOU,OU=Users,OU=Aktau,DC=nng,DC=kz");
+
+            if (limitedRadio.Checked)
+            {
+                newUser.Properties["accountExpires"].Value = expirationDatePicker.Value.AddDays(1).ToFileTime().ToString();
+                newUser.CommitChanges();
+            }
+            // End add to groups
+
+            newUser.Close();
         }
 
         private void limitedRadio_CheckedChanged(object sender, EventArgs e)
@@ -188,15 +250,16 @@ namespace Active_Directory_Management
 
             //otherwise disable
         }
-
         private void nameTextBox_TextChanged(object sender, EventArgs e)
         {
             makeTranslit(nameTextBox, nameTranslitTextBox);
+            
+            
         }
-
         private void surnameTextBox_TextChanged(object sender, EventArgs e)
         {
             makeTranslit(surnameTextBox, surnameTranslitTextBox);
+            
         }
     }
 }
