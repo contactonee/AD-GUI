@@ -6,6 +6,8 @@ using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
 using System.DirectoryServices;
+using System.Xml;
+using System.Xml.Linq;
 
 namespace Active_Directory_Management
 {
@@ -13,7 +15,7 @@ namespace Active_Directory_Management
     public partial class MainForm : Form
     {
         private DirectoryEntry ldapConnection = new DirectoryEntry("LDAP://OU=TestOU,OU=Users,OU=Aktau,DC=nng,DC=kz");
-        
+        private XDocument xDoc = XDocument.Load(@"C:\Users\bazhr1\Desktop\Active Directory Management\Active Directory Management\roomsSchema.xml");
 
         public MainForm()
         {
@@ -24,12 +26,18 @@ namespace Active_Directory_Management
         private void onLoad(object sender, EventArgs e)
         {
             ldapConnection.AuthenticationType = AuthenticationTypes.Secure;
+
+            
+
+
             unlimitedRadio.Select();
             cityCombo.SelectedIndex = 0;
             internetCombo.SelectedIndex = 0;
             expirationDatePicker.Value = DateTime.Today.AddMonths(1);
             birthdayDatePicker.Value = DateTime.Today.AddYears(-70);
-            
+
+
+
         }
 
         private bool checkChar(string input)
@@ -134,7 +142,11 @@ namespace Active_Directory_Management
             group.Close();
             user.Close();
         }
-        private void createUser(object sender, EventArgs e)
+        private void createButton(object sender, EventArgs e)
+        {
+            createUser();
+        }
+        private void createUser()
         {
 
             // Проверка занятости имени
@@ -249,6 +261,8 @@ namespace Active_Directory_Management
             divCombo.Enabled = true;
 
             //otherwise disable
+
+            
         }
         private void nameTextBox_TextChanged(object sender, EventArgs e)
         {

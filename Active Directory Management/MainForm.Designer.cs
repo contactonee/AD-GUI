@@ -102,7 +102,7 @@
             this.create.TabIndex = 18;
             this.create.Text = "СОЗДАТЬ!";
             this.create.UseVisualStyleBackColor = true;
-            this.create.Click += new System.EventHandler(this.createUser);
+            this.create.Click += new System.EventHandler(this.createButton);
             // 
             // settingsButton
             // 
@@ -285,14 +285,6 @@
             this.departmentCombo.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.departmentCombo.Enabled = false;
             this.departmentCombo.FormattingEnabled = true;
-            this.departmentCombo.Items.AddRange(new object[] {
-            "Департамент 1",
-            "Департамент 2",
-            "Департамент 3",
-            "Департамент 4",
-            "Департамент 5",
-            "Департамент 6",
-            "Департамент 7"});
             this.departmentCombo.Location = new System.Drawing.Point(125, 46);
             this.departmentCombo.Name = "departmentCombo";
             this.departmentCombo.Size = new System.Drawing.Size(123, 21);

@@ -1,0 +1,121 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<company>
+  <name>NIPIneftegas</name>
+  
+  <departmentsList>
+    <department>
+      <name>ДКТ</name>
+      <roomsList>
+        <room>
+          <no>125</no>
+          <telephonesList>
+            <telephone>300</telephone>
+            <telephone>301</telephone>
+            <telephone>302</telephone>
+            <telephone>303</telephone>
+            <telephone>304</telephone>
+          </telephonesList>
+        </room>
+      </roomsList>
+    </department>
+
+    <department>
+      <name>Бухгалтерия</name>
+      <roomsList>
+        <room>
+          <no>202</no>
+          <telephonesList>
+            <telephone>103</telephone>
+          </telephonesList>
+        </room>
+        <room>
+          <no>206</no>
+          <telephonesList>
+            <telephone>129</telephone>
+            <telephone>182</telephone>
+            <telephone>183</telephone>
+            <telephone>184</telephone>
+            <telephone>185</telephone>
+          </telephonesList>
+        </room>
+      </roomsList>
+    </department>
+
+    <departmemt>
+      <name>Департамент проектирования по казахстанским проектам</name>
+      <divisionsList>
+        <division>
+          <name>Административное руководство</name>
+          <roomsList>
+            <room>
+              <no>107</no>
+              <telephonesList>
+                <telephone>215</telephone>
+                <telephone>231</telephone>
+              </telephonesList>
+            </room>
+
+            <room>
+              <no>109</no>
+              <telephonesList>
+                <telephone>232</telephone>
+              </telephonesList>
+            </room>
+          </roomsList>
+        </division>
+
+        <division>
+          <name>Отдел специалистов-строителей</name>
+          <roomsList>
+            <room>
+              <no>122-1</no>
+              <telephonesList>
+                <telephone>227</telephone>
+                <telephone>297</telephone>
+                <telephone>210</telephone>
+                <telephone>313</telephone>
+                <telephone>278</telephone>
+                <telephone>312</telephone>
+                <telephone>234</telephone>
+              </telephonesList>
+            </room>
+            <room>
+              <no>122-2</no>
+              <telephonesList>
+                <telephone>208</telephone>
+                <telephone>228</telephone>
+              </telephonesList>
+            </room>
+          </roomsList>
+        </division>
+
+        <division>
+          <name>Отдел специалистов по электро-оборудованию и электро-снабжению</name>
+          <roomsList>
+            <room>
+              <no>113</no>
+              <telephonesList>
+                <telephone>217</telephone>
+                <telephone>293</telephone>
+              </telephonesList>
+            </room>
+          </roomsList>
+        </division>
+        <!--
+        <division>
+          <name></name>
+          <roomsList>
+            <room>
+              <no></no>
+              <telephonesList>
+                <telephone></telephone>
+              </telephonesList>
+            </room>
+          </roomsList>
+        </division>
+        -->
+        
+      </divisionsList>
+    </departmemt>
+  </departmentsList>
+</company>
