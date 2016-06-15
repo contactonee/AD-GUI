@@ -8,14 +8,15 @@ using System.Windows.Forms;
 using System.DirectoryServices;
 using System.Xml;
 using System.Xml.Linq;
+using System.Linq;
 
 namespace Active_Directory_Management
 {
-    
     public partial class MainForm : Form
     {
         private DirectoryEntry ldapConnection = new DirectoryEntry("LDAP://OU=TestOU,OU=Users,OU=Aktau,DC=nng,DC=kz");
-        private XDocument xDoc = XDocument.Load(@"C:\Users\bazhr1\Desktop\Active Directory Management\Active Directory Management\roomsSchema.xml");
+        
+
 
         public MainForm()
         {
@@ -27,8 +28,12 @@ namespace Active_Directory_Management
         {
             ldapConnection.AuthenticationType = AuthenticationTypes.Secure;
 
-            
 
+            XDocument xDoc = XDocument.Load("roomsSchema.xml");
+            foreach (XElement elem in xDoc.Root.Elements())
+            {
+                departmentCombo.Items.Add(elem.Attribute("name").Value);
+            }
 
             unlimitedRadio.Select();
             cityCombo.SelectedIndex = 0;
@@ -253,15 +258,62 @@ namespace Active_Directory_Management
             // otherwise disable
         }
 
+        private XElement selectedDepartment;
+
         private void departmentCombo_SelectedIndexChanged(object sender, EventArgs e)
         {
-            // divCombo List Update
-            // if divisions exist, enable divLabel and divCombo
+            
+            
+            
             divLabel.Enabled = true;
             divCombo.Enabled = true;
+            divCombo.Items.Clear();
 
-            //otherwise disable
+            
 
+            XElement root = XDocument.Load(@"roomsSchema.xml").Root;
+
+            foreach (XElement dep in root.Elements())
+            {
+                if(dep.Attribute("name").Value == departmentCombo.Text)
+                {
+                    selectedDepartment = new XElement(dep);
+                    break;
+                }
+            }
+
+            if(selectedDepartment.Elements("div") != null && selectedDepartment.Elements("div").Any())
+            {
+                divLabel.Enabled = true;
+                divCombo.Enabled = true;
+                divCombo.Items.Clear();
+
+                roomLabel.Enabled = false;
+                roomCombo.Enabled = false;
+                roomCombo.Items.Clear();
+
+                foreach (XElement div in selectedDepartment.Elements("div"))
+                {
+
+                    divCombo.Items.Add(div.Attribute("name").Value);
+                }
+
+            }
+            else
+            {
+                divCombo.Items.Clear();
+                divLabel.Enabled = false;
+                divCombo.Enabled = false;
+
+                roomLabel.Enabled = true;
+                roomCombo.Enabled = true;
+                roomCombo.Items.Clear();
+
+                foreach(XElement room in selectedDepartment.Elements("room"))
+                {
+                    roomCombo.Items.Add(room.Attribute("no").Value);
+                }
+            }
             
         }
         private void nameTextBox_TextChanged(object sender, EventArgs e)
@@ -274,6 +326,16 @@ namespace Active_Directory_Management
         {
             makeTranslit(surnameTextBox, surnameTranslitTextBox);
             
+        }
+
+        private void divCombo_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            XElement selectedDiv;
+
+            foreach (XElement div in selectedDepartment.Elements())
+            {
+
+            }
         }
     }
 }
