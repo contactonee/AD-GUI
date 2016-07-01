@@ -159,7 +159,7 @@
             // internalLabel
             // 
             this.internalLabel.AutoSize = true;
-            this.internalLabel.Location = new System.Drawing.Point(289, 49);
+            this.internalLabel.Location = new System.Drawing.Point(420, 49);
             this.internalLabel.Name = "internalLabel";
             this.internalLabel.Size = new System.Drawing.Size(101, 13);
             this.internalLabel.TabIndex = 44;
@@ -188,7 +188,7 @@
             // 
             this.positionTextBox.Location = new System.Drawing.Point(125, 100);
             this.positionTextBox.Name = "positionTextBox";
-            this.positionTextBox.Size = new System.Drawing.Size(123, 20);
+            this.positionTextBox.Size = new System.Drawing.Size(289, 20);
             this.positionTextBox.TabIndex = 41;
             // 
             // internalCombo
@@ -202,7 +202,7 @@
             "Департамент 5",
             "Департамент 6",
             "Департамент 7"});
-            this.internalCombo.Location = new System.Drawing.Point(396, 46);
+            this.internalCombo.Location = new System.Drawing.Point(527, 46);
             this.internalCombo.Name = "internalCombo";
             this.internalCombo.Size = new System.Drawing.Size(123, 21);
             this.internalCombo.Sorted = true;
@@ -219,7 +219,7 @@
             "Департамент 5",
             "Департамент 6",
             "Департамент 7"});
-            this.roomCombo.Location = new System.Drawing.Point(396, 19);
+            this.roomCombo.Location = new System.Drawing.Point(527, 19);
             this.roomCombo.Name = "roomCombo";
             this.roomCombo.Size = new System.Drawing.Size(123, 21);
             this.roomCombo.Sorted = true;
@@ -240,14 +240,15 @@
             "Отдел 7"});
             this.divCombo.Location = new System.Drawing.Point(125, 73);
             this.divCombo.Name = "divCombo";
-            this.divCombo.Size = new System.Drawing.Size(123, 21);
+            this.divCombo.Size = new System.Drawing.Size(289, 21);
             this.divCombo.Sorted = true;
             this.divCombo.TabIndex = 38;
+            this.divCombo.SelectedIndexChanged += new System.EventHandler(this.divCombo_SelectedIndexChanged);
             // 
             // roomLabel
             // 
             this.roomLabel.AutoSize = true;
-            this.roomLabel.Location = new System.Drawing.Point(341, 22);
+            this.roomLabel.Location = new System.Drawing.Point(472, 22);
             this.roomLabel.Name = "roomLabel";
             this.roomLabel.Size = new System.Drawing.Size(49, 13);
             this.roomLabel.TabIndex = 37;
@@ -276,7 +277,7 @@
             "Москва"});
             this.cityCombo.Location = new System.Drawing.Point(125, 19);
             this.cityCombo.Name = "cityCombo";
-            this.cityCombo.Size = new System.Drawing.Size(123, 21);
+            this.cityCombo.Size = new System.Drawing.Size(289, 21);
             this.cityCombo.TabIndex = 33;
             this.cityCombo.SelectedIndexChanged += new System.EventHandler(this.cityCombo_SelectedIndexChanged);
             // 
@@ -287,7 +288,7 @@
             this.departmentCombo.FormattingEnabled = true;
             this.departmentCombo.Location = new System.Drawing.Point(125, 46);
             this.departmentCombo.Name = "departmentCombo";
-            this.departmentCombo.Size = new System.Drawing.Size(123, 21);
+            this.departmentCombo.Size = new System.Drawing.Size(289, 21);
             this.departmentCombo.Sorted = true;
             this.departmentCombo.TabIndex = 35;
             this.departmentCombo.SelectedIndexChanged += new System.EventHandler(this.departmentCombo_SelectedIndexChanged);
