@@ -1,6 +1,6 @@
 ﻿namespace Active_Directory_Management
 {
-    partial class MainForm
+    partial class DetailView
     {
         /// <summary>
         /// Обязательная переменная конструктора.
@@ -28,9 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.button1 = new System.Windows.Forms.Button();
             this.create = new System.Windows.Forms.Button();
-            this.settingsButton = new System.Windows.Forms.Button();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
@@ -82,36 +80,17 @@
             this.groupBox3.SuspendLayout();
             this.SuspendLayout();
             // 
-            // button1
-            // 
-            this.button1.Location = new System.Drawing.Point(697, 410);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(75, 23);
-            this.button1.TabIndex = 17;
-            this.button1.Text = "Выход";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.closeApplication);
-            // 
             // create
             // 
             this.create.Anchor = System.Windows.Forms.AnchorStyles.Top;
-            this.create.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.create.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.create.Location = new System.Drawing.Point(327, 391);
             this.create.Name = "create";
             this.create.Size = new System.Drawing.Size(131, 42);
             this.create.TabIndex = 18;
-            this.create.Text = "СОЗДАТЬ!";
+            this.create.Text = "Создать пользователя";
             this.create.UseVisualStyleBackColor = true;
             this.create.Click += new System.EventHandler(this.createButton);
-            // 
-            // settingsButton
-            // 
-            this.settingsButton.Location = new System.Drawing.Point(12, 410);
-            this.settingsButton.Name = "settingsButton";
-            this.settingsButton.Size = new System.Drawing.Size(75, 23);
-            this.settingsButton.TabIndex = 21;
-            this.settingsButton.Text = "Настройки";
-            this.settingsButton.UseVisualStyleBackColor = true;
             // 
             // tabControl1
             // 
@@ -586,18 +565,15 @@
             this.cdCheck.Text = "Доступ к CD/DVD";
             this.cdCheck.UseVisualStyleBackColor = true;
             // 
-            // MainForm
+            // DetailView
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(784, 445);
             this.Controls.Add(this.tabControl1);
-            this.Controls.Add(this.settingsButton);
             this.Controls.Add(this.create);
-            this.Controls.Add(this.button1);
-            this.Name = "MainForm";
-            this.Text = "Form1";
-            this.Load += new System.EventHandler(this.onLoad);
+            this.Name = "DetailView";
+            this.Text = "Детали учетной записи";
             this.tabControl1.ResumeLayout(false);
             this.tabPage1.ResumeLayout(false);
             this.groupBox2.ResumeLayout(false);
@@ -613,9 +589,7 @@
         }
 
         #endregion
-        private System.Windows.Forms.Button button1;
         private System.Windows.Forms.Button create;
-        private System.Windows.Forms.Button settingsButton;
         private System.Windows.Forms.TabControl tabControl1;
         private System.Windows.Forms.TabPage tabPage1;
         private System.Windows.Forms.Label roomLabel;

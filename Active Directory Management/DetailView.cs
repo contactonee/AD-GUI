@@ -12,19 +12,25 @@ using System.Linq;
 
 namespace Active_Directory_Management
 {
-    public partial class MainForm : Form
+    public partial class DetailView : Form
     {
         private DirectoryEntry ldapConnection = new DirectoryEntry("LDAP://OU=TestOU,OU=Users,OU=Aktau,DC=nng,DC=kz");
         
 
 
-        public MainForm()
+        public DetailView()
         {
             InitializeComponent();
+            onLoad();
             
         }
+        public DetailView(DirectoryEntry user)
+        {
+            InitializeComponent();
+            onLoad();
+        }
 
-        private void onLoad(object sender, EventArgs e)
+        private void onLoad()
         {
             ldapConnection.AuthenticationType = AuthenticationTypes.Secure;
 
