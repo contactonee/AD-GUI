@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.DirectoryServices;
 using System.Drawing;
 using System.Linq;
 using System.Text;
@@ -20,11 +21,18 @@ namespace Active_Directory_Management
                 treeBoxCache.Nodes.Add((TreeNode)node.Clone());
             }
         }
+
+         
        
 
         private void SearchBox_TextChanged(object sender, EventArgs e)
         {
-            
+            if (searchBox.Text == string.Empty)
+            {
+                searchBoxPlaceholder.Visible = true;
+            }
+            else
+                searchBoxPlaceholder.Visible = false;
 
             treeBox.BeginUpdate();
             treeBox.Nodes.Clear();
@@ -78,6 +86,12 @@ namespace Active_Directory_Management
                 detailBtn.Enabled = true;
                 saveBtn.Enabled = true;
             }
+        }
+
+        private void DetailBtn_Click(object sender, EventArgs e)
+        {
+            Form detailView = new DetailView(new DirectoryEntry());
+            detailView.ShowDialog();
         }
     }
 }

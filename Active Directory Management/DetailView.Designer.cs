@@ -35,7 +35,6 @@
             this.internalLabel = new System.Windows.Forms.Label();
             this.divLabel = new System.Windows.Forms.Label();
             this.positionLabel = new System.Windows.Forms.Label();
-            this.positionTextBox = new System.Windows.Forms.TextBox();
             this.internalCombo = new System.Windows.Forms.ComboBox();
             this.roomCombo = new System.Windows.Forms.ComboBox();
             this.divCombo = new System.Windows.Forms.ComboBox();
@@ -72,6 +71,7 @@
             this.usbDeviceCheck = new System.Windows.Forms.CheckBox();
             this.usbDiskCheck = new System.Windows.Forms.CheckBox();
             this.cdCheck = new System.Windows.Forms.CheckBox();
+            this.posCombo = new System.Windows.Forms.ComboBox();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.groupBox2.SuspendLayout();
@@ -90,7 +90,7 @@
             this.create.TabIndex = 18;
             this.create.Text = "Создать пользователя";
             this.create.UseVisualStyleBackColor = true;
-            this.create.Click += new System.EventHandler(this.createButton);
+            this.create.Click += new System.EventHandler(this.CreateButton);
             // 
             // tabControl1
             // 
@@ -116,10 +116,10 @@
             // 
             // groupBox2
             // 
+            this.groupBox2.Controls.Add(this.posCombo);
             this.groupBox2.Controls.Add(this.internalLabel);
             this.groupBox2.Controls.Add(this.divLabel);
             this.groupBox2.Controls.Add(this.positionLabel);
-            this.groupBox2.Controls.Add(this.positionTextBox);
             this.groupBox2.Controls.Add(this.internalCombo);
             this.groupBox2.Controls.Add(this.roomCombo);
             this.groupBox2.Controls.Add(this.divCombo);
@@ -163,13 +163,6 @@
             this.positionLabel.TabIndex = 42;
             this.positionLabel.Text = "Должность";
             // 
-            // positionTextBox
-            // 
-            this.positionTextBox.Location = new System.Drawing.Point(125, 100);
-            this.positionTextBox.Name = "positionTextBox";
-            this.positionTextBox.Size = new System.Drawing.Size(289, 20);
-            this.positionTextBox.TabIndex = 41;
-            // 
             // internalCombo
             // 
             this.internalCombo.FormattingEnabled = true;
@@ -206,7 +199,6 @@
             // 
             // divCombo
             // 
-            this.divCombo.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.divCombo.Enabled = false;
             this.divCombo.FormattingEnabled = true;
             this.divCombo.Items.AddRange(new object[] {
@@ -247,13 +239,6 @@
             // 
             this.cityCombo.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cityCombo.FormattingEnabled = true;
-            this.cityCombo.Items.AddRange(new object[] {
-            "Актау",
-            "Алматы",
-            "Астана",
-            "Уральск",
-            "Минск",
-            "Москва"});
             this.cityCombo.Location = new System.Drawing.Point(125, 19);
             this.cityCombo.Name = "cityCombo";
             this.cityCombo.Size = new System.Drawing.Size(289, 21);
@@ -565,6 +550,23 @@
             this.cdCheck.Text = "Доступ к CD/DVD";
             this.cdCheck.UseVisualStyleBackColor = true;
             // 
+            // posCombo
+            // 
+            this.posCombo.FormattingEnabled = true;
+            this.posCombo.Items.AddRange(new object[] {
+            "Отдел 1",
+            "Отдел 2",
+            "Отдел 3",
+            "Отдел 4",
+            "Отдел 5",
+            "Отдел 6",
+            "Отдел 7"});
+            this.posCombo.Location = new System.Drawing.Point(125, 100);
+            this.posCombo.Name = "posCombo";
+            this.posCombo.Size = new System.Drawing.Size(289, 21);
+            this.posCombo.Sorted = true;
+            this.posCombo.TabIndex = 45;
+            // 
             // DetailView
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -617,7 +619,6 @@
         private System.Windows.Forms.GroupBox groupBox2;
         private System.Windows.Forms.Label divLabel;
         private System.Windows.Forms.Label positionLabel;
-        private System.Windows.Forms.TextBox positionTextBox;
         private System.Windows.Forms.ComboBox internalCombo;
         private System.Windows.Forms.ComboBox roomCombo;
         private System.Windows.Forms.ComboBox divCombo;
@@ -633,6 +634,7 @@
         private System.Windows.Forms.GroupBox groupBox3;
         private System.Windows.Forms.DateTimePicker expirationDatePicker;
         private System.Windows.Forms.MaskedTextBox mobileTextBox;
+        private System.Windows.Forms.ComboBox posCombo;
     }
 }
 
