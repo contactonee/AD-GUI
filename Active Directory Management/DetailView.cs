@@ -15,7 +15,7 @@ namespace Active_Directory_Management
 {
     public partial class DetailView : Form
     {
-        private DirectoryEntry ldapConnection = new DirectoryEntry("LDAP://OU=Users,OU=Uralsk,DC=ura,DC=nng,DC=kz");
+        private DirectoryEntry ldapConnection = new DirectoryEntry("LDAP://OU=Users,OU=Aktau,DC=nng,DC=kz");
         private DirectoryEntry currDept;
         
 
@@ -202,8 +202,8 @@ namespace Active_Directory_Management
                 newUser.Properties["c"].Value = "BY";
             else
                 newUser.Properties["c"].Value = "RU";
-            newUser.Properties["telephoneNumber"].Value = internalCombo.Text;
-            newUser.Properties["physicalDeliveryOfficeName"].Value = roomCombo.Text;
+            newUser.Properties["telephoneNumber"].Value = telCombo.Text;
+            newUser.Properties["physicaldeliveryofficename"].Value = roomCombo.Text;
             newUser.Properties["extensionAttribute1"].Value = birthdayDatePicker.Value.ToString("dd.MM.yyyy");
             try
             {
@@ -278,54 +278,53 @@ namespace Active_Directory_Management
 
         private void departmentCombo_SelectedIndexChanged(object sender, EventArgs e)
         {
-            
-            divLabel.Enabled = true;
-            divCombo.Enabled = true;
-            divCombo.Items.Clear();
+            //Update divCombo
+            //Update posCombo
+            //Update rooms
+            //Update telephones
 
 
-            DirectorySearcher searcher = new DirectorySearcher(new DirectoryEntry("LDAP://OU=" + departmentCombo.Text + ",OU=Users,OU=Uralsk,DC=ura,DC=nng,DC=kz"));
-
-            // Debug.WriteLine("LDAP://OU=" + departmentCombo.Text + ",OU=Users,OU=Aktau,DC=nng,DC=kz");
+            DirectorySearcher searcher = new DirectorySearcher(new DirectoryEntry("LDAP://OU=" + departmentCombo.Text + ",OU=Users,OU=Aktau,DC=nng,DC=kz"));
 
             searcher.Filter = "(&(objectClass=user))";
             searcher.PropertiesToLoad.Add("description");
+            searcher.PropertiesToLoad.AddRange(new string[] {"description","title","physicaldeliveryofficename", "telephoneNumber" });
             searcher.SearchScope = SearchScope.OneLevel;
 
             var res = searcher.FindAll();
+            HashSet<string> divs = new HashSet<string>();
+            HashSet<string> poss = new HashSet<string>();
+            HashSet<string> rooms = new HashSet<string>();
+            HashSet<string> tels = new HashSet<string>();
+
+            foreach (SearchResult entry in res)
+            {
+                DirectoryEntry trueEntry = entry.GetDirectoryEntry();
+
+                if(trueEntry.Properties["title"].Value != null)
+                    poss.Add(trueEntry.Properties["title"].Value.ToString());
+                if (trueEntry.Properties["physicaldeliveryofficename"].Value != null)
+                    rooms.Add(trueEntry.Properties["physicaldeliveryofficename"].Value.ToString());
+                if (trueEntry.Properties["telephoneNumber"].Value != null)
+                    tels.Add(trueEntry.Properties["telephoneNumber"].Value.ToString());
+                if (trueEntry.Properties["description"].Value != null
+                        && !trueEntry.Properties["description"].Value.ToString().StartsWith("("))
+                    divs.Add(trueEntry.Properties["description"].Value.ToString());
 
 
-            if (res.Count > 0)
+            }
+
+            divCombo.Items.Clear();
+            posCombo.Items.Clear();
+            roomCombo.Items.Clear();
+            telCombo.Items.Clear();
+
+            if (divs.Count > 0)
             {
                 divLabel.Enabled = true;
                 divCombo.Enabled = true;
-
-                HashSet<string> vs = new HashSet<string>();
-
-                foreach (SearchResult entry in res)
-                {
-                    string st;
-                    try
-                    {
-                        st = entry.GetDirectoryEntry().Properties["description"].Value.ToString();
-                    }
-                    catch
-                    {
-                        continue;
-                    }
-                    
-                        if (!st.StartsWith("(")
-                            && !st.StartsWith("декрет"))
-                        {
-                            vs.Add(st);
-                        }
-                    
-                }
-
-                foreach (string entry in vs)
-                {
+                foreach (string entry in divs)
                     divCombo.Items.Add(entry);
-                }
             }
             else
             {
@@ -333,7 +332,14 @@ namespace Active_Directory_Management
                 divCombo.Enabled = false;
             }
 
+            foreach (string entry in poss)
+                posCombo.Items.Add(entry);
 
+            foreach (string entry in rooms)
+                roomCombo.Items.Add(entry);
+
+            foreach (string entry in tels)
+                telCombo.Items.Add(entry);
 
         }
         private void nameTextBox_TextChanged(object sender, EventArgs e)
@@ -351,45 +357,7 @@ namespace Active_Directory_Management
         private void divCombo_SelectedIndexChanged(object sender, EventArgs e)
         {
             
-            posCombo.Items.Clear();
-
-
-            DirectorySearcher searcher = new DirectorySearcher(new DirectoryEntry("LDAP://OU=" + departmentCombo.Text + ",OU=Users,OU=Uralsk,DC=ura,DC=nng,DC=kz"));
-
-            // Debug.WriteLine("LDAP://OU=" + departmentCombo.Text + ",OU=Users,OU=Aktau,DC=nng,DC=kz");
-
-            searcher.Filter = "(&(objectClass=user))";
-            searcher.PropertiesToLoad.Add("title");
-            searcher.SearchScope = SearchScope.OneLevel;
-
-            var res = searcher.FindAll();
-
-            HashSet<string> vs = new HashSet<string>();
-
-            foreach (SearchResult entry in res)
-            {
-                string st;
-                try
-                {
-                    st = entry.GetDirectoryEntry().Properties["title"].Value.ToString();
-                }
-                catch
-                {
-                    continue;
-                }
-
-                if (!st.StartsWith("(")
-                    && !st.StartsWith("декрет"))
-                {
-                    vs.Add(st);
-                }
-
-            }
-
-            foreach (string entry in vs)
-            {
-                posCombo.Items.Add(entry);
-            }
+            
 
         }
     }

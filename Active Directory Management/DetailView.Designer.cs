@@ -32,10 +32,11 @@
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.posCombo = new System.Windows.Forms.ComboBox();
             this.internalLabel = new System.Windows.Forms.Label();
             this.divLabel = new System.Windows.Forms.Label();
             this.positionLabel = new System.Windows.Forms.Label();
-            this.internalCombo = new System.Windows.Forms.ComboBox();
+            this.telCombo = new System.Windows.Forms.ComboBox();
             this.roomCombo = new System.Windows.Forms.ComboBox();
             this.divCombo = new System.Windows.Forms.ComboBox();
             this.roomLabel = new System.Windows.Forms.Label();
@@ -71,7 +72,6 @@
             this.usbDeviceCheck = new System.Windows.Forms.CheckBox();
             this.usbDiskCheck = new System.Windows.Forms.CheckBox();
             this.cdCheck = new System.Windows.Forms.CheckBox();
-            this.posCombo = new System.Windows.Forms.ComboBox();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.groupBox2.SuspendLayout();
@@ -120,7 +120,7 @@
             this.groupBox2.Controls.Add(this.internalLabel);
             this.groupBox2.Controls.Add(this.divLabel);
             this.groupBox2.Controls.Add(this.positionLabel);
-            this.groupBox2.Controls.Add(this.internalCombo);
+            this.groupBox2.Controls.Add(this.telCombo);
             this.groupBox2.Controls.Add(this.roomCombo);
             this.groupBox2.Controls.Add(this.divCombo);
             this.groupBox2.Controls.Add(this.roomLabel);
@@ -134,6 +134,15 @@
             this.groupBox2.TabIndex = 45;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Информация о сотруднике";
+            // 
+            // posCombo
+            // 
+            this.posCombo.FormattingEnabled = true;
+            this.posCombo.Location = new System.Drawing.Point(125, 100);
+            this.posCombo.Name = "posCombo";
+            this.posCombo.Size = new System.Drawing.Size(289, 21);
+            this.posCombo.Sorted = true;
+            this.posCombo.TabIndex = 45;
             // 
             // internalLabel
             // 
@@ -163,34 +172,18 @@
             this.positionLabel.TabIndex = 42;
             this.positionLabel.Text = "Должность";
             // 
-            // internalCombo
+            // telCombo
             // 
-            this.internalCombo.FormattingEnabled = true;
-            this.internalCombo.Items.AddRange(new object[] {
-            "Департамент 1",
-            "Департамент 2",
-            "Департамент 3",
-            "Департамент 4",
-            "Департамент 5",
-            "Департамент 6",
-            "Департамент 7"});
-            this.internalCombo.Location = new System.Drawing.Point(527, 46);
-            this.internalCombo.Name = "internalCombo";
-            this.internalCombo.Size = new System.Drawing.Size(123, 21);
-            this.internalCombo.Sorted = true;
-            this.internalCombo.TabIndex = 40;
+            this.telCombo.FormattingEnabled = true;
+            this.telCombo.Location = new System.Drawing.Point(527, 46);
+            this.telCombo.Name = "telCombo";
+            this.telCombo.Size = new System.Drawing.Size(123, 21);
+            this.telCombo.Sorted = true;
+            this.telCombo.TabIndex = 40;
             // 
             // roomCombo
             // 
             this.roomCombo.FormattingEnabled = true;
-            this.roomCombo.Items.AddRange(new object[] {
-            "Департамент 1",
-            "Департамент 2",
-            "Департамент 3",
-            "Департамент 4",
-            "Департамент 5",
-            "Департамент 6",
-            "Департамент 7"});
             this.roomCombo.Location = new System.Drawing.Point(527, 19);
             this.roomCombo.Name = "roomCombo";
             this.roomCombo.Size = new System.Drawing.Size(123, 21);
@@ -199,16 +192,7 @@
             // 
             // divCombo
             // 
-            this.divCombo.Enabled = false;
             this.divCombo.FormattingEnabled = true;
-            this.divCombo.Items.AddRange(new object[] {
-            "Отдел 1",
-            "Отдел 2",
-            "Отдел 3",
-            "Отдел 4",
-            "Отдел 5",
-            "Отдел 6",
-            "Отдел 7"});
             this.divCombo.Location = new System.Drawing.Point(125, 73);
             this.divCombo.Name = "divCombo";
             this.divCombo.Size = new System.Drawing.Size(289, 21);
@@ -550,23 +534,6 @@
             this.cdCheck.Text = "Доступ к CD/DVD";
             this.cdCheck.UseVisualStyleBackColor = true;
             // 
-            // posCombo
-            // 
-            this.posCombo.FormattingEnabled = true;
-            this.posCombo.Items.AddRange(new object[] {
-            "Отдел 1",
-            "Отдел 2",
-            "Отдел 3",
-            "Отдел 4",
-            "Отдел 5",
-            "Отдел 6",
-            "Отдел 7"});
-            this.posCombo.Location = new System.Drawing.Point(125, 100);
-            this.posCombo.Name = "posCombo";
-            this.posCombo.Size = new System.Drawing.Size(289, 21);
-            this.posCombo.Sorted = true;
-            this.posCombo.TabIndex = 45;
-            // 
             // DetailView
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -619,7 +586,7 @@
         private System.Windows.Forms.GroupBox groupBox2;
         private System.Windows.Forms.Label divLabel;
         private System.Windows.Forms.Label positionLabel;
-        private System.Windows.Forms.ComboBox internalCombo;
+        private System.Windows.Forms.ComboBox telCombo;
         private System.Windows.Forms.ComboBox roomCombo;
         private System.Windows.Forms.ComboBox divCombo;
         private System.Windows.Forms.Label internalLabel;
