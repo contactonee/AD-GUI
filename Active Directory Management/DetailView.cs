@@ -319,6 +319,12 @@ namespace Active_Directory_Management
             roomCombo.Items.Clear();
             telCombo.Items.Clear();
 
+            divCombo.ResetText();
+            posCombo.ResetText();
+            roomCombo.ResetText();
+            telCombo.ResetText();
+
+
             if (divs.Count > 0)
             {
                 divLabel.Enabled = true;
