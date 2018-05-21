@@ -28,46 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.Windows.Forms.TreeNode treeNode1 = new System.Windows.Forms.TreeNode("Node2");
-            System.Windows.Forms.TreeNode treeNode2 = new System.Windows.Forms.TreeNode("Node7");
-            System.Windows.Forms.TreeNode treeNode3 = new System.Windows.Forms.TreeNode("Node8");
-            System.Windows.Forms.TreeNode treeNode4 = new System.Windows.Forms.TreeNode("Node9");
-            System.Windows.Forms.TreeNode treeNode5 = new System.Windows.Forms.TreeNode("Node10");
-            System.Windows.Forms.TreeNode treeNode6 = new System.Windows.Forms.TreeNode("Node3", new System.Windows.Forms.TreeNode[] {
-            treeNode2,
-            treeNode3,
-            treeNode4,
-            treeNode5});
-            System.Windows.Forms.TreeNode treeNode7 = new System.Windows.Forms.TreeNode("Node11");
-            System.Windows.Forms.TreeNode treeNode8 = new System.Windows.Forms.TreeNode("Node12");
-            System.Windows.Forms.TreeNode treeNode9 = new System.Windows.Forms.TreeNode("Node13");
-            System.Windows.Forms.TreeNode treeNode10 = new System.Windows.Forms.TreeNode("Node4", new System.Windows.Forms.TreeNode[] {
-            treeNode7,
-            treeNode8,
-            treeNode9});
-            System.Windows.Forms.TreeNode treeNode11 = new System.Windows.Forms.TreeNode("Node0", new System.Windows.Forms.TreeNode[] {
-            treeNode1,
-            treeNode6,
-            treeNode10});
-            System.Windows.Forms.TreeNode treeNode12 = new System.Windows.Forms.TreeNode("Node5");
-            System.Windows.Forms.TreeNode treeNode13 = new System.Windows.Forms.TreeNode("Node17");
-            System.Windows.Forms.TreeNode treeNode14 = new System.Windows.Forms.TreeNode("Node18");
-            System.Windows.Forms.TreeNode treeNode15 = new System.Windows.Forms.TreeNode("Node19");
-            System.Windows.Forms.TreeNode treeNode16 = new System.Windows.Forms.TreeNode("Node14", new System.Windows.Forms.TreeNode[] {
-            treeNode13,
-            treeNode14,
-            treeNode15});
-            System.Windows.Forms.TreeNode treeNode17 = new System.Windows.Forms.TreeNode("Node15 test");
-            System.Windows.Forms.TreeNode treeNode18 = new System.Windows.Forms.TreeNode("Node16");
-            System.Windows.Forms.TreeNode treeNode19 = new System.Windows.Forms.TreeNode("Node6", new System.Windows.Forms.TreeNode[] {
-            treeNode16,
-            treeNode17,
-            treeNode18});
-            System.Windows.Forms.TreeNode treeNode20 = new System.Windows.Forms.TreeNode("Node1", new System.Windows.Forms.TreeNode[] {
-            treeNode12,
-            treeNode19});
             this.searchBox = new System.Windows.Forms.TextBox();
-            this.treeBox = new System.Windows.Forms.TreeView();
             this.createBtn = new System.Windows.Forms.Button();
             this.firstBox = new System.Windows.Forms.TextBox();
             this.lastBox = new System.Windows.Forms.TextBox();
@@ -79,8 +40,8 @@
             this.cdCheck = new System.Windows.Forms.CheckBox();
             this.detailBtn = new System.Windows.Forms.Button();
             this.saveBtn = new System.Windows.Forms.Button();
-            this.treeBoxCache = new System.Windows.Forms.TreeView();
             this.searchBoxPlaceholder = new System.Windows.Forms.Label();
+            this.listBox = new System.Windows.Forms.ListBox();
             this.SuspendLayout();
             // 
             // searchBox
@@ -89,58 +50,6 @@
             this.searchBox.Name = "searchBox";
             this.searchBox.Size = new System.Drawing.Size(239, 20);
             this.searchBox.TabIndex = 0;
-            this.searchBox.TextChanged += new System.EventHandler(this.SearchBox_TextChanged);
-            // 
-            // treeBox
-            // 
-            this.treeBox.Location = new System.Drawing.Point(12, 38);
-            this.treeBox.Name = "treeBox";
-            treeNode1.Name = "Node2";
-            treeNode1.Text = "Node2";
-            treeNode2.Name = "Node7";
-            treeNode2.Text = "Node7";
-            treeNode3.Name = "Node8";
-            treeNode3.Text = "Node8";
-            treeNode4.Name = "Node9";
-            treeNode4.Text = "Node9";
-            treeNode5.Name = "Node10";
-            treeNode5.Text = "Node10";
-            treeNode6.Name = "Node3";
-            treeNode6.Text = "Node3";
-            treeNode7.Name = "Node11";
-            treeNode7.Text = "Node11";
-            treeNode8.Name = "Node12";
-            treeNode8.Text = "Node12";
-            treeNode9.Name = "Node13";
-            treeNode9.Text = "Node13";
-            treeNode10.Name = "Node4";
-            treeNode10.Text = "Node4";
-            treeNode11.Name = "Node0";
-            treeNode11.Text = "Node0";
-            treeNode12.Name = "Node5";
-            treeNode12.Text = "Node5";
-            treeNode13.Name = "Node17";
-            treeNode13.Text = "Node17";
-            treeNode14.Name = "Node18";
-            treeNode14.Text = "Node18";
-            treeNode15.Name = "Node19";
-            treeNode15.Text = "Node19";
-            treeNode16.Name = "Node14";
-            treeNode16.Text = "Node14";
-            treeNode17.Name = "Node15";
-            treeNode17.Text = "Node15 test";
-            treeNode18.Name = "Node16";
-            treeNode18.Text = "Node16";
-            treeNode19.Name = "Node6";
-            treeNode19.Text = "Node6";
-            treeNode20.Name = "Node1";
-            treeNode20.Text = "Node1";
-            this.treeBox.Nodes.AddRange(new System.Windows.Forms.TreeNode[] {
-            treeNode11,
-            treeNode20});
-            this.treeBox.Size = new System.Drawing.Size(320, 353);
-            this.treeBox.TabIndex = 1;
-            this.treeBox.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.TreeBox_AfterSelect);
             // 
             // createBtn
             // 
@@ -257,14 +166,6 @@
             this.saveBtn.Text = "Сохранить";
             this.saveBtn.UseVisualStyleBackColor = true;
             // 
-            // treeBoxCache
-            // 
-            this.treeBoxCache.Location = new System.Drawing.Point(23, 333);
-            this.treeBoxCache.Name = "treeBoxCache";
-            this.treeBoxCache.Size = new System.Drawing.Size(121, 97);
-            this.treeBoxCache.TabIndex = 14;
-            this.treeBoxCache.Visible = false;
-            // 
             // searchBoxPlaceholder
             // 
             this.searchBoxPlaceholder.AccessibleRole = System.Windows.Forms.AccessibleRole.None;
@@ -277,11 +178,28 @@
             this.searchBoxPlaceholder.TabIndex = 15;
             this.searchBoxPlaceholder.Text = "Поиск...";
             // 
+            // listBox
+            // 
+            this.listBox.FormattingEnabled = true;
+            this.listBox.HorizontalScrollbar = true;
+            this.listBox.Items.AddRange(new object[] {
+            "abacaba",
+            "param 1",
+            "param 2",
+            "test "});
+            this.listBox.Location = new System.Drawing.Point(12, 38);
+            this.listBox.Name = "listBox";
+            this.listBox.ScrollAlwaysVisible = true;
+            this.listBox.Size = new System.Drawing.Size(320, 407);
+            this.listBox.Sorted = true;
+            this.listBox.TabIndex = 16;
+            // 
             // MainView
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
+            this.Controls.Add(this.listBox);
             this.Controls.Add(this.searchBoxPlaceholder);
             this.Controls.Add(this.saveBtn);
             this.Controls.Add(this.detailBtn);
@@ -294,9 +212,7 @@
             this.Controls.Add(this.lastBox);
             this.Controls.Add(this.firstBox);
             this.Controls.Add(this.createBtn);
-            this.Controls.Add(this.treeBox);
             this.Controls.Add(this.searchBox);
-            this.Controls.Add(this.treeBoxCache);
             this.Name = "MainView";
             this.Text = "Active Directory ";
             this.ResumeLayout(false);
@@ -307,7 +223,6 @@
         #endregion
 
         private System.Windows.Forms.TextBox searchBox;
-        private System.Windows.Forms.TreeView treeBox;
         private System.Windows.Forms.Button createBtn;
         private System.Windows.Forms.TextBox firstBox;
         private System.Windows.Forms.TextBox lastBox;
@@ -319,7 +234,7 @@
         private System.Windows.Forms.CheckBox cdCheck;
         private System.Windows.Forms.Button detailBtn;
         private System.Windows.Forms.Button saveBtn;
-        private System.Windows.Forms.TreeView treeBoxCache;
         private System.Windows.Forms.Label searchBoxPlaceholder;
+        private System.Windows.Forms.ListBox listBox;
     }
 }
