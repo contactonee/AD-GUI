@@ -9,59 +9,70 @@ using System.DirectoryServices;
 using System.Xml;
 using System.Xml.Linq;
 using System.Linq;
+using System.Diagnostics;
 
 namespace Active_Directory_Management
 {
     public partial class DetailView : Form
     {
-        private DirectoryEntry ldapConnection = new DirectoryEntry("LDAP://OU=TestOU,OU=Users,OU=Aktau,DC=nng,DC=kz");
+        private DirectoryEntry ldapConnection = new DirectoryEntry("LDAP://OU=Users,OU=Aktau,DC=nng,DC=kz");
+        private DirectoryEntry currDept;
         
 
 
         public DetailView()
         {
             InitializeComponent();
-            onLoad();
+            OnLoad();
             
         }
         public DetailView(DirectoryEntry user)
         {
             InitializeComponent();
-            onLoad();
+            OnLoad();
         }
 
-        private void onLoad()
+        private void OnLoad()
         {
             ldapConnection.AuthenticationType = AuthenticationTypes.Secure;
 
 
-            XDocument xDoc = XDocument.Load("roomsSchema.xml");
-            foreach (XElement elem in xDoc.Root.Elements())
+            cityCombo.Items.Add("Aktau");
+
+            DirectorySearcher searcher = new DirectorySearcher(ldapConnection);
+            searcher.Filter = "(&(objectClass=organizationalUnit))";
+            searcher.PropertiesToLoad.Add("name");
+            searcher.SearchScope = SearchScope.OneLevel;
+
+            SearchResultCollection res = searcher.FindAll();
+            foreach(SearchResult entry in res)
             {
-                departmentCombo.Items.Add(elem.Attribute("name").Value);
+                departmentCombo.Items.Add(entry.GetDirectoryEntry().Properties["name"].Value.ToString());
+                
             }
+
+            res.Dispose();
+            searcher.Dispose();
+            
 
             unlimitedRadio.Select();
             cityCombo.SelectedIndex = 0;
             internetCombo.SelectedIndex = 0;
             expirationDatePicker.Value = DateTime.Today.AddMonths(1);
             birthdayDatePicker.Value = DateTime.Today.AddYears(-70);
-
-
-
         }
 
-        private bool checkChar(string input)
+        private bool CheckChar(string input)
         {
             foreach(char ch in input)
                 if((ch < 'А' || ch > 'я') && ch != 'ё' && ch != 'Ё')
                     return false;
             return true;
         }
-        private void makeTranslit(TextBox sender, TextBox translit)
+        private void MakeTranslit(TextBox sender, TextBox translit)
         {
             string input = sender.Text;
-            if (!checkChar(input))
+            if (!CheckChar(input))
             {
                 sender.ForeColor = Color.Red;
                 translit.Text = "";
@@ -98,7 +109,7 @@ namespace Active_Directory_Management
             dict['И'] = "I";
             dict['Т'] = "T";
             dict['Б'] = "B";
-            dict['Ю'] = "Yu"; // Yuriev
+            dict['Ю'] = "Yu"; // Yuriyev
             dict['Ё'] = "Yo"; // Yozhikov
 
             dict['й'] = "y";
@@ -141,11 +152,11 @@ namespace Active_Directory_Management
 
             translit.Text = result;
         }
-        private void closeApplication(object sender, EventArgs e)
+        private void CloseApplication(object sender, EventArgs e)
         {
             Application.Exit();
         }
-        private void addGroup(DirectoryEntry user, string groupDN)
+        private void AddGroup(DirectoryEntry user, string groupDN)
         {
             DirectoryEntry group = new DirectoryEntry("LDAP://" + groupDN);
             group.Properties["member"].Add((string)user.Properties["distinguishedName"].Value);
@@ -153,11 +164,11 @@ namespace Active_Directory_Management
             group.Close();
             user.Close();
         }
-        private void createButton(object sender, EventArgs e)
+        private void CreateButton(object sender, EventArgs e)
         {
-            createUser();
+            CreateUser();
         }
-        private void createUser()
+        private void CreateUser()
         {
 
             // Проверка занятости имени
@@ -191,9 +202,8 @@ namespace Active_Directory_Management
                 newUser.Properties["c"].Value = "BY";
             else
                 newUser.Properties["c"].Value = "RU";
-            newUser.Properties["title"].Value = positionTextBox.Text;
-            newUser.Properties["telephoneNumber"].Value = internalCombo.Text;
-            newUser.Properties["physicalDeliveryOfficeName"].Value = roomCombo.Text;
+            newUser.Properties["telephoneNumber"].Value = telCombo.Text;
+            newUser.Properties["physicaldeliveryofficename"].Value = roomCombo.Text;
             newUser.Properties["extensionAttribute1"].Value = birthdayDatePicker.Value.ToString("dd.MM.yyyy");
             try
             {
@@ -220,19 +230,19 @@ namespace Active_Directory_Management
 
             // Add to groups
             if (cdCheck.Checked)
-                addGroup(newUser, "CN=CD,OU=TestOU,OU=Users,OU=Aktau,DC=nng,DC=kz");
+                AddGroup(newUser, "CN=CD,OU=TestOU,OU=Users,OU=Aktau,DC=nng,DC=kz");
 
             if (usbDiskCheck.Checked)
-                addGroup(newUser, "CN=USB Disk,OU=TestOU,OU=Users,OU=Aktau,DC=nng,DC=kz");
+                AddGroup(newUser, "CN=USB Disk,OU=TestOU,OU=Users,OU=Aktau,DC=nng,DC=kz");
 
             if (usbDeviceCheck.Checked)
-                addGroup(newUser, "CN=USB Device,OU=TestOU,OU=Users,OU=Aktau,DC=nng,DC=kz");
+                AddGroup(newUser, "CN=USB Device,OU=TestOU,OU=Users,OU=Aktau,DC=nng,DC=kz");
 
             if (internetCombo.SelectedIndex == 1)
-                addGroup(newUser, "CN=Limited Access,OU=TestOU,OU=Users,OU=Aktau,DC=nng,DC=kz");
+                AddGroup(newUser, "CN=Limited Access,OU=TestOU,OU=Users,OU=Aktau,DC=nng,DC=kz");
 
             if (internetCombo.SelectedIndex == 2)
-                addGroup(newUser, "CN=Full Access,OU=TestOU,OU=Users,OU=Aktau,DC=nng,DC=kz");
+                AddGroup(newUser, "CN=Full Access,OU=TestOU,OU=Users,OU=Aktau,DC=nng,DC=kz");
 
             if (limitedRadio.Checked)
             {
@@ -263,85 +273,98 @@ namespace Active_Directory_Management
             
             // otherwise disable
         }
+        
 
-        private XElement selectedDepartment;
 
         private void departmentCombo_SelectedIndexChanged(object sender, EventArgs e)
         {
-            
-            
-            
-            divLabel.Enabled = true;
-            divCombo.Enabled = true;
-            divCombo.Items.Clear();
+            //Update divCombo
+            //Update posCombo
+            //Update rooms
+            //Update telephones
 
-            
 
-            XElement root = XDocument.Load(@"roomsSchema.xml").Root;
+            DirectorySearcher searcher = new DirectorySearcher(new DirectoryEntry("LDAP://OU=" + departmentCombo.Text + ",OU=Users,OU=Aktau,DC=nng,DC=kz"));
 
-            foreach (XElement dep in root.Elements())
+            searcher.Filter = "(&(objectClass=user))";
+            searcher.PropertiesToLoad.Add("description");
+            searcher.PropertiesToLoad.AddRange(new string[] {"description","title","physicaldeliveryofficename", "telephoneNumber" });
+            searcher.SearchScope = SearchScope.OneLevel;
+
+            var res = searcher.FindAll();
+            HashSet<string> divs = new HashSet<string>();
+            HashSet<string> poss = new HashSet<string>();
+            HashSet<string> rooms = new HashSet<string>();
+            HashSet<string> tels = new HashSet<string>();
+
+            foreach (SearchResult entry in res)
             {
-                if(dep.Attribute("name").Value == departmentCombo.Text)
-                {
-                    selectedDepartment = new XElement(dep);
-                    break;
-                }
+                DirectoryEntry trueEntry = entry.GetDirectoryEntry();
+
+                if(trueEntry.Properties["title"].Value != null)
+                    poss.Add(trueEntry.Properties["title"].Value.ToString());
+                if (trueEntry.Properties["physicaldeliveryofficename"].Value != null)
+                    rooms.Add(trueEntry.Properties["physicaldeliveryofficename"].Value.ToString());
+                if (trueEntry.Properties["telephoneNumber"].Value != null)
+                    tels.Add(trueEntry.Properties["telephoneNumber"].Value.ToString());
+                if (trueEntry.Properties["description"].Value != null
+                        && !trueEntry.Properties["description"].Value.ToString().StartsWith("("))
+                    divs.Add(trueEntry.Properties["description"].Value.ToString());
+
+
             }
 
-            if(selectedDepartment.Elements("div") != null && selectedDepartment.Elements("div").Any())
+            divCombo.Items.Clear();
+            posCombo.Items.Clear();
+            roomCombo.Items.Clear();
+            telCombo.Items.Clear();
+
+            divCombo.ResetText();
+            posCombo.ResetText();
+            roomCombo.ResetText();
+            telCombo.ResetText();
+
+
+            if (divs.Count > 0)
             {
                 divLabel.Enabled = true;
                 divCombo.Enabled = true;
-                divCombo.Items.Clear();
-
-                roomLabel.Enabled = false;
-                roomCombo.Enabled = false;
-                roomCombo.Items.Clear();
-
-                foreach (XElement div in selectedDepartment.Elements("div"))
-                {
-
-                    divCombo.Items.Add(div.Attribute("name").Value);
-                }
-
+                foreach (string entry in divs)
+                    divCombo.Items.Add(entry);
             }
             else
             {
-                divCombo.Items.Clear();
                 divLabel.Enabled = false;
                 divCombo.Enabled = false;
-
-                roomLabel.Enabled = true;
-                roomCombo.Enabled = true;
-                roomCombo.Items.Clear();
-
-                foreach(XElement room in selectedDepartment.Elements("room"))
-                {
-                    roomCombo.Items.Add(room.Attribute("no").Value);
-                }
             }
-            
+
+            foreach (string entry in poss)
+                posCombo.Items.Add(entry);
+
+            foreach (string entry in rooms)
+                roomCombo.Items.Add(entry);
+
+            foreach (string entry in tels)
+                telCombo.Items.Add(entry);
+
         }
         private void nameTextBox_TextChanged(object sender, EventArgs e)
         {
-            makeTranslit(nameTextBox, nameTranslitTextBox);
+            MakeTranslit(nameTextBox, nameTranslitTextBox);
             
             
         }
         private void surnameTextBox_TextChanged(object sender, EventArgs e)
         {
-            makeTranslit(surnameTextBox, surnameTranslitTextBox);
+            MakeTranslit(surnameTextBox, surnameTranslitTextBox);
             
         }
 
         private void divCombo_SelectedIndexChanged(object sender, EventArgs e)
         {
-            XElement selectedDiv;
+            
+            
 
-            foreach (XElement div in selectedDepartment.Elements())
-            {
-
-            }
         }
     }
 }
