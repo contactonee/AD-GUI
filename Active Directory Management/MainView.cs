@@ -23,8 +23,8 @@ namespace Active_Directory_Management
         public MainView()
         {
             InitializeComponent();
-            DumpADtoXML();
-            
+            //DumpADtoXML();
+            FillTree();
 
         }
 
@@ -32,6 +32,8 @@ namespace Active_Directory_Management
 
         private void DumpADtoXML()
         {
+            // Настройка поисковика по записям
+            // Поиск департаментов 
             DirectorySearcher searcher = new DirectorySearcher(entry);
             searcher.Filter = "(objectClass=organizationalUnit)";
             searcher.PropertiesToLoad.AddRange(new string[] {
@@ -44,34 +46,42 @@ namespace Active_Directory_Management
                 "sn",
                 "department",
                 "userPrincipalName",
-                "memberOf"
+                "memberOf",
             });
             searcher.SearchScope = SearchScope.OneLevel;
 
             var deptResults = searcher.FindAll();
 
+            // Создание нового документа XML и создание в нем корня company
             XDocument doc = new XDocument();
             doc.Add(new XElement("company"));
             
 
-
+            // Переход на уровень глубже по департаментам
             foreach (SearchResult deptRes in deptResults)
             {
+
+                // Поиск субдепартаментов
                 DirectoryEntry deptEntry = deptRes.GetDirectoryEntry();
 
                 string deptName = deptEntry.Properties["name"].Value.ToString();
-                XElement deptNode = new XElement("department", new XAttribute("name", deptName));
+                XElement deptNode = new XElement("department",
+                    new XAttribute("name", deptName),
+                    new XAttribute("dn", deptEntry.Properties["distinguishedName"].Value.ToString()));
 
                 searcher.SearchRoot = deptEntry;
                 searcher.Filter = "(objectClass=organizationalUnit)";
                 var divResults = searcher.FindAll();
                 
+                // Поиск людей в субдепартаментах
                 foreach(SearchResult divRes in divResults)
                 {
                     DirectoryEntry divEntry = divRes.GetDirectoryEntry();
 
                     string divName = divEntry.Properties["name"].Value.ToString();
-                    XElement divNode = new XElement("subdepartment", new XAttribute("name", divName));
+                    XElement divNode = new XElement("subdepartment",
+                        new XAttribute("name", divName),
+                        new XAttribute("dn", divEntry.Properties["distinguishedName"].Value.ToString()));
 
 
                     searcher.Filter = "(objectClass=user)";
@@ -85,6 +95,7 @@ namespace Active_Directory_Management
 
                         XElement userNode = new XElement("user",
                             new XAttribute("name", userEntry.Properties["name"].Value),
+                            new XAttribute("dn", userEntry.Properties["distinguishedName"].Value.ToString()),
                             new XElement("firstName", userEntry.Properties["givenName"].Value),
                             new XElement("lastName", userEntry.Properties["sn"]),
                             new XElement("telephone", userEntry.Properties["telephoneNumber"]),
@@ -117,6 +128,7 @@ namespace Active_Directory_Management
 
                     XElement userNode = new XElement("user",
                             new XAttribute("name", userEntry.Properties["name"].Value),
+                            new XAttribute("dn", userEntry.Properties["distinguishedName"].Value.ToString()),
                             new XElement("firstName", userEntry.Properties["givenName"].Value),
                             new XElement("lastName", userEntry.Properties["sn"]),
                             new XElement("telephone", userEntry.Properties["telephoneNumber"]),
@@ -134,11 +146,38 @@ namespace Active_Directory_Management
             }
 
             
-
             doc.Save("users.xml");
         }
                
+        private void FillTree()
+        {
+            XDocument doc = XDocument.Load("users.xml");
+            foreach(XElement deptNode in doc.Root.Elements())
+            {
+                treeView.Nodes.Add(deptNode.Attribute("dn").Value, deptNode.Attribute("name").Value);
+                var divNodes = deptNode.Elements("subdepartment");
+                foreach(XElement divNode in divNodes)
+                {
+                    treeView.Nodes[deptNode.Attribute("dn").Value].Nodes.Add(divNode.Attribute("dn").Value,
+                           divNode.Attribute("name").Value);
+                    Debug.WriteLine(divNode.Attribute("dn").Value);
 
+                    var userNodes = divNode.Elements();
+                    foreach(XElement userNode in userNodes)
+                    {
+                        treeView.Nodes[deptNode.Attribute("dn").Value].Nodes[divNode.Attribute("dn").Value].Nodes.Add(userNode.Attribute("dn").Value,
+                           userNode.Attribute("name").Value);
+                    }
+                }
+                var users = deptNode.Elements("user");
+                foreach(XElement userNode in users)
+                {
+                    treeView.Nodes[deptNode.Attribute("dn").Value].Nodes.Add(userNode.Attribute("dn").Value,
+                           userNode.Attribute("name").Value);
+                }
+            }
+            
+        }
         
 
         /*
@@ -161,8 +200,8 @@ namespace Active_Directory_Management
             names.Sort();
             foreach(string name in names)
             {
-                listView.Items.Add(name);
-                listViewCache.Items.Add(name);
+                treeView.Items.Add(name);
+                treeViewCache.Items.Add(name);
             }
             
 
@@ -170,56 +209,40 @@ namespace Active_Directory_Management
 
             
         }
-       
-        
+        */
         private void SearchBox_TextChanged(object sender, EventArgs e)
         {
+            
+
+            treeView.BeginUpdate();
+            treeView.Nodes.Clear();
+
             if (searchBox.Text == string.Empty)
             {
-                searchBoxPlaceholder.Visible = true;
-            }
-            else
-                searchBoxPlaceholder.Visible = false;
-
-            listView.BeginUpdate();
-            listView.Items.Clear();
-
-            if (searchBox.Text == "Поиск" || searchBox.Text == string.Empty)
-            {
-                listView.Items.AddRange(listViewCache.Items);
+                FillTree();
             }
             else
             {
-                foreach(ListViewItem item in listViewCache.Items)
+                XDocument doc = XDocument.Load("users.xml");
+                foreach(XElement elem in doc.Root.Descendants("user"))
                 {
-                    if(item.Text.StartsWith(searchBox.Text))
+                    Debug.WriteLine(elem.Attribute("name").Value);
+                    if (elem.Attribute("name").Value.ToLower().StartsWith(searchBox.Text.ToLower()))
                     {
-                        listView.Items.Add(item);
-                    }
+                        treeView.Nodes.Add(elem.Attribute("dn").Value, elem.Attribute("name").Value);
+                    }    
                 }
+
+                
             }
 
-            listView.EndUpdate();
+            treeView.EndUpdate();
         }
 
         
-    */
+    
        
-
         
-
-        private void listView_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            
-            cdCheck.Enabled = true;
-            usbDiskCheck.Enabled = true;
-            usbDeviceCheck.Enabled = true;
-            cloudCheck.Enabled = true;
-            internetLabel.Enabled = true;
-            internetCombo.Enabled = true;
-            detailBtn.Enabled = true;
-            saveBtn.Enabled = true;
-        }
 
 
 
@@ -236,6 +259,47 @@ namespace Active_Directory_Management
         {
             Form detailView = new DetailView(new DirectoryEntry());
             detailView.ShowDialog();
+        }
+
+        private void treeView_AfterSelect(object sender, TreeViewEventArgs e)
+        {
+            // Debug.WriteLine(treeView.SelectedNode.Name);
+
+            if (treeView.SelectedNode.Name.StartsWith("CN"))
+            {
+                XDocument doc = XDocument.Load("users.xml");
+
+                foreach(XElement elem in doc.Root.Descendants("user"))
+                {
+                    Debug.WriteLine(elem.Attribute("name").Value);
+                }
+                
+
+
+                switchPanel.Enabled = true;
+
+                DirectorySearcher searcher = new DirectorySearcher(Properties.Resources.devAddr);
+                
+                searcher.Filter = String.Format("(&(name={0})(memberof={1}))", treeView.SelectedNode.Text, Properties.Resources.usbDiskGroup);
+                SearchResult result = searcher.FindOne();
+                usbDiskCheck.Checked = (searcher.FindOne() != null);
+
+                searcher.Filter = String.Format("(&(name={0})(memberof={1}))", treeView.SelectedNode.Text, Properties.Resources.usbDeviceGroup);
+                result = searcher.FindOne();
+                usbDeviceCheck.Checked = (searcher.FindOne() != null);
+
+                searcher.Filter = String.Format("(&(name={0})(memberof={1}))", treeView.SelectedNode.Text, Properties.Resources.cdGroup);
+                result = searcher.FindOne();
+                cdCheck.Checked = (searcher.FindOne() != null);
+
+                searcher.Dispose();
+
+
+            }
+            else
+            {
+                switchPanel.Enabled = false;
+            }
         }
     }
 }

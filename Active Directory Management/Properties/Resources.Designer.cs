@@ -61,6 +61,24 @@ namespace Active_Directory_Management.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to CN=ESET DVD Drives Allowed,OU=Groups,OU=Aktau,DC=nng,DC=kz.
+        /// </summary>
+        internal static string cdGroup {
+            get {
+                return ResourceManager.GetString("cdGroup", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to .
+        /// </summary>
+        internal static string cloudGroup {
+            get {
+                return ResourceManager.GetString("cloudGroup", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to users.xml.
         /// </summary>
         internal static string db_filename {
@@ -93,6 +111,24 @@ namespace Active_Directory_Management.Properties {
         internal static string uradevAddr {
             get {
                 return ResourceManager.GetString("uradevAddr", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to CN=ESET USB Mobile Devices Allowed,OU=Groups,OU=Aktau,DC=nng,DC=kz.
+        /// </summary>
+        internal static string usbDeviceGroup {
+            get {
+                return ResourceManager.GetString("usbDeviceGroup", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to CN=ESET USB Drives Allowed,OU=Groups,OU=Aktau,DC=nng,DC=kz.
+        /// </summary>
+        internal static string usbDiskGroup {
+            get {
+                return ResourceManager.GetString("usbDiskGroup", resourceCulture);
             }
         }
     }

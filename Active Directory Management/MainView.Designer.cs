@@ -40,8 +40,10 @@
             this.cdCheck = new System.Windows.Forms.CheckBox();
             this.detailBtn = new System.Windows.Forms.Button();
             this.saveBtn = new System.Windows.Forms.Button();
-            this.searchBoxPlaceholder = new System.Windows.Forms.Label();
             this.listBox = new System.Windows.Forms.ListBox();
+            this.treeView = new System.Windows.Forms.TreeView();
+            this.switchPanel = new System.Windows.Forms.Panel();
+            this.switchPanel.SuspendLayout();
             this.SuspendLayout();
             // 
             // searchBox
@@ -50,6 +52,7 @@
             this.searchBox.Name = "searchBox";
             this.searchBox.Size = new System.Drawing.Size(239, 20);
             this.searchBox.TabIndex = 0;
+            this.searchBox.TextChanged += new System.EventHandler(this.SearchBox_TextChanged);
             // 
             // createBtn
             // 
@@ -80,8 +83,7 @@
             // internetLabel
             // 
             this.internetLabel.AutoSize = true;
-            this.internetLabel.Enabled = false;
-            this.internetLabel.Location = new System.Drawing.Point(402, 268);
+            this.internetLabel.Location = new System.Drawing.Point(28, 150);
             this.internetLabel.Name = "internetLabel";
             this.internetLabel.Size = new System.Drawing.Size(104, 13);
             this.internetLabel.TabIndex = 11;
@@ -90,13 +92,12 @@
             // internetCombo
             // 
             this.internetCombo.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.internetCombo.Enabled = false;
             this.internetCombo.FormattingEnabled = true;
             this.internetCombo.Items.AddRange(new object[] {
             "Отсутствует",
             "Ограниченный",
             "Полный"});
-            this.internetCombo.Location = new System.Drawing.Point(512, 265);
+            this.internetCombo.Location = new System.Drawing.Point(138, 147);
             this.internetCombo.Name = "internetCombo";
             this.internetCombo.Size = new System.Drawing.Size(121, 21);
             this.internetCombo.TabIndex = 10;
@@ -104,8 +105,7 @@
             // cloudCheck
             // 
             this.cloudCheck.AutoSize = true;
-            this.cloudCheck.Enabled = false;
-            this.cloudCheck.Location = new System.Drawing.Point(405, 203);
+            this.cloudCheck.Location = new System.Drawing.Point(31, 85);
             this.cloudCheck.Name = "cloudCheck";
             this.cloudCheck.Size = new System.Drawing.Size(150, 17);
             this.cloudCheck.TabIndex = 9;
@@ -115,8 +115,7 @@
             // usbDeviceCheck
             // 
             this.usbDeviceCheck.AutoSize = true;
-            this.usbDeviceCheck.Enabled = false;
-            this.usbDeviceCheck.Location = new System.Drawing.Point(405, 180);
+            this.usbDeviceCheck.Location = new System.Drawing.Point(31, 62);
             this.usbDeviceCheck.Name = "usbDeviceCheck";
             this.usbDeviceCheck.Size = new System.Drawing.Size(165, 17);
             this.usbDeviceCheck.TabIndex = 8;
@@ -126,8 +125,7 @@
             // usbDiskCheck
             // 
             this.usbDiskCheck.AutoSize = true;
-            this.usbDiskCheck.Enabled = false;
-            this.usbDiskCheck.Location = new System.Drawing.Point(405, 157);
+            this.usbDiskCheck.Location = new System.Drawing.Point(31, 39);
             this.usbDiskCheck.Name = "usbDiskCheck";
             this.usbDiskCheck.Size = new System.Drawing.Size(138, 17);
             this.usbDiskCheck.TabIndex = 7;
@@ -137,8 +135,7 @@
             // cdCheck
             // 
             this.cdCheck.AutoSize = true;
-            this.cdCheck.Enabled = false;
-            this.cdCheck.Location = new System.Drawing.Point(405, 134);
+            this.cdCheck.Location = new System.Drawing.Point(31, 16);
             this.cdCheck.Name = "cdCheck";
             this.cdCheck.Size = new System.Drawing.Size(118, 17);
             this.cdCheck.TabIndex = 6;
@@ -147,8 +144,7 @@
             // 
             // detailBtn
             // 
-            this.detailBtn.Enabled = false;
-            this.detailBtn.Location = new System.Drawing.Point(405, 333);
+            this.detailBtn.Location = new System.Drawing.Point(31, 215);
             this.detailBtn.Name = "detailBtn";
             this.detailBtn.Size = new System.Drawing.Size(100, 38);
             this.detailBtn.TabIndex = 12;
@@ -158,25 +154,12 @@
             // 
             // saveBtn
             // 
-            this.saveBtn.Enabled = false;
-            this.saveBtn.Location = new System.Drawing.Point(558, 341);
+            this.saveBtn.Location = new System.Drawing.Point(184, 223);
             this.saveBtn.Name = "saveBtn";
             this.saveBtn.Size = new System.Drawing.Size(75, 23);
             this.saveBtn.TabIndex = 13;
             this.saveBtn.Text = "Сохранить";
             this.saveBtn.UseVisualStyleBackColor = true;
-            // 
-            // searchBoxPlaceholder
-            // 
-            this.searchBoxPlaceholder.AccessibleRole = System.Windows.Forms.AccessibleRole.None;
-            this.searchBoxPlaceholder.AutoSize = true;
-            this.searchBoxPlaceholder.BackColor = System.Drawing.SystemColors.Window;
-            this.searchBoxPlaceholder.ForeColor = System.Drawing.SystemColors.GrayText;
-            this.searchBoxPlaceholder.Location = new System.Drawing.Point(16, 15);
-            this.searchBoxPlaceholder.Name = "searchBoxPlaceholder";
-            this.searchBoxPlaceholder.Size = new System.Drawing.Size(48, 13);
-            this.searchBoxPlaceholder.TabIndex = 15;
-            this.searchBoxPlaceholder.Text = "Поиск...";
             // 
             // listBox
             // 
@@ -194,27 +177,46 @@
             this.listBox.Sorted = true;
             this.listBox.TabIndex = 16;
             // 
+            // treeView
+            // 
+            this.treeView.Location = new System.Drawing.Point(12, 38);
+            this.treeView.Name = "treeView";
+            this.treeView.Size = new System.Drawing.Size(320, 407);
+            this.treeView.TabIndex = 17;
+            this.treeView.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.treeView_AfterSelect);
+            // 
+            // switchPanel
+            // 
+            this.switchPanel.Controls.Add(this.cdCheck);
+            this.switchPanel.Controls.Add(this.usbDiskCheck);
+            this.switchPanel.Controls.Add(this.usbDeviceCheck);
+            this.switchPanel.Controls.Add(this.cloudCheck);
+            this.switchPanel.Controls.Add(this.saveBtn);
+            this.switchPanel.Controls.Add(this.internetCombo);
+            this.switchPanel.Controls.Add(this.detailBtn);
+            this.switchPanel.Controls.Add(this.internetLabel);
+            this.switchPanel.Enabled = false;
+            this.switchPanel.Location = new System.Drawing.Point(338, 38);
+            this.switchPanel.Name = "switchPanel";
+            this.switchPanel.Size = new System.Drawing.Size(450, 407);
+            this.switchPanel.TabIndex = 19;
+            // 
             // MainView
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
+            this.Controls.Add(this.switchPanel);
+            this.Controls.Add(this.treeView);
             this.Controls.Add(this.listBox);
-            this.Controls.Add(this.searchBoxPlaceholder);
-            this.Controls.Add(this.saveBtn);
-            this.Controls.Add(this.detailBtn);
-            this.Controls.Add(this.internetLabel);
-            this.Controls.Add(this.internetCombo);
-            this.Controls.Add(this.cloudCheck);
-            this.Controls.Add(this.usbDeviceCheck);
-            this.Controls.Add(this.usbDiskCheck);
-            this.Controls.Add(this.cdCheck);
             this.Controls.Add(this.lastBox);
             this.Controls.Add(this.firstBox);
             this.Controls.Add(this.createBtn);
             this.Controls.Add(this.searchBox);
             this.Name = "MainView";
             this.Text = "Active Directory ";
+            this.switchPanel.ResumeLayout(false);
+            this.switchPanel.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -234,7 +236,8 @@
         private System.Windows.Forms.CheckBox cdCheck;
         private System.Windows.Forms.Button detailBtn;
         private System.Windows.Forms.Button saveBtn;
-        private System.Windows.Forms.Label searchBoxPlaceholder;
         private System.Windows.Forms.ListBox listBox;
+        private System.Windows.Forms.TreeView treeView;
+        private System.Windows.Forms.Panel switchPanel;
     }
 }
