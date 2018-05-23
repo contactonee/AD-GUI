@@ -10,6 +10,8 @@ using System.Xml;
 using System.Xml.Linq;
 using System.Linq;
 using System.Diagnostics;
+using System.Xml.XPath;
+
 
 namespace Active_Directory_Management
 {
@@ -23,7 +25,6 @@ namespace Active_Directory_Management
         {
             InitializeComponent();
             OnLoad();
-            
         }
         public DetailView(DirectoryEntry user)
         {
@@ -33,25 +34,12 @@ namespace Active_Directory_Management
 
         private void OnLoad()
         {
-            ldapConnection.AuthenticationType = AuthenticationTypes.Secure;
-
-
             cityCombo.Items.Add("Aktau");
 
-            DirectorySearcher searcher = new DirectorySearcher(ldapConnection);
-            searcher.Filter = "(&(objectClass=organizationalUnit))";
-            searcher.PropertiesToLoad.Add("name");
-            searcher.SearchScope = SearchScope.OneLevel;
-
-            SearchResultCollection res = searcher.FindAll();
-            foreach(SearchResult entry in res)
-            {
-                departmentCombo.Items.Add(entry.GetDirectoryEntry().Properties["name"].Value.ToString());
-                
-            }
-
-            res.Dispose();
-            searcher.Dispose();
+            XDocument doc = XDocument.Load("users.xml");
+            departmentCombo.Items.AddRange(doc.Root.Descendants("department")
+                .Select(t => t.Attribute("name").Value)
+                .ToArray());
             
 
             unlimitedRadio.Select();
@@ -272,7 +260,7 @@ namespace Active_Directory_Management
             
             // otherwise disable
         }
-        
+
 
 
         private void departmentCombo_SelectedIndexChanged(object sender, EventArgs e)
@@ -283,69 +271,33 @@ namespace Active_Directory_Management
             //Update telephones
 
 
-            DirectorySearcher searcher = new DirectorySearcher(new DirectoryEntry("LDAP://OU=" + departmentCombo.Text + ",OU=Users,OU=Aktau,DC=nng,DC=kz"));
+            XDocument doc = XDocument.Load("users.xml");
+            var res = doc.Root.Descendants("department")
+                .Where(t => t.Attribute("name").Value == departmentCombo.Text)
+                .Select(x => x.Elements("subdepartment"))
+                .First();
 
-            searcher.Filter = "(&(objectClass=user))";
-            searcher.PropertiesToLoad.Add("description");
-            searcher.PropertiesToLoad.AddRange(new string[] {"description","title","physicaldeliveryofficename", "telephoneNumber" });
-            searcher.SearchScope = SearchScope.OneLevel;
+            subdepartmentCombo.BeginUpdate();
+            subdepartmentCombo.Items.Clear();
+            subdepartmentCombo.Items.Add("");
 
-            var res = searcher.FindAll();
-            HashSet<string> divs = new HashSet<string>();
-            HashSet<string> poss = new HashSet<string>();
-            HashSet<string> rooms = new HashSet<string>();
-            HashSet<string> tels = new HashSet<string>();
+            foreach (XElement elem in res)
+                subdepartmentCombo.Items.Add(elem.Attribute("name").Value);
 
-            foreach (SearchResult entry in res)
+            subdepartmentCombo.EndUpdate();
+
+            if (res.Count() == 0)
             {
-                DirectoryEntry trueEntry = entry.GetDirectoryEntry();
-
-                if(trueEntry.Properties["title"].Value != null)
-                    poss.Add(trueEntry.Properties["title"].Value.ToString());
-                if (trueEntry.Properties["physicaldeliveryofficename"].Value != null)
-                    rooms.Add(trueEntry.Properties["physicaldeliveryofficename"].Value.ToString());
-                if (trueEntry.Properties["telephoneNumber"].Value != null)
-                    tels.Add(trueEntry.Properties["telephoneNumber"].Value.ToString());
-                if (trueEntry.Properties["description"].Value != null
-                        && !trueEntry.Properties["description"].Value.ToString().StartsWith("("))
-                    divs.Add(trueEntry.Properties["description"].Value.ToString());
-
-
-            }
-
-            divCombo.Items.Clear();
-            posCombo.Items.Clear();
-            roomCombo.Items.Clear();
-            telCombo.Items.Clear();
-
-            divCombo.ResetText();
-            posCombo.ResetText();
-            roomCombo.ResetText();
-            telCombo.ResetText();
-
-
-            if (divs.Count > 0)
-            {
-                divLabel.Enabled = true;
-                divCombo.Enabled = true;
-                foreach (string entry in divs)
-                    divCombo.Items.Add(entry);
+                subdepartmentCombo.Enabled = false;
+                subdepartmentLabel.Enabled = false;
             }
             else
             {
-                divLabel.Enabled = false;
-                divCombo.Enabled = false;
+                subdepartmentCombo.Enabled = true;
+                subdepartmentLabel.Enabled = true;
             }
 
-            foreach (string entry in poss)
-                posCombo.Items.Add(entry);
-
-            foreach (string entry in rooms)
-                roomCombo.Items.Add(entry);
-
-            foreach (string entry in tels)
-                telCombo.Items.Add(entry);
-
+            
         }
         private void nameTextBox_TextChanged(object sender, EventArgs e)
         {

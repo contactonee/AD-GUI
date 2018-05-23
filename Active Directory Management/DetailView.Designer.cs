@@ -72,6 +72,8 @@
             this.usbDeviceCheck = new System.Windows.Forms.CheckBox();
             this.usbDiskCheck = new System.Windows.Forms.CheckBox();
             this.cdCheck = new System.Windows.Forms.CheckBox();
+            this.subdepartmentCombo = new System.Windows.Forms.ComboBox();
+            this.subdepartmentLabel = new System.Windows.Forms.Label();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.groupBox2.SuspendLayout();
@@ -116,6 +118,8 @@
             // 
             // groupBox2
             // 
+            this.groupBox2.Controls.Add(this.subdepartmentLabel);
+            this.groupBox2.Controls.Add(this.subdepartmentCombo);
             this.groupBox2.Controls.Add(this.posCombo);
             this.groupBox2.Controls.Add(this.internalLabel);
             this.groupBox2.Controls.Add(this.divLabel);
@@ -138,7 +142,7 @@
             // posCombo
             // 
             this.posCombo.FormattingEnabled = true;
-            this.posCombo.Location = new System.Drawing.Point(125, 100);
+            this.posCombo.Location = new System.Drawing.Point(125, 127);
             this.posCombo.Name = "posCombo";
             this.posCombo.Size = new System.Drawing.Size(289, 21);
             this.posCombo.Sorted = true;
@@ -157,7 +161,7 @@
             // 
             this.divLabel.AutoSize = true;
             this.divLabel.Enabled = false;
-            this.divLabel.Location = new System.Drawing.Point(81, 76);
+            this.divLabel.Location = new System.Drawing.Point(81, 103);
             this.divLabel.Name = "divLabel";
             this.divLabel.Size = new System.Drawing.Size(38, 13);
             this.divLabel.TabIndex = 43;
@@ -166,7 +170,7 @@
             // positionLabel
             // 
             this.positionLabel.AutoSize = true;
-            this.positionLabel.Location = new System.Drawing.Point(54, 103);
+            this.positionLabel.Location = new System.Drawing.Point(54, 130);
             this.positionLabel.Name = "positionLabel";
             this.positionLabel.Size = new System.Drawing.Size(65, 13);
             this.positionLabel.TabIndex = 42;
@@ -193,7 +197,7 @@
             // divCombo
             // 
             this.divCombo.FormattingEnabled = true;
-            this.divCombo.Location = new System.Drawing.Point(125, 73);
+            this.divCombo.Location = new System.Drawing.Point(125, 100);
             this.divCombo.Name = "divCombo";
             this.divCombo.Size = new System.Drawing.Size(289, 21);
             this.divCombo.Sorted = true;
@@ -534,6 +538,27 @@
             this.cdCheck.Text = "Доступ к CD/DVD";
             this.cdCheck.UseVisualStyleBackColor = true;
             // 
+            // subdepartmentCombo
+            // 
+            this.subdepartmentCombo.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.subdepartmentCombo.Enabled = false;
+            this.subdepartmentCombo.FormattingEnabled = true;
+            this.subdepartmentCombo.Location = new System.Drawing.Point(125, 73);
+            this.subdepartmentCombo.Name = "subdepartmentCombo";
+            this.subdepartmentCombo.Size = new System.Drawing.Size(289, 21);
+            this.subdepartmentCombo.Sorted = true;
+            this.subdepartmentCombo.TabIndex = 46;
+            // 
+            // subdepartmentLabel
+            // 
+            this.subdepartmentLabel.AutoSize = true;
+            this.subdepartmentLabel.Enabled = false;
+            this.subdepartmentLabel.Location = new System.Drawing.Point(28, 76);
+            this.subdepartmentLabel.Name = "subdepartmentLabel";
+            this.subdepartmentLabel.Size = new System.Drawing.Size(91, 13);
+            this.subdepartmentLabel.TabIndex = 47;
+            this.subdepartmentLabel.Text = "Субдепартамент";
+            // 
             // DetailView
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -602,6 +627,8 @@
         private System.Windows.Forms.DateTimePicker expirationDatePicker;
         private System.Windows.Forms.MaskedTextBox mobileTextBox;
         private System.Windows.Forms.ComboBox posCombo;
+        private System.Windows.Forms.Label subdepartmentLabel;
+        private System.Windows.Forms.ComboBox subdepartmentCombo;
     }
 }
 
