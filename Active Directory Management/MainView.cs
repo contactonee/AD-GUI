@@ -23,7 +23,7 @@ namespace Active_Directory_Management
         public MainView()
         {
             InitializeComponent();
-            //DumpADtoXML();
+            // DumpADtoXML();
             FillTree();
 
         }
@@ -160,7 +160,6 @@ namespace Active_Directory_Management
                 {
                     treeView.Nodes[deptNode.Attribute("dn").Value].Nodes.Add(divNode.Attribute("dn").Value,
                            divNode.Attribute("name").Value);
-                    Debug.WriteLine(divNode.Attribute("dn").Value);
 
                     var userNodes = divNode.Elements();
                     foreach(XElement userNode in userNodes)
@@ -179,37 +178,6 @@ namespace Active_Directory_Management
             
         }
         
-
-        /*
-        private void PopulateTree()
-        {
-
-            DirectorySearcher searcher = new DirectorySearcher(entry);
-            searcher.Filter = "(&(objectClass=user))";
-            searcher.PropertiesToLoad.Add("name");
-            searcher.SearchScope = SearchScope.Subtree;
-
-            var res = searcher.FindAll();
-            List <string> names = new List<string>();
-            foreach(SearchResult curr_res in res)
-            {
-                DirectoryEntry user = curr_res.GetDirectoryEntry();
-                names.Add(user.Properties["name"].Value.ToString());
-               
-            }
-            names.Sort();
-            foreach(string name in names)
-            {
-                treeView.Items.Add(name);
-                treeViewCache.Items.Add(name);
-            }
-            
-
-
-
-            
-        }
-        */
         private void SearchBox_TextChanged(object sender, EventArgs e)
         {
             
@@ -224,15 +192,18 @@ namespace Active_Directory_Management
             else
             {
                 XDocument doc = XDocument.Load("users.xml");
-                foreach(XElement elem in doc.Root.Descendants("user"))
-                {
-                    Debug.WriteLine(elem.Attribute("name").Value);
-                    if (elem.Attribute("name").Value.ToLower().StartsWith(searchBox.Text.ToLower()))
-                    {
-                        treeView.Nodes.Add(elem.Attribute("dn").Value, elem.Attribute("name").Value);
-                    }    
-                }
+                
 
+
+                var users = doc.Root.Descendants("user")
+                    .Where(t => t.Element("firstName").Value.ToLower().StartsWith(searchBox.Text.ToLower())
+                    || t.Element("lastName").Value.ToLower().StartsWith(searchBox.Text.ToLower())
+                    || t.Attribute("name").Value.ToLower().StartsWith(searchBox.Text.ToLower())
+                    || String.Concat(t.Element("firstName").Value, " ", t.Element("lastName").Value).ToLower().StartsWith(searchBox.Text.ToLower()))
+                    .ToList();
+
+                foreach (XElement elem in users)
+                    treeView.Nodes.Add(elem.Attribute("dn").Value, elem.Attribute("name").Value);
                 
             }
 
@@ -263,43 +234,56 @@ namespace Active_Directory_Management
 
         private void treeView_AfterSelect(object sender, TreeViewEventArgs e)
         {
-            // Debug.WriteLine(treeView.SelectedNode.Name);
-
             if (treeView.SelectedNode.Name.StartsWith("CN"))
             {
                 XDocument doc = XDocument.Load("users.xml");
+                switchPanel.Enabled = false;
 
-                foreach(XElement elem in doc.Root.Descendants("user"))
-                {
-                    Debug.WriteLine(elem.Attribute("name").Value);
-                }
+                var res = doc.Root.Descendants("user")
+                    .Where(t => t.Attribute("name").Value == treeView.SelectedNode.Text)
+                    .Select(x => new { first = x.Element("firstName").Value, last = x.Element("lastName").Value })
+                    .First();
+
+                firstBox.Text = res.first;
+                lastBox.Text = res.last;
                 
+                
+                
+                cdCheck.Checked = InGroup(treeView.SelectedNode.Text, Properties.Resources.cdGroup);
+                usbDiskCheck.Checked = InGroup(treeView.SelectedNode.Text, Properties.Resources.usbDiskGroup);
+                usbDeviceCheck.Checked = InGroup(treeView.SelectedNode.Text, Properties.Resources.usbDeviceGroup);
 
+                if(InGroup(treeView.SelectedNode.Text, Properties.Resources.internetFullAccessGroup))
+                    internetCombo.SelectedIndex = 2;
+                else
+                {
+                    if (InGroup(treeView.SelectedNode.Text, Properties.Resources.internetLimitedAccessGroup))
+                        internetCombo.SelectedIndex = 1;
+                    else
+                        internetCombo.SelectedIndex = 0;
+                }
 
                 switchPanel.Enabled = true;
 
-                DirectorySearcher searcher = new DirectorySearcher(Properties.Resources.devAddr);
-                
-                searcher.Filter = String.Format("(&(name={0})(memberof={1}))", treeView.SelectedNode.Text, Properties.Resources.usbDiskGroup);
-                SearchResult result = searcher.FindOne();
-                usbDiskCheck.Checked = (searcher.FindOne() != null);
-
-                searcher.Filter = String.Format("(&(name={0})(memberof={1}))", treeView.SelectedNode.Text, Properties.Resources.usbDeviceGroup);
-                result = searcher.FindOne();
-                usbDeviceCheck.Checked = (searcher.FindOne() != null);
-
-                searcher.Filter = String.Format("(&(name={0})(memberof={1}))", treeView.SelectedNode.Text, Properties.Resources.cdGroup);
-                result = searcher.FindOne();
-                cdCheck.Checked = (searcher.FindOne() != null);
-
-                searcher.Dispose();
-
-
             }
             else
-            {
                 switchPanel.Enabled = false;
-            }
         }
+
+        private bool InGroup(string name, string group)
+        {
+            DirectorySearcher searcher = new DirectorySearcher(Properties.Resources.devAddr);
+
+            searcher.Filter = String.Format("(&(name={0})(memberof={1}))", name, group);
+            SearchResult result = searcher.FindOne();
+            searcher.Dispose();
+            if (result != null)
+                return true;
+            else
+                return false;
+
+        }
+        
+        
     }
 }

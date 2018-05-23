@@ -132,6 +132,12 @@
   <data name="domain" xml:space="preserve">
     <value>DC=nng,DC=kz</value>
   </data>
+  <data name="internetFullAccessGroup" xml:space="preserve">
+    <value>CN=FullAccess,OU=InternetAccess,OU=Groups,DC=nng,DC=kz</value>
+  </data>
+  <data name="internetLimitedAccessGroup" xml:space="preserve">
+    <value>CN=LimitedAccess,OU=InternetAccess,OU=Groups,DC=nng,DC=kz</value>
+  </data>
   <data name="uradevAddr" xml:space="preserve">
     <value>LDAP://OU=Users,OU=Uralsk,DC=ura,DC=nng,DC=kz</value>
   </data>

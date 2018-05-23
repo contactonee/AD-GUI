@@ -83,7 +83,7 @@
             // internetLabel
             // 
             this.internetLabel.AutoSize = true;
-            this.internetLabel.Location = new System.Drawing.Point(28, 150);
+            this.internetLabel.Location = new System.Drawing.Point(64, 170);
             this.internetLabel.Name = "internetLabel";
             this.internetLabel.Size = new System.Drawing.Size(104, 13);
             this.internetLabel.TabIndex = 11;
@@ -97,54 +97,54 @@
             "Отсутствует",
             "Ограниченный",
             "Полный"});
-            this.internetCombo.Location = new System.Drawing.Point(138, 147);
+            this.internetCombo.Location = new System.Drawing.Point(174, 167);
             this.internetCombo.Name = "internetCombo";
             this.internetCombo.Size = new System.Drawing.Size(121, 21);
             this.internetCombo.TabIndex = 10;
             // 
             // cloudCheck
             // 
-            this.cloudCheck.AutoSize = true;
-            this.cloudCheck.Location = new System.Drawing.Point(31, 85);
+            this.cloudCheck.Appearance = System.Windows.Forms.Appearance.Button;
+            this.cloudCheck.Location = new System.Drawing.Point(67, 116);
             this.cloudCheck.Name = "cloudCheck";
-            this.cloudCheck.Size = new System.Drawing.Size(150, 17);
+            this.cloudCheck.Size = new System.Drawing.Size(168, 28);
             this.cloudCheck.TabIndex = 9;
             this.cloudCheck.Text = "Личная папка (Диск K:\\)";
             this.cloudCheck.UseVisualStyleBackColor = true;
             // 
             // usbDeviceCheck
             // 
-            this.usbDeviceCheck.AutoSize = true;
-            this.usbDeviceCheck.Location = new System.Drawing.Point(31, 62);
+            this.usbDeviceCheck.Appearance = System.Windows.Forms.Appearance.Button;
+            this.usbDeviceCheck.Location = new System.Drawing.Point(67, 82);
             this.usbDeviceCheck.Name = "usbDeviceCheck";
-            this.usbDeviceCheck.Size = new System.Drawing.Size(165, 17);
+            this.usbDeviceCheck.Size = new System.Drawing.Size(168, 28);
             this.usbDeviceCheck.TabIndex = 8;
             this.usbDeviceCheck.Text = "Доступ к USB устройствам";
             this.usbDeviceCheck.UseVisualStyleBackColor = true;
             // 
             // usbDiskCheck
             // 
-            this.usbDiskCheck.AutoSize = true;
-            this.usbDiskCheck.Location = new System.Drawing.Point(31, 39);
+            this.usbDiskCheck.Appearance = System.Windows.Forms.Appearance.Button;
+            this.usbDiskCheck.Location = new System.Drawing.Point(67, 48);
             this.usbDiskCheck.Name = "usbDiskCheck";
-            this.usbDiskCheck.Size = new System.Drawing.Size(138, 17);
+            this.usbDiskCheck.Size = new System.Drawing.Size(168, 28);
             this.usbDiskCheck.TabIndex = 7;
             this.usbDiskCheck.Text = "Доступ к USB дискам";
             this.usbDiskCheck.UseVisualStyleBackColor = true;
             // 
             // cdCheck
             // 
-            this.cdCheck.AutoSize = true;
-            this.cdCheck.Location = new System.Drawing.Point(31, 16);
+            this.cdCheck.Appearance = System.Windows.Forms.Appearance.Button;
+            this.cdCheck.Location = new System.Drawing.Point(67, 14);
             this.cdCheck.Name = "cdCheck";
-            this.cdCheck.Size = new System.Drawing.Size(118, 17);
+            this.cdCheck.Size = new System.Drawing.Size(168, 28);
             this.cdCheck.TabIndex = 6;
             this.cdCheck.Text = "Доступ к CD/DVD";
             this.cdCheck.UseVisualStyleBackColor = true;
             // 
             // detailBtn
             // 
-            this.detailBtn.Location = new System.Drawing.Point(31, 215);
+            this.detailBtn.Location = new System.Drawing.Point(67, 235);
             this.detailBtn.Name = "detailBtn";
             this.detailBtn.Size = new System.Drawing.Size(100, 38);
             this.detailBtn.TabIndex = 12;
@@ -154,7 +154,7 @@
             // 
             // saveBtn
             // 
-            this.saveBtn.Location = new System.Drawing.Point(184, 223);
+            this.saveBtn.Location = new System.Drawing.Point(220, 243);
             this.saveBtn.Name = "saveBtn";
             this.saveBtn.Size = new System.Drawing.Size(75, 23);
             this.saveBtn.TabIndex = 13;

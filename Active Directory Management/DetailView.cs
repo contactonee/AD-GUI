@@ -15,8 +15,7 @@ namespace Active_Directory_Management
 {
     public partial class DetailView : Form
     {
-        private DirectoryEntry ldapConnection = new DirectoryEntry("LDAP://OU=Users,OU=Aktau,DC=nng,DC=kz");
-        private DirectoryEntry currDept;
+        private DirectoryEntry ldapConnection = new DirectoryEntry(Properties.Resources.devAddr);
         
 
 
