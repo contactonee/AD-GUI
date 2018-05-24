@@ -43,6 +43,7 @@
             this.listBox = new System.Windows.Forms.ListBox();
             this.treeView = new System.Windows.Forms.TreeView();
             this.switchPanel = new System.Windows.Forms.Panel();
+            this.updBtn = new System.Windows.Forms.Button();
             this.switchPanel.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -160,6 +161,7 @@
             this.saveBtn.TabIndex = 13;
             this.saveBtn.Text = "Сохранить";
             this.saveBtn.UseVisualStyleBackColor = true;
+            this.saveBtn.Click += new System.EventHandler(this.saveBtn_Click);
             // 
             // listBox
             // 
@@ -201,11 +203,22 @@
             this.switchPanel.Size = new System.Drawing.Size(450, 407);
             this.switchPanel.TabIndex = 19;
             // 
+            // updBtn
+            // 
+            this.updBtn.Location = new System.Drawing.Point(713, 10);
+            this.updBtn.Name = "updBtn";
+            this.updBtn.Size = new System.Drawing.Size(75, 23);
+            this.updBtn.TabIndex = 20;
+            this.updBtn.Text = "Обновить";
+            this.updBtn.UseVisualStyleBackColor = true;
+            this.updBtn.Click += new System.EventHandler(this.updBtn_Click);
+            // 
             // MainView
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
+            this.Controls.Add(this.updBtn);
             this.Controls.Add(this.switchPanel);
             this.Controls.Add(this.treeView);
             this.Controls.Add(this.listBox);
@@ -239,5 +252,6 @@
         private System.Windows.Forms.ListBox listBox;
         private System.Windows.Forms.TreeView treeView;
         private System.Windows.Forms.Panel switchPanel;
+        private System.Windows.Forms.Button updBtn;
     }
 }

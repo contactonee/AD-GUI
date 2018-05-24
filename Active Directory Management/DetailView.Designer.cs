@@ -32,6 +32,8 @@
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.subdepartmentLabel = new System.Windows.Forms.Label();
+            this.subdepartmentCombo = new System.Windows.Forms.ComboBox();
             this.posCombo = new System.Windows.Forms.ComboBox();
             this.internalLabel = new System.Windows.Forms.Label();
             this.divLabel = new System.Windows.Forms.Label();
@@ -68,12 +70,10 @@
             this.limitedRadio = new System.Windows.Forms.RadioButton();
             this.internetLabel = new System.Windows.Forms.Label();
             this.internetCombo = new System.Windows.Forms.ComboBox();
-            this.cloudCheck = new System.Windows.Forms.CheckBox();
-            this.usbDeviceCheck = new System.Windows.Forms.CheckBox();
-            this.usbDiskCheck = new System.Windows.Forms.CheckBox();
             this.cdCheck = new System.Windows.Forms.CheckBox();
-            this.subdepartmentCombo = new System.Windows.Forms.ComboBox();
-            this.subdepartmentLabel = new System.Windows.Forms.Label();
+            this.usbDiskCheck = new System.Windows.Forms.CheckBox();
+            this.usbDeviceCheck = new System.Windows.Forms.CheckBox();
+            this.cloudCheck = new System.Windows.Forms.CheckBox();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.groupBox2.SuspendLayout();
@@ -138,6 +138,27 @@
             this.groupBox2.TabIndex = 45;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Информация о сотруднике";
+            // 
+            // subdepartmentLabel
+            // 
+            this.subdepartmentLabel.AutoSize = true;
+            this.subdepartmentLabel.Enabled = false;
+            this.subdepartmentLabel.Location = new System.Drawing.Point(28, 76);
+            this.subdepartmentLabel.Name = "subdepartmentLabel";
+            this.subdepartmentLabel.Size = new System.Drawing.Size(91, 13);
+            this.subdepartmentLabel.TabIndex = 47;
+            this.subdepartmentLabel.Text = "Субдепартамент";
+            // 
+            // subdepartmentCombo
+            // 
+            this.subdepartmentCombo.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.subdepartmentCombo.Enabled = false;
+            this.subdepartmentCombo.FormattingEnabled = true;
+            this.subdepartmentCombo.Location = new System.Drawing.Point(125, 73);
+            this.subdepartmentCombo.Name = "subdepartmentCombo";
+            this.subdepartmentCombo.Size = new System.Drawing.Size(289, 21);
+            this.subdepartmentCombo.Sorted = true;
+            this.subdepartmentCombo.TabIndex = 46;
             // 
             // posCombo
             // 
@@ -417,13 +438,13 @@
             // 
             // tabPage2
             // 
+            this.tabPage2.Controls.Add(this.cdCheck);
+            this.tabPage2.Controls.Add(this.usbDiskCheck);
+            this.tabPage2.Controls.Add(this.usbDeviceCheck);
+            this.tabPage2.Controls.Add(this.cloudCheck);
             this.tabPage2.Controls.Add(this.groupBox3);
             this.tabPage2.Controls.Add(this.internetLabel);
             this.tabPage2.Controls.Add(this.internetCombo);
-            this.tabPage2.Controls.Add(this.cloudCheck);
-            this.tabPage2.Controls.Add(this.usbDeviceCheck);
-            this.tabPage2.Controls.Add(this.usbDiskCheck);
-            this.tabPage2.Controls.Add(this.cdCheck);
             this.tabPage2.Location = new System.Drawing.Point(4, 22);
             this.tabPage2.Name = "tabPage2";
             this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
@@ -431,6 +452,7 @@
             this.tabPage2.TabIndex = 1;
             this.tabPage2.Text = "Опции";
             this.tabPage2.UseVisualStyleBackColor = true;
+            this.tabPage2.Click += new System.EventHandler(this.tabPage2_Click);
             // 
             // groupBox3
             // 
@@ -479,7 +501,7 @@
             // internetLabel
             // 
             this.internetLabel.AutoSize = true;
-            this.internetLabel.Location = new System.Drawing.Point(23, 155);
+            this.internetLabel.Location = new System.Drawing.Point(23, 192);
             this.internetLabel.Name = "internetLabel";
             this.internetLabel.Size = new System.Drawing.Size(104, 13);
             this.internetLabel.TabIndex = 5;
@@ -493,71 +515,50 @@
             "Отсутствует",
             "Ограниченный",
             "Полный"});
-            this.internetCombo.Location = new System.Drawing.Point(133, 152);
+            this.internetCombo.Location = new System.Drawing.Point(133, 189);
             this.internetCombo.Name = "internetCombo";
             this.internetCombo.Size = new System.Drawing.Size(121, 21);
             this.internetCombo.TabIndex = 4;
             // 
-            // cloudCheck
-            // 
-            this.cloudCheck.AutoSize = true;
-            this.cloudCheck.Location = new System.Drawing.Point(26, 90);
-            this.cloudCheck.Name = "cloudCheck";
-            this.cloudCheck.Size = new System.Drawing.Size(150, 17);
-            this.cloudCheck.TabIndex = 3;
-            this.cloudCheck.Text = "Личная папка (Диск K:\\)";
-            this.cloudCheck.UseVisualStyleBackColor = true;
-            // 
-            // usbDeviceCheck
-            // 
-            this.usbDeviceCheck.AutoSize = true;
-            this.usbDeviceCheck.Location = new System.Drawing.Point(26, 67);
-            this.usbDeviceCheck.Name = "usbDeviceCheck";
-            this.usbDeviceCheck.Size = new System.Drawing.Size(165, 17);
-            this.usbDeviceCheck.TabIndex = 2;
-            this.usbDeviceCheck.Text = "Доступ к USB устройствам";
-            this.usbDeviceCheck.UseVisualStyleBackColor = true;
-            // 
-            // usbDiskCheck
-            // 
-            this.usbDiskCheck.AutoSize = true;
-            this.usbDiskCheck.Location = new System.Drawing.Point(26, 44);
-            this.usbDiskCheck.Name = "usbDiskCheck";
-            this.usbDiskCheck.Size = new System.Drawing.Size(138, 17);
-            this.usbDiskCheck.TabIndex = 1;
-            this.usbDiskCheck.Text = "Доступ к USB дискам";
-            this.usbDiskCheck.UseVisualStyleBackColor = true;
-            // 
             // cdCheck
             // 
-            this.cdCheck.AutoSize = true;
+            this.cdCheck.Appearance = System.Windows.Forms.Appearance.Button;
             this.cdCheck.Location = new System.Drawing.Point(26, 21);
             this.cdCheck.Name = "cdCheck";
-            this.cdCheck.Size = new System.Drawing.Size(118, 17);
-            this.cdCheck.TabIndex = 0;
+            this.cdCheck.Size = new System.Drawing.Size(168, 28);
+            this.cdCheck.TabIndex = 10;
             this.cdCheck.Text = "Доступ к CD/DVD";
             this.cdCheck.UseVisualStyleBackColor = true;
             // 
-            // subdepartmentCombo
+            // usbDiskCheck
             // 
-            this.subdepartmentCombo.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.subdepartmentCombo.Enabled = false;
-            this.subdepartmentCombo.FormattingEnabled = true;
-            this.subdepartmentCombo.Location = new System.Drawing.Point(125, 73);
-            this.subdepartmentCombo.Name = "subdepartmentCombo";
-            this.subdepartmentCombo.Size = new System.Drawing.Size(289, 21);
-            this.subdepartmentCombo.Sorted = true;
-            this.subdepartmentCombo.TabIndex = 46;
+            this.usbDiskCheck.Appearance = System.Windows.Forms.Appearance.Button;
+            this.usbDiskCheck.Location = new System.Drawing.Point(26, 55);
+            this.usbDiskCheck.Name = "usbDiskCheck";
+            this.usbDiskCheck.Size = new System.Drawing.Size(168, 28);
+            this.usbDiskCheck.TabIndex = 11;
+            this.usbDiskCheck.Text = "Доступ к USB дискам";
+            this.usbDiskCheck.UseVisualStyleBackColor = true;
             // 
-            // subdepartmentLabel
+            // usbDeviceCheck
             // 
-            this.subdepartmentLabel.AutoSize = true;
-            this.subdepartmentLabel.Enabled = false;
-            this.subdepartmentLabel.Location = new System.Drawing.Point(28, 76);
-            this.subdepartmentLabel.Name = "subdepartmentLabel";
-            this.subdepartmentLabel.Size = new System.Drawing.Size(91, 13);
-            this.subdepartmentLabel.TabIndex = 47;
-            this.subdepartmentLabel.Text = "Субдепартамент";
+            this.usbDeviceCheck.Appearance = System.Windows.Forms.Appearance.Button;
+            this.usbDeviceCheck.Location = new System.Drawing.Point(26, 89);
+            this.usbDeviceCheck.Name = "usbDeviceCheck";
+            this.usbDeviceCheck.Size = new System.Drawing.Size(168, 28);
+            this.usbDeviceCheck.TabIndex = 12;
+            this.usbDeviceCheck.Text = "Доступ к USB устройствам";
+            this.usbDeviceCheck.UseVisualStyleBackColor = true;
+            // 
+            // cloudCheck
+            // 
+            this.cloudCheck.Appearance = System.Windows.Forms.Appearance.Button;
+            this.cloudCheck.Location = new System.Drawing.Point(26, 123);
+            this.cloudCheck.Name = "cloudCheck";
+            this.cloudCheck.Size = new System.Drawing.Size(168, 28);
+            this.cloudCheck.TabIndex = 13;
+            this.cloudCheck.Text = "Личная папка (Диск K:\\)";
+            this.cloudCheck.UseVisualStyleBackColor = true;
             // 
             // DetailView
             // 
@@ -619,16 +620,16 @@
         private System.Windows.Forms.RadioButton unlimitedRadio;
         private System.Windows.Forms.Label internetLabel;
         private System.Windows.Forms.ComboBox internetCombo;
-        private System.Windows.Forms.CheckBox cloudCheck;
-        private System.Windows.Forms.CheckBox usbDeviceCheck;
-        private System.Windows.Forms.CheckBox usbDiskCheck;
-        private System.Windows.Forms.CheckBox cdCheck;
         private System.Windows.Forms.GroupBox groupBox3;
         private System.Windows.Forms.DateTimePicker expirationDatePicker;
         private System.Windows.Forms.MaskedTextBox mobileTextBox;
         private System.Windows.Forms.ComboBox posCombo;
         private System.Windows.Forms.Label subdepartmentLabel;
         private System.Windows.Forms.ComboBox subdepartmentCombo;
+        private System.Windows.Forms.CheckBox cdCheck;
+        private System.Windows.Forms.CheckBox usbDiskCheck;
+        private System.Windows.Forms.CheckBox usbDeviceCheck;
+        private System.Windows.Forms.CheckBox cloudCheck;
     }
 }
 

@@ -26,20 +26,17 @@ namespace Active_Directory_Management
             InitializeComponent();
             OnLoad();
         }
-        public DetailView(DirectoryEntry user)
+        public DetailView(XElement user)
         {
             InitializeComponent();
             OnLoad();
+            FillTheGaps(user);
         }
 
         private void OnLoad()
         {
             cityCombo.Items.Add("Aktau");
 
-            XDocument doc = XDocument.Load("users.xml");
-            departmentCombo.Items.AddRange(doc.Root.Descendants("department")
-                .Select(t => t.Attribute("name").Value)
-                .ToArray());
             
 
             unlimitedRadio.Select();
@@ -47,6 +44,20 @@ namespace Active_Directory_Management
             internetCombo.SelectedIndex = 0;
             expirationDatePicker.Value = DateTime.Today.AddMonths(1);
             birthdayDatePicker.Value = DateTime.Today.AddYears(-70);
+            mobileTextBox.TextMaskFormat = MaskFormat.ExcludePromptAndLiterals;
+        }
+
+        private void FillTheGaps(XElement user)
+        {
+            nameTextBox.Text = user.Element("givenName").Value;
+            surnameTextBox.Text = user.Element("sn").Value;
+            middleNameTextBox.Text = user.Element("middleName").Value;
+
+            mobileTextBox.Text = user.Element("mobile").Value;
+
+            departmentCombo.Items.Add("abacaba");
+            departmentCombo.Text = "abacaba";
+            
         }
 
         private bool CheckChar(string input)
@@ -273,9 +284,7 @@ namespace Active_Directory_Management
 
             XDocument doc = XDocument.Load("users.xml");
             var res = doc.Root.Descendants("department")
-                .Where(t => t.Attribute("name").Value == departmentCombo.Text)
-                .Select(x => x.Elements("subdepartment"))
-                .First();
+                .Where(t => t.Attribute("name").Value == departmentCombo.Text);
 
             subdepartmentCombo.BeginUpdate();
             subdepartmentCombo.Items.Clear();
@@ -315,6 +324,11 @@ namespace Active_Directory_Management
         {
             
             
+
+        }
+
+        private void tabPage2_Click(object sender, EventArgs e)
+        {
 
         }
     }

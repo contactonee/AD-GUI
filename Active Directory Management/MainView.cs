@@ -17,15 +17,52 @@ namespace Active_Directory_Management
     {
 
         private DirectoryEntry entry = new DirectoryEntry(Properties.Resources.devAddr);
-        
-        
+        private XDocument doc = XDocument.Load("users.xml");
+        private XElement currUser;
+
+        // Массив атрибутов для выгрузки из AD
+        // Используется в DumpADtoXML()
+
+        private string[] props = new string[]
+        {
+            "description",
+            "title",
+            "physicaldeliveryofficename",
+            "telephoneNumber",
+            "givenName",
+            "sn",
+            "department",
+            "memberOf",
+            "middleName",
+            "mobile",
+            "samaccountname",
+        };
+
 
         public MainView()
         {
             InitializeComponent();
-            // DumpADtoXML();
             FillTree();
+        }
 
+
+        //TODO Сделать нормальный метод вытягивания данных с AD
+        private void AppendUsers(SearchResultCollection response, XElement parent)
+        {
+            foreach(SearchResult res in response)
+            {
+                DirectoryEntry entry = res.GetDirectoryEntry();
+                XElement elem = new XElement("user",
+                    new XAttribute("name", entry.Properties["name"]));
+                
+                foreach(string prop in props)
+                    elem.Add(new XElement(prop), entry.Properties[prop]);
+
+                parent.Add(elem);
+
+                entry.Dispose();
+                
+            }
         }
 
         
@@ -35,34 +72,28 @@ namespace Active_Directory_Management
             // Настройка поисковика по записям
             // Поиск департаментов 
             DirectorySearcher searcher = new DirectorySearcher(entry);
-            searcher.Filter = "(objectClass=organizationalUnit)";
-            searcher.PropertiesToLoad.AddRange(new string[] {
-                "name",
-                "description",
-                "title",
-                "physicaldeliveryofficename",
-                "telephoneNumber",
-                "givenName",
-                "sn",
-                "department",
-                "userPrincipalName",
-                "memberOf",
-            });
             searcher.SearchScope = SearchScope.OneLevel;
 
-            var deptResults = searcher.FindAll();
+            searcher.PropertiesToLoad.Add("name");
+            searcher.PropertiesToLoad.AddRange(props);
 
-            // Создание нового документа XML и создание в нем корня company
-            XDocument doc = new XDocument();
-            doc.Add(new XElement("company"));
             
 
+            // Создание нового документа XML и создание в нем корня company
+            XDocument xmlfile = new XDocument();
+            xmlfile.Add(new XElement("company"));
+
+            searcher.Filter = "(objectClass=organizationalUnit)";
+            var departmentSearchResult = searcher.FindAll();
+
             // Переход на уровень глубже по департаментам
-            foreach (SearchResult deptRes in deptResults)
+            foreach (SearchResult departmentRes in departmentSearchResult)
             {
 
                 // Поиск субдепартаментов
-                DirectoryEntry deptEntry = deptRes.GetDirectoryEntry();
+                DirectoryEntry deptEntry = departmentRes.GetDirectoryEntry();
+
+                
 
                 string deptName = deptEntry.Properties["name"].Value.ToString();
                 XElement deptNode = new XElement("department",
@@ -92,26 +123,16 @@ namespace Active_Directory_Management
                     {
                         DirectoryEntry userEntry = userRes.GetDirectoryEntry();
 
-
                         XElement userNode = new XElement("user",
                             new XAttribute("name", userEntry.Properties["name"].Value),
-                            new XAttribute("dn", userEntry.Properties["distinguishedName"].Value.ToString()),
-                            new XElement("firstName", userEntry.Properties["givenName"].Value),
-                            new XElement("lastName", userEntry.Properties["sn"]),
-                            new XElement("telephone", userEntry.Properties["telephoneNumber"]),
-                            new XElement("room", userEntry.Properties["physicaldeliveryofficename"]),
-                            new XElement("position", userEntry.Properties["title"]),
-                            new XElement("group", userEntry.Properties["description"]),
-                            new XElement("departmentRU", userEntry.Properties["department"]),
-                            new XElement("logonName", userEntry.Properties["userPrincipalName"]),
-                            new XElement("memberof", userEntry.Properties["memberof"]));
+                            new XAttribute("dn", userEntry.Properties["distinguishedName"].Value));
+
+                        foreach(string prop in props)
+                            userNode.Add(new XElement(prop, userEntry.Properties[prop]));
+
                         divNode.Add(userNode);
-                        
                     }
-
                     deptNode.Add(divNode);
-
-
                 }
 
 
@@ -127,31 +148,27 @@ namespace Active_Directory_Management
                     DirectoryEntry userEntry = userRes.GetDirectoryEntry();
 
                     XElement userNode = new XElement("user",
-                            new XAttribute("name", userEntry.Properties["name"].Value),
-                            new XAttribute("dn", userEntry.Properties["distinguishedName"].Value.ToString()),
-                            new XElement("firstName", userEntry.Properties["givenName"].Value),
-                            new XElement("lastName", userEntry.Properties["sn"]),
-                            new XElement("telephone", userEntry.Properties["telephoneNumber"]),
-                            new XElement("room", userEntry.Properties["physicaldeliveryofficename"]),
-                            new XElement("position", userEntry.Properties["title"]),
-                            new XElement("group", userEntry.Properties["description"]),
-                            new XElement("departmentRU", userEntry.Properties["department"]),
-                            new XElement("logonName", userEntry.Properties["userPrincipalName"]),
-                            new XElement("memberof", userEntry.Properties["memberof"]));
+                        new XAttribute("name", userEntry.Properties["name"].Value),
+                        new XAttribute("dn", userEntry.Properties["distinguishedName"].Value));
+
+                    foreach (string prop in props)
+                        userNode.Add(new XElement(prop, userEntry.Properties[prop]));
 
                     deptNode.Add(userNode);
                 }
 
-                doc.Root.Add(deptNode);
+                xmlfile.Root.Add(deptNode);
             }
 
             
-            doc.Save("users.xml");
+            xmlfile.Save("users.xml");
         }
                
         private void FillTree()
         {
-            XDocument doc = XDocument.Load("users.xml");
+            treeView.Nodes.Clear();
+
+
             foreach(XElement deptNode in doc.Root.Elements())
             {
                 treeView.Nodes.Add(deptNode.Attribute("dn").Value, deptNode.Attribute("name").Value);
@@ -191,15 +208,10 @@ namespace Active_Directory_Management
             }
             else
             {
-                XDocument doc = XDocument.Load("users.xml");
-                
-
-
                 var users = doc.Root.Descendants("user")
-                    .Where(t => t.Element("firstName").Value.ToLower().StartsWith(searchBox.Text.ToLower())
-                    || t.Element("lastName").Value.ToLower().StartsWith(searchBox.Text.ToLower())
-                    || t.Attribute("name").Value.ToLower().StartsWith(searchBox.Text.ToLower())
-                    || String.Concat(t.Element("firstName").Value, " ", t.Element("lastName").Value).ToLower().StartsWith(searchBox.Text.ToLower()))
+                    .Where(t => t.Element("givenName").Value.ToLower().StartsWith(searchBox.Text.ToLower())
+                    || t.Element("sn").Value.ToLower().StartsWith(searchBox.Text.ToLower())
+                    || t.Attribute("name").Value.ToLower().StartsWith(searchBox.Text.ToLower()))
                     .ToList();
 
                 foreach (XElement elem in users)
@@ -228,7 +240,7 @@ namespace Active_Directory_Management
 
         private void DetailBtn_Click(object sender, EventArgs e)
         {
-            Form detailView = new DetailView(new DirectoryEntry());
+            Form detailView = new DetailView(currUser);
             detailView.ShowDialog();
         }
 
@@ -236,28 +248,26 @@ namespace Active_Directory_Management
         {
             if (treeView.SelectedNode.Name.StartsWith("CN"))
             {
-                XDocument doc = XDocument.Load("users.xml");
-                switchPanel.Enabled = false;
 
-                var res = doc.Root.Descendants("user")
+                currUser = doc.Root.Descendants("user")
                     .Where(t => t.Attribute("name").Value == treeView.SelectedNode.Text)
-                    .Select(x => new { first = x.Element("firstName").Value, last = x.Element("lastName").Value })
                     .First();
 
-                firstBox.Text = res.first;
-                lastBox.Text = res.last;
+                
+                firstBox.Text = currUser.Element("givenName").Value;
+                lastBox.Text = currUser.Element("sn").Value;
                 
                 
                 
-                cdCheck.Checked = InGroup(treeView.SelectedNode.Text, Properties.Resources.cdGroup);
-                usbDiskCheck.Checked = InGroup(treeView.SelectedNode.Text, Properties.Resources.usbDiskGroup);
-                usbDeviceCheck.Checked = InGroup(treeView.SelectedNode.Text, Properties.Resources.usbDeviceGroup);
+                cdCheck.Checked = InGroup(currUser, Properties.Resources.cdGroup);
+                usbDiskCheck.Checked = InGroup(currUser, Properties.Resources.usbDiskGroup);
+                usbDeviceCheck.Checked = InGroup(currUser, Properties.Resources.usbDeviceGroup);
 
-                if(InGroup(treeView.SelectedNode.Text, Properties.Resources.internetFullAccessGroup))
+                if(InGroup(currUser, Properties.Resources.internetFullAccessGroup))
                     internetCombo.SelectedIndex = 2;
                 else
                 {
-                    if (InGroup(treeView.SelectedNode.Text, Properties.Resources.internetLimitedAccessGroup))
+                    if (InGroup(currUser, Properties.Resources.internetLimitedAccessGroup))
                         internetCombo.SelectedIndex = 1;
                     else
                         internetCombo.SelectedIndex = 0;
@@ -270,20 +280,28 @@ namespace Active_Directory_Management
                 switchPanel.Enabled = false;
         }
 
-        private bool InGroup(string name, string group)
+        private bool InGroup(XElement user, string group)
         {
-            DirectorySearcher searcher = new DirectorySearcher(Properties.Resources.devAddr);
 
-            searcher.Filter = String.Format("(&(name={0})(memberof={1}))", name, group);
-            SearchResult result = searcher.FindOne();
-            searcher.Dispose();
-            if (result != null)
-                return true;
-            else
-                return false;
+
+            String groups = user.Element("memberOf").Value;
+
+            return groups.Contains(group);
 
         }
-        
-        
+
+        private void updBtn_Click(object sender, EventArgs e)
+        {
+            this.Enabled = false;
+            DumpADtoXML();
+            FillTree();
+            this.Enabled = true;
+        }
+
+        private void saveBtn_Click(object sender, EventArgs e)
+        {
+            
+
+        }
     }
 }
