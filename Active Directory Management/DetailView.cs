@@ -323,10 +323,21 @@ namespace Active_Directory_Management
 
             foreach (XElement elem in res)
             {
-                diffDivs.Add(elem.Element("description").Value);
-                diffPoss.Add(elem.Element("title").Value);
-                diffRooms.Add(elem.Element("physicaldeliveryofficename").Value);
-                diffTels.Add(elem.Element("telephoneNumber").Value);
+                if(elem.Element("description").Value.Trim() != string.Empty
+                        && !elem.Element("description").Value.StartsWith("("))
+                    diffDivs.Add(elem.Element("description").Value);
+
+                if (elem.Element("title").Value.Trim() != string.Empty
+                        && !elem.Element("title").Value.StartsWith("("))
+                    diffPoss.Add(elem.Element("title").Value);
+
+                if (elem.Element("physicaldeliveryofficename").Value.Trim() != string.Empty
+                        && !elem.Element("physicaldeliveryofficename").Value.StartsWith("("))
+                    diffRooms.Add(elem.Element("physicaldeliveryofficename").Value);
+
+                if (elem.Element("telephoneNumber").Value.Trim() != string.Empty
+                        && !elem.Element("telephoneNumber").Value.StartsWith("("))
+                    diffTels.Add(elem.Element("telephoneNumber").Value);
             }
 
             divCombo.Items.Clear();

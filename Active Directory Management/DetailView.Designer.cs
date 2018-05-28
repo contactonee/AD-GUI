@@ -179,7 +179,6 @@
             // divLabel
             // 
             this.divLabel.AutoSize = true;
-            this.divLabel.Enabled = false;
             this.divLabel.Location = new System.Drawing.Point(81, 103);
             this.divLabel.Name = "divLabel";
             this.divLabel.Size = new System.Drawing.Size(38, 13);
