@@ -18,7 +18,7 @@ namespace Active_Directory_Management
     public partial class DetailView : Form
     {
         private DirectoryEntry ldapConnection = new DirectoryEntry(Properties.Resources.devAddr);
-        
+        private XDocument doc = XDocument.Load("users.xml");
 
 
         public DetailView()
@@ -31,13 +31,13 @@ namespace Active_Directory_Management
             InitializeComponent();
             OnLoad();
             FillTheGaps(user);
+
+            
         }
 
         private void OnLoad()
         {
             cityCombo.Items.Add("Aktau");
-
-            
 
             unlimitedRadio.Select();
             cityCombo.SelectedIndex = 0;
@@ -45,6 +45,12 @@ namespace Active_Directory_Management
             expirationDatePicker.Value = DateTime.Today.AddMonths(1);
             birthdayDatePicker.Value = DateTime.Today.AddYears(-70);
             mobileTextBox.TextMaskFormat = MaskFormat.ExcludePromptAndLiterals;
+
+            var res = doc.Root.Elements("dept")
+                .Select(t => t.Attribute("russName").Value)
+                .ToArray();
+            departmentCombo.Items.AddRange(res);                                                                                       
+
         }
 
         private void FillTheGaps(XElement user)
@@ -53,11 +59,20 @@ namespace Active_Directory_Management
             surnameTextBox.Text = user.Element("sn").Value;
             middleNameTextBox.Text = user.Element("middleName").Value;
 
+            // Перезапись после автотранслита для точного соответствия с базой
+            nameTranslitTextBox.Text = user.Attribute("name").Value.Split(' ')[1];
+            surnameTranslitTextBox.Text = user.Attribute("name").Value.Split(' ')[0];
+
             mobileTextBox.Text = user.Element("mobile").Value;
 
-            departmentCombo.Items.Add("abacaba");
-            departmentCombo.Text = "abacaba";
-            
+            departmentCombo.SelectedIndex = departmentCombo.Items.IndexOf(user.Element("department").Value);
+
+            if (user.Parent.Name == "subdept")
+                subdepartmentCombo.SelectedIndex = subdepartmentCombo.Items.IndexOf(user.Parent.Attribute("russName"));
+
+
+
+
         }
 
         private bool CheckChar(string input)
@@ -78,7 +93,7 @@ namespace Active_Directory_Management
             }
             sender.ForeColor = Color.Black;
             Dictionary<char, string> dict = new Dictionary<char, string>();
-            dict['Й'] = "Y";
+            dict['Й'] = "I";
             dict['Ц'] = "C";
             dict['У'] = "U";
             dict['К'] = "K";
@@ -282,31 +297,47 @@ namespace Active_Directory_Management
             //Update telephones
 
 
-            XDocument doc = XDocument.Load("users.xml");
-            var res = doc.Root.Descendants("department")
-                .Where(t => t.Attribute("name").Value == departmentCombo.Text);
+            var res = doc.Root.Elements("dept")
+                .Where(t => t.Attribute("russName").Value == departmentCombo.Text)
+                .Select(t => t.Elements("subdept"))
+                .First();
 
             subdepartmentCombo.BeginUpdate();
             subdepartmentCombo.Items.Clear();
-            subdepartmentCombo.Items.Add("");
+            subdepartmentCombo.Items.Add("-");
+            subdepartmentCombo.SelectedIndex = 0;
 
             foreach (XElement elem in res)
                 subdepartmentCombo.Items.Add(elem.Attribute("name").Value);
-
+            
             subdepartmentCombo.EndUpdate();
 
-            if (res.Count() == 0)
+            res = doc.Root.Descendants("user")
+                .Where(t => t.Element("department").Value == departmentCombo.Text)
+                .ToList();
+
+            HashSet<string> diffDivs = new HashSet<string>();
+            HashSet<string> diffPoss = new HashSet<string>();
+            HashSet<string> diffRooms = new HashSet<string>();
+            HashSet<string> diffTels = new HashSet<string>();
+
+            foreach (XElement elem in res)
             {
-                subdepartmentCombo.Enabled = false;
-                subdepartmentLabel.Enabled = false;
-            }
-            else
-            {
-                subdepartmentCombo.Enabled = true;
-                subdepartmentLabel.Enabled = true;
+                diffDivs.Add(elem.Element("description").Value);
+                diffPoss.Add(elem.Element("title").Value);
+                diffRooms.Add(elem.Element("physicaldeliveryofficename").Value);
+                diffTels.Add(elem.Element("telephoneNumber").Value);
             }
 
-            
+            divCombo.Items.Clear();
+            posCombo.Items.Clear();
+            roomCombo.Items.Clear();
+            telCombo.Items.Clear();
+
+            divCombo.Items.AddRange(diffDivs.ToArray());
+            posCombo.Items.AddRange(diffPoss.ToArray());
+            roomCombo.Items.AddRange(diffRooms.ToArray());
+            telCombo.Items.AddRange(diffTels.ToArray());
         }
         private void nameTextBox_TextChanged(object sender, EventArgs e)
         {
@@ -327,9 +358,19 @@ namespace Active_Directory_Management
 
         }
 
-        private void tabPage2_Click(object sender, EventArgs e)
+        private void roomCombo_SelectedIndexChanged(object sender, EventArgs e)
         {
+            var res = doc.Root.Descendants("user")
+                .Where(t => t.Element("physicaldeliveryofficename").Value == roomCombo.Text)
+                .Select(t => t.Element("telephoneNumber").Value);
 
+            HashSet<string> diffTels = new HashSet<string>();
+
+            foreach (string elem in res)
+                diffTels.Add(elem);
+
+            telCombo.Items.Clear();
+            telCombo.Items.AddRange(diffTels.ToArray());
         }
     }
 }

@@ -96,8 +96,9 @@ namespace Active_Directory_Management
                 
 
                 string deptName = deptEntry.Properties["name"].Value.ToString();
-                XElement deptNode = new XElement("department",
+                XElement deptNode = new XElement("dept",
                     new XAttribute("name", deptName),
+                    new XAttribute("russName", ""),
                     new XAttribute("dn", deptEntry.Properties["distinguishedName"].Value.ToString()));
 
                 searcher.SearchRoot = deptEntry;
@@ -110,7 +111,7 @@ namespace Active_Directory_Management
                     DirectoryEntry divEntry = divRes.GetDirectoryEntry();
 
                     string divName = divEntry.Properties["name"].Value.ToString();
-                    XElement divNode = new XElement("subdepartment",
+                    XElement divNode = new XElement("subdept",
                         new XAttribute("name", divName),
                         new XAttribute("dn", divEntry.Properties["distinguishedName"].Value.ToString()));
 
@@ -129,6 +130,10 @@ namespace Active_Directory_Management
 
                         foreach(string prop in props)
                             userNode.Add(new XElement(prop, userEntry.Properties[prop]));
+
+                        if (deptNode.Attribute("russName").Value == string.Empty)
+                            deptNode.Attribute("russName").SetValue(userNode.Element("department").Value);
+                        
 
                         divNode.Add(userNode);
                     }
@@ -154,6 +159,9 @@ namespace Active_Directory_Management
                     foreach (string prop in props)
                         userNode.Add(new XElement(prop, userEntry.Properties[prop]));
 
+                    if (deptNode.Attribute("russName").Value == string.Empty)
+                        deptNode.Attribute("russName").SetValue(userNode.Element("department").Value);
+
                     deptNode.Add(userNode);
                 }
 
@@ -171,8 +179,8 @@ namespace Active_Directory_Management
 
             foreach(XElement deptNode in doc.Root.Elements())
             {
-                treeView.Nodes.Add(deptNode.Attribute("dn").Value, deptNode.Attribute("name").Value);
-                var divNodes = deptNode.Elements("subdepartment");
+                treeView.Nodes.Add(deptNode.Attribute("dn").Value, deptNode.Attribute("russName").Value);
+                var divNodes = deptNode.Elements("subdept");
                 foreach(XElement divNode in divNodes)
                 {
                     treeView.Nodes[deptNode.Attribute("dn").Value].Nodes.Add(divNode.Attribute("dn").Value,
@@ -182,14 +190,14 @@ namespace Active_Directory_Management
                     foreach(XElement userNode in userNodes)
                     {
                         treeView.Nodes[deptNode.Attribute("dn").Value].Nodes[divNode.Attribute("dn").Value].Nodes.Add(userNode.Attribute("dn").Value,
-                           userNode.Attribute("name").Value);
+                           userNode.Element("sn").Value + " " + userNode.Element ("givenName").Value);
                     }
                 }
                 var users = deptNode.Elements("user");
                 foreach(XElement userNode in users)
                 {
                     treeView.Nodes[deptNode.Attribute("dn").Value].Nodes.Add(userNode.Attribute("dn").Value,
-                           userNode.Attribute("name").Value);
+                           userNode.Element("sn").Value + " " + userNode.Element ("givenName").Value);
                 }
             }
             
@@ -215,7 +223,7 @@ namespace Active_Directory_Management
                     .ToList();
 
                 foreach (XElement elem in users)
-                    treeView.Nodes.Add(elem.Attribute("dn").Value, elem.Attribute("name").Value);
+                    treeView.Nodes.Add(elem.Attribute("dn").Value, elem.Element("sn").Value + " " + elem.Element("givenName").Value);
                 
             }
 
@@ -250,14 +258,13 @@ namespace Active_Directory_Management
             {
 
                 currUser = doc.Root.Descendants("user")
-                    .Where(t => t.Attribute("name").Value == treeView.SelectedNode.Text)
+                    .Where(t => t.Element("sn").Value + " " + t.Element("givenName").Value == treeView.SelectedNode.Text)
                     .First();
 
                 
                 firstBox.Text = currUser.Element("givenName").Value;
                 lastBox.Text = currUser.Element("sn").Value;
-                
-                
+
                 
                 cdCheck.Checked = InGroup(currUser, Properties.Resources.cdGroup);
                 usbDiskCheck.Checked = InGroup(currUser, Properties.Resources.usbDiskGroup);
