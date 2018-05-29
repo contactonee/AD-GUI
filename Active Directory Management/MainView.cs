@@ -36,6 +36,7 @@ namespace Active_Directory_Management
             "middleName",
             "mobile",
             "samaccountname",
+            "extensionAttribute2"
         };
 
 
@@ -230,14 +231,6 @@ namespace Active_Directory_Management
             treeView.EndUpdate();
         }
 
-        
-    
-       
-        
-
-
-
-
         // Buttons behaviour
 
         private void CreateBtn_Click(object sender, EventArgs e)
@@ -261,20 +254,21 @@ namespace Active_Directory_Management
                     .Where(t => t.Element("sn").Value + " " + t.Element("givenName").Value == treeView.SelectedNode.Text)
                     .First();
 
-                
+
                 firstBox.Text = currUser.Element("givenName").Value;
                 lastBox.Text = currUser.Element("sn").Value;
 
-                
-                cdCheck.Checked = InGroup(currUser, Properties.Resources.cdGroup);
-                usbDiskCheck.Checked = InGroup(currUser, Properties.Resources.usbDiskGroup);
-                usbDeviceCheck.Checked = InGroup(currUser, Properties.Resources.usbDeviceGroup);
 
-                if(InGroup(currUser, Properties.Resources.internetFullAccessGroup))
+                
+                cdCheck.Checked = currUser.Element("memberOf").Value.Contains(Properties.Resources.cdGroup);
+                usbDiskCheck.Checked = currUser.Element("memberOf").Value.Contains(Properties.Resources.usbDiskGroup);
+                usbDeviceCheck.Checked = currUser.Element("memberOf").Value.Contains(Properties.Resources.usbDeviceGroup);
+
+                if (currUser.Element("memberOf").Value.Contains(Properties.Resources.internetFullAccessGroup))
                     internetCombo.SelectedIndex = 2;
                 else
                 {
-                    if (InGroup(currUser, Properties.Resources.internetLimitedAccessGroup))
+                    if (currUser.Element("memberOf").Value.Contains(Properties.Resources.internetLimitedAccessGroup))
                         internetCombo.SelectedIndex = 1;
                     else
                         internetCombo.SelectedIndex = 0;
@@ -284,17 +278,17 @@ namespace Active_Directory_Management
 
             }
             else
+            {
+                firstBox.Text = string.Empty;
+                lastBox.Text = string.Empty;
+
+                cdCheck.Checked = false;
+                usbDiskCheck.Checked = false;
+                usbDeviceCheck.Checked = false;
+
+                internetCombo.SelectedIndex = 0;
                 switchPanel.Enabled = false;
-        }
-
-        private bool InGroup(XElement user, string group)
-        {
-
-
-            String groups = user.Element("memberOf").Value;
-
-            return groups.Contains(group);
-
+            }
         }
 
         private void updBtn_Click(object sender, EventArgs e)

@@ -157,6 +157,7 @@
             this.subdepartmentCombo.Size = new System.Drawing.Size(289, 21);
             this.subdepartmentCombo.Sorted = true;
             this.subdepartmentCombo.TabIndex = 46;
+            this.subdepartmentCombo.SelectedIndexChanged += new System.EventHandler(this.subdepartmentCombo_SelectedIndexChanged);
             // 
             // posCombo
             // 
@@ -211,7 +212,7 @@
             this.roomCombo.Size = new System.Drawing.Size(123, 21);
             this.roomCombo.Sorted = true;
             this.roomCombo.TabIndex = 39;
-            this.roomCombo.SelectedIndexChanged += new System.EventHandler(this.roomCombo_SelectedIndexChanged);
+            this.roomCombo.TextChanged += new System.EventHandler(this.roomCombo_TextChanged);
             // 
             // divCombo
             // 
@@ -317,6 +318,7 @@
             // adressLabel
             // 
             this.adressLabel.AutoSize = true;
+            this.adressLabel.Enabled = false;
             this.adressLabel.Location = new System.Drawing.Point(24, 126);
             this.adressLabel.Name = "adressLabel";
             this.adressLabel.Size = new System.Drawing.Size(95, 13);
@@ -333,6 +335,7 @@
             // 
             // adressTextBox
             // 
+            this.adressTextBox.Enabled = false;
             this.adressTextBox.Location = new System.Drawing.Point(125, 123);
             this.adressTextBox.Name = "adressTextBox";
             this.adressTextBox.Size = new System.Drawing.Size(197, 20);
@@ -426,13 +429,16 @@
             // 
             // birthdayDatePicker
             // 
+            this.birthdayDatePicker.CustomFormat = " ";
+            this.birthdayDatePicker.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
             this.birthdayDatePicker.Location = new System.Drawing.Point(453, 71);
-            this.birthdayDatePicker.MaxDate = new System.DateTime(2050, 12, 31, 0, 0, 0, 0);
+            this.birthdayDatePicker.MaxDate = new System.DateTime(2018, 5, 29, 0, 0, 0, 0);
             this.birthdayDatePicker.MinDate = new System.DateTime(1850, 1, 1, 0, 0, 0, 0);
             this.birthdayDatePicker.Name = "birthdayDatePicker";
-            this.birthdayDatePicker.Size = new System.Drawing.Size(137, 20);
+            this.birthdayDatePicker.Size = new System.Drawing.Size(94, 20);
             this.birthdayDatePicker.TabIndex = 31;
             this.birthdayDatePicker.Value = new System.DateTime(1975, 6, 12, 0, 0, 0, 0);
+            this.birthdayDatePicker.ValueChanged += new System.EventHandler(this.birthdayDatePicker_ValueChanged);
             // 
             // tabPage2
             // 
@@ -484,6 +490,7 @@
             // cloudCheck
             // 
             this.cloudCheck.Appearance = System.Windows.Forms.Appearance.Button;
+            this.cloudCheck.Enabled = false;
             this.cloudCheck.Location = new System.Drawing.Point(26, 123);
             this.cloudCheck.Name = "cloudCheck";
             this.cloudCheck.Size = new System.Drawing.Size(168, 28);

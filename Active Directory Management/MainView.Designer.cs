@@ -67,7 +67,7 @@
             // 
             // firstBox
             // 
-            this.firstBox.Location = new System.Drawing.Point(405, 12);
+            this.firstBox.Location = new System.Drawing.Point(511, 12);
             this.firstBox.Name = "firstBox";
             this.firstBox.ReadOnly = true;
             this.firstBox.Size = new System.Drawing.Size(100, 20);
@@ -75,7 +75,7 @@
             // 
             // lastBox
             // 
-            this.lastBox.Location = new System.Drawing.Point(533, 12);
+            this.lastBox.Location = new System.Drawing.Point(405, 12);
             this.lastBox.Name = "lastBox";
             this.lastBox.ReadOnly = true;
             this.lastBox.Size = new System.Drawing.Size(100, 20);
@@ -106,6 +106,7 @@
             // cloudCheck
             // 
             this.cloudCheck.Appearance = System.Windows.Forms.Appearance.Button;
+            this.cloudCheck.Enabled = false;
             this.cloudCheck.Location = new System.Drawing.Point(67, 116);
             this.cloudCheck.Name = "cloudCheck";
             this.cloudCheck.Size = new System.Drawing.Size(168, 28);
