@@ -7,6 +7,7 @@ using System.DirectoryServices;
 using System.Drawing;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml.Linq;
@@ -15,9 +16,7 @@ namespace Active_Directory_Management
 {
     public partial class MainView : Form
     {
-
-        private DirectoryEntry entry = new DirectoryEntry(Properties.Resources.devAddr);
-        private XDocument doc = XDocument.Load("users.xml");
+        private XDocument doc;
         private XElement currUser;
 
         // Массив атрибутов для выгрузки из AD
@@ -43,7 +42,24 @@ namespace Active_Directory_Management
         public MainView()
         {
             InitializeComponent();
-            FillTree();
+
+            try
+            {
+                doc = XDocument.Load(Properties.Resources.usersXML);
+                FillTree();
+            }
+            catch
+            {
+                DumpADtoXML();
+
+                doc = XDocument.Load(Properties.Resources.usersXML);
+                FillTree();
+                
+            }
+            finally
+            {
+                Application.Exit();
+            }
         }
 
 
@@ -72,13 +88,14 @@ namespace Active_Directory_Management
         {
             // Настройка поисковика по записям
             // Поиск департаментов 
-            DirectorySearcher searcher = new DirectorySearcher(entry);
-            searcher.SearchScope = SearchScope.OneLevel;
+            DirectorySearcher searcher = new DirectorySearcher(
+                new DirectoryEntry(Properties.Resources.devAddr))
+                {
+                    SearchScope = SearchScope.OneLevel
+                };
 
             searcher.PropertiesToLoad.Add("name");
             searcher.PropertiesToLoad.AddRange(props);
-
-            
 
             // Создание нового документа XML и создание в нем корня company
             XDocument xmlfile = new XDocument();
@@ -170,7 +187,7 @@ namespace Active_Directory_Management
             }
 
             
-            xmlfile.Save("users.xml");
+            xmlfile.Save(Properties.Resources.usersXML);
         }
                
         private void FillTree()
@@ -180,6 +197,7 @@ namespace Active_Directory_Management
 
             foreach(XElement deptNode in doc.Root.Elements())
             {
+                
                 treeView.Nodes.Add(deptNode.Attribute("dn").Value, deptNode.Attribute("russName").Value);
                 var divNodes = deptNode.Elements("subdept");
                 foreach(XElement divNode in divNodes)
@@ -245,7 +263,7 @@ namespace Active_Directory_Management
             detailView.ShowDialog();
         }
 
-        private void treeView_AfterSelect(object sender, TreeViewEventArgs e)
+        private void TreeView_AfterSelect(object sender, TreeViewEventArgs e)
         {
             if (treeView.SelectedNode.Name.StartsWith("CN"))
             {
@@ -291,18 +309,66 @@ namespace Active_Directory_Management
             }
         }
 
-        private void updBtn_Click(object sender, EventArgs e)
+        private void UpdBtn_Click(object sender, EventArgs e)
         {
             this.Enabled = false;
             DumpADtoXML();
+            doc = XDocument.Load(Properties.Resources.usersXML);
             FillTree();
             this.Enabled = true;
         }
 
-        private void saveBtn_Click(object sender, EventArgs e)
+        private void AddGroup(DirectoryEntry user, string groupDN)
         {
-            
+            DirectoryEntry group = new DirectoryEntry("LDAP://" + groupDN);
+            group.Properties["member"].Add((string)user.Properties["distinguishedName"].Value);
+            group.CommitChanges();
+            group.Close();
+            user.Close();
+        }
 
+        private void RemoveGroup(DirectoryEntry user, string groupDN)
+        {
+            DirectoryEntry group = new DirectoryEntry("LDAP://" + groupDN);
+            group.Properties["member"].Remove((string)user.Properties["distinguishedName"].Value);
+            group.CommitChanges();
+            group.Close();
+            user.Close();
+        }
+
+
+        private void SaveBtn_Click(object sender, EventArgs e)
+        {
+            DirectoryEntry userEntry = new DirectoryEntry("LDAP://" + currUser.Attribute("dn").Value);
+
+            if (cdCheck.Checked)
+                AddGroup(userEntry, Properties.Resources.cdGroup);
+            else
+                RemoveGroup(userEntry, Properties.Resources.cdGroup);
+
+
+            if (usbDiskCheck.Checked)
+                AddGroup(userEntry, Properties.Resources.usbDiskGroup);
+            else
+                RemoveGroup(userEntry, Properties.Resources.usbDeviceGroup);
+
+
+            if (usbDeviceCheck.Checked)
+                AddGroup(userEntry, Properties.Resources.usbDeviceGroup);
+            else
+                RemoveGroup(userEntry, Properties.Resources.usbDeviceGroup);
+
+
+            if (internetCombo.SelectedIndex == 1)
+                AddGroup(userEntry, Properties.Resources.internetLimitedAccessGroup);
+            else
+                RemoveGroup(userEntry, Properties.Resources.internetLimitedAccessGroup);
+
+
+            if (internetCombo.SelectedIndex == 2)
+                AddGroup(userEntry, Properties.Resources.internetFullAccessGroup);
+            else
+                RemoveGroup(userEntry, Properties.Resources.internetFullAccessGroup);
         }
     }
 }

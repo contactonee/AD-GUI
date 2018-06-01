@@ -61,15 +61,6 @@ namespace Active_Directory_Management.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to .
-        /// </summary>
-        internal static string addresses {
-            get {
-                return ResourceManager.GetString("addresses", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to CN=ESET DVD Drives Allowed,OU=Groups,OU=Aktau,DC=nng,DC=kz.
         /// </summary>
         internal static string cdGroup {
@@ -84,15 +75,6 @@ namespace Active_Directory_Management.Properties {
         internal static string cloudGroup {
             get {
                 return ResourceManager.GetString("cloudGroup", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to users.xml.
-        /// </summary>
-        internal static string db_filename {
-            get {
-                return ResourceManager.GetString("db_filename", resourceCulture);
             }
         }
         
@@ -156,6 +138,15 @@ namespace Active_Directory_Management.Properties {
         internal static string usbDiskGroup {
             get {
                 return ResourceManager.GetString("usbDiskGroup", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to users.xml.
+        /// </summary>
+        internal static string usersXML {
+            get {
+                return ResourceManager.GetString("usersXML", resourceCulture);
             }
         }
     }

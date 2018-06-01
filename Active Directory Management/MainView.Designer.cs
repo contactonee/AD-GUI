@@ -162,7 +162,7 @@
             this.saveBtn.TabIndex = 13;
             this.saveBtn.Text = "Сохранить";
             this.saveBtn.UseVisualStyleBackColor = true;
-            this.saveBtn.Click += new System.EventHandler(this.saveBtn_Click);
+            this.saveBtn.Click += new System.EventHandler(this.SaveBtn_Click);
             // 
             // listBox
             // 
@@ -186,7 +186,7 @@
             this.treeView.Name = "treeView";
             this.treeView.Size = new System.Drawing.Size(320, 407);
             this.treeView.TabIndex = 17;
-            this.treeView.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.treeView_AfterSelect);
+            this.treeView.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.TreeView_AfterSelect);
             // 
             // switchPanel
             // 
@@ -212,7 +212,7 @@
             this.updBtn.TabIndex = 20;
             this.updBtn.Text = "Обновить";
             this.updBtn.UseVisualStyleBackColor = true;
-            this.updBtn.Click += new System.EventHandler(this.updBtn_Click);
+            this.updBtn.Click += new System.EventHandler(this.UpdBtn_Click);
             // 
             // MainView
             // 

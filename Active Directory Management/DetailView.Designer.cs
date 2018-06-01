@@ -157,7 +157,7 @@
             this.subdepartmentCombo.Size = new System.Drawing.Size(289, 21);
             this.subdepartmentCombo.Sorted = true;
             this.subdepartmentCombo.TabIndex = 46;
-            this.subdepartmentCombo.SelectedIndexChanged += new System.EventHandler(this.subdepartmentCombo_SelectedIndexChanged);
+            this.subdepartmentCombo.SelectedIndexChanged += new System.EventHandler(this.SubdepartmentCombo_SelectedIndexChanged);
             // 
             // posCombo
             // 
@@ -212,7 +212,7 @@
             this.roomCombo.Size = new System.Drawing.Size(123, 21);
             this.roomCombo.Sorted = true;
             this.roomCombo.TabIndex = 39;
-            this.roomCombo.TextChanged += new System.EventHandler(this.roomCombo_TextChanged);
+            this.roomCombo.TextChanged += new System.EventHandler(this.RoomCombo_TextChanged);
             // 
             // divCombo
             // 
@@ -222,7 +222,7 @@
             this.divCombo.Size = new System.Drawing.Size(289, 21);
             this.divCombo.Sorted = true;
             this.divCombo.TabIndex = 38;
-            this.divCombo.SelectedIndexChanged += new System.EventHandler(this.divCombo_SelectedIndexChanged);
+            this.divCombo.SelectedIndexChanged += new System.EventHandler(this.DivCombo_SelectedIndexChanged);
             // 
             // roomLabel
             // 
@@ -251,7 +251,7 @@
             this.cityCombo.Name = "cityCombo";
             this.cityCombo.Size = new System.Drawing.Size(289, 21);
             this.cityCombo.TabIndex = 33;
-            this.cityCombo.SelectedIndexChanged += new System.EventHandler(this.cityCombo_SelectedIndexChanged);
+            this.cityCombo.SelectedIndexChanged += new System.EventHandler(this.CityCombo_SelectedIndexChanged);
             // 
             // departmentCombo
             // 
@@ -263,7 +263,7 @@
             this.departmentCombo.Size = new System.Drawing.Size(289, 21);
             this.departmentCombo.Sorted = true;
             this.departmentCombo.TabIndex = 35;
-            this.departmentCombo.SelectedIndexChanged += new System.EventHandler(this.departmentCombo_SelectedIndexChanged);
+            this.departmentCombo.SelectedIndexChanged += new System.EventHandler(this.DepartmentCombo_SelectedIndexChanged);
             // 
             // cityLabel
             // 
@@ -331,7 +331,7 @@
             this.nameTextBox.Name = "nameTextBox";
             this.nameTextBox.Size = new System.Drawing.Size(197, 20);
             this.nameTextBox.TabIndex = 22;
-            this.nameTextBox.TextChanged += new System.EventHandler(this.nameTextBox_TextChanged);
+            this.nameTextBox.TextChanged += new System.EventHandler(this.NameTextBox_TextChanged);
             // 
             // adressTextBox
             // 
@@ -365,7 +365,7 @@
             this.surnameTextBox.Name = "surnameTextBox";
             this.surnameTextBox.Size = new System.Drawing.Size(197, 20);
             this.surnameTextBox.TabIndex = 24;
-            this.surnameTextBox.TextChanged += new System.EventHandler(this.surnameTextBox_TextChanged);
+            this.surnameTextBox.TextChanged += new System.EventHandler(this.SurnameTextBox_TextChanged);
             // 
             // surnameLabel
             // 
@@ -438,7 +438,7 @@
             this.birthdayDatePicker.Size = new System.Drawing.Size(94, 20);
             this.birthdayDatePicker.TabIndex = 31;
             this.birthdayDatePicker.Value = new System.DateTime(1975, 6, 12, 0, 0, 0, 0);
-            this.birthdayDatePicker.ValueChanged += new System.EventHandler(this.birthdayDatePicker_ValueChanged);
+            this.birthdayDatePicker.ValueChanged += new System.EventHandler(this.BirthdayDatePicker_ValueChanged);
             // 
             // tabPage2
             // 
@@ -528,7 +528,7 @@
             this.unlimitedRadio.TabStop = true;
             this.unlimitedRadio.Text = "Неограниченный";
             this.unlimitedRadio.UseVisualStyleBackColor = true;
-            this.unlimitedRadio.CheckedChanged += new System.EventHandler(this.unlimitedRadio_CheckedChanged);
+            this.unlimitedRadio.CheckedChanged += new System.EventHandler(this.UnlimitedRadio_CheckedChanged);
             // 
             // limitedRadio
             // 
@@ -540,7 +540,7 @@
             this.limitedRadio.TabStop = true;
             this.limitedRadio.Text = "Истекает:";
             this.limitedRadio.UseVisualStyleBackColor = true;
-            this.limitedRadio.CheckedChanged += new System.EventHandler(this.limitedRadio_CheckedChanged);
+            this.limitedRadio.CheckedChanged += new System.EventHandler(this.LimitedRadio_CheckedChanged);
             // 
             // internetLabel
             // 

@@ -123,9 +123,6 @@
   <data name="cloudGroup" xml:space="preserve">
     <value />
   </data>
-  <data name="db_filename" xml:space="preserve">
-    <value>users.xml</value>
-  </data>
   <data name="devAddr" xml:space="preserve">
     <value>LDAP://OU=Users,OU=Aktau,DC=nng,DC=kz</value>
   </data>
@@ -146,5 +143,8 @@
   </data>
   <data name="usbDiskGroup" xml:space="preserve">
     <value>CN=ESET USB Drives Allowed,OU=Groups,OU=Aktau,DC=nng,DC=kz</value>
+  </data>
+  <data name="usersXML" xml:space="preserve">
+    <value>users.xml</value>
   </data>
 </root>

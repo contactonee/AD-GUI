@@ -19,6 +19,7 @@ namespace Active_Directory_Management
     {
         private DirectoryEntry ldapConnection = new DirectoryEntry(Properties.Resources.devAddr);
         private XDocument doc = XDocument.Load("users.xml");
+        private DirectoryEntry userEntry;
 
 
         public DetailView()
@@ -56,6 +57,9 @@ namespace Active_Directory_Management
 
         private void LoadUser(XElement user)
         {
+            // Set directory entry value
+            userEntry = new DirectoryEntry("LDAP://" + user.Attribute("dn").Value);
+
             // Rename window heading
             this.Text = user.Element("sn").Value + " " + user.Element("givenName").Value;
 
@@ -154,71 +158,73 @@ namespace Active_Directory_Management
                 return;
             }
             sender.ForeColor = Color.Black;
-            Dictionary<char, string> dict = new Dictionary<char, string>();
-            dict['Й'] = "Y";
-            dict['Ц'] = "C";
-            dict['У'] = "U";
-            dict['К'] = "K";
-            dict['Е'] = "Ye";
-            dict['Н'] = "N";
-            dict['Г'] = "G";
-            dict['Ш'] = "Sh";
-            dict['Щ'] = "Shh";
-            dict['З'] = "Z";
-            dict['Х'] = "Kh";
-            dict['Ф'] = "F";
-            dict['Ы'] = "I";
-            dict['В'] = "V";
-            dict['А'] = "A";
-            dict['П'] = "P";
-            dict['Р'] = "R";
-            dict['О'] = "O";
-            dict['Л'] = "L";
-            dict['Д'] = "D";
-            dict['Ж'] = "Zh";
-            dict['Э'] = "E";
-            dict['Я'] = "Ya";
-            dict['Ч'] = "Ch";
-            dict['С'] = "S";
-            dict['М'] = "M";
-            dict['И'] = "I";
-            dict['Т'] = "T";
-            dict['Б'] = "B";
-            dict['Ю'] = "Yu"; // Yuriyev
-            dict['Ё'] = "Yo"; // Yozhikov
+            Dictionary<char, string> dict = new Dictionary<char, string>
+            {
+                ['Й'] = "Y",
+                ['Ц'] = "C",
+                ['У'] = "U",
+                ['К'] = "K",
+                ['Е'] = "Ye",
+                ['Н'] = "N",
+                ['Г'] = "G",
+                ['Ш'] = "Sh",
+                ['Щ'] = "Shh",
+                ['З'] = "Z",
+                ['Х'] = "Kh",
+                ['Ф'] = "F",
+                ['Ы'] = "I",
+                ['В'] = "V",
+                ['А'] = "A",
+                ['П'] = "P",
+                ['Р'] = "R",
+                ['О'] = "O",
+                ['Л'] = "L",
+                ['Д'] = "D",
+                ['Ж'] = "Zh",
+                ['Э'] = "E",
+                ['Я'] = "Ya",
+                ['Ч'] = "Ch",
+                ['С'] = "S",
+                ['М'] = "M",
+                ['И'] = "I",
+                ['Т'] = "T",
+                ['Б'] = "B",
+                ['Ю'] = "Yu", // Yuriyev
+                ['Ё'] = "Yo", // Yozhikov
 
-            dict['й'] = "y";
-            dict['ц'] = "c";
-            dict['у'] = "u";
-            dict['к'] = "k";
-            dict['е'] = "e";
-            dict['н'] = "n";
-            dict['г'] = "g";
-            dict['ш'] = "sh";
-            dict['щ'] = "shh";
-            dict['з'] = "z";
-            dict['х'] = "kh";
-            dict['ф'] = "f";
-            dict['ы'] = "i";
-            dict['в'] = "v";
-            dict['а'] = "a";
-            dict['п'] = "p";
-            dict['р'] = "r";
-            dict['о'] = "o";
-            dict['л'] = "l";
-            dict['д'] = "d";
-            dict['ж'] = "zh";
-            dict['э'] = "e";
-            dict['я'] = "ya";
-            dict['ч'] = "ch";
-            dict['с'] = "s";
-            dict['м'] = "m";
-            dict['и'] = "i";
-            dict['т'] = "t";
-            dict['ь'] = "i";
-            dict['б'] = "b";
-            dict['ю'] = "yu";
-            dict['ё'] = "yo";
+                ['й'] = "y",
+                ['ц'] = "c",
+                ['у'] = "u",
+                ['к'] = "k",
+                ['е'] = "e",
+                ['н'] = "n",
+                ['г'] = "g",
+                ['ш'] = "sh",
+                ['щ'] = "shh",
+                ['з'] = "z",
+                ['х'] = "kh",
+                ['ф'] = "f",
+                ['ы'] = "i",
+                ['в'] = "v",
+                ['а'] = "a",
+                ['п'] = "p",
+                ['р'] = "r",
+                ['о'] = "o",
+                ['л'] = "l",
+                ['д'] = "d",
+                ['ж'] = "zh",
+                ['э'] = "e",
+                ['я'] = "ya",
+                ['ч'] = "ch",
+                ['с'] = "s",
+                ['м'] = "m",
+                ['и'] = "i",
+                ['т'] = "t",
+                ['ь'] = "i",
+                ['б'] = "b",
+                ['ю'] = "yu",
+                ['ё'] = "yo"
+            };
 
 
             string result = "";
@@ -227,10 +233,7 @@ namespace Active_Directory_Management
 
             translit.Text = result;
         }
-        private void CloseApplication(object sender, EventArgs e)
-        {
-            Application.Exit();
-        }
+        
         private void AddGroup(DirectoryEntry user, string groupDN)
         {
             DirectoryEntry group = new DirectoryEntry("LDAP://" + groupDN);
@@ -239,107 +242,190 @@ namespace Active_Directory_Management
             group.Close();
             user.Close();
         }
+
+        private void RemoveGroup(DirectoryEntry user, string groupDN)
+        {
+            DirectoryEntry group = new DirectoryEntry("LDAP://" + groupDN);
+            group.Properties["member"].Remove((string)user.Properties["distinguishedName"].Value);
+            group.CommitChanges();
+            group.Close();
+            user.Close();
+        }
+
         private void CreateButton(object sender, EventArgs e)
         {
             CreateUser();
         }
+
         private void CreateUser()
         {
+            bool isNewUser = false;
 
-            // Проверка занятости имени
-            DirectorySearcher searcher = new DirectorySearcher("LDAP://DC=nng,DC=kz");
-            string samAccountName = surnameTranslitTextBox.Text.Substring(0, Math.Min(surnameTranslitTextBox.Text.Length, 4)).ToLower() + nameTranslitTextBox.Text.Substring(0, 1).ToLower();
-            int cnt = 1;
-            searcher.Filter = "samAccountName=" + samAccountName + cnt.ToString();
-            while (searcher.FindOne() != null)
+            // If creating new user, create their entry first
+            if (userEntry == null)
             {
-                cnt++;
+                isNewUser = true;
+
+                // Проверка занятости имени
+                DirectorySearcher searcher = new DirectorySearcher("LDAP://DC=nng,DC=kz");
+                string samAccountName = surnameTranslitTextBox.Text.Substring(0, Math.Min(surnameTranslitTextBox.Text.Length, 4)).ToLower() + nameTranslitTextBox.Text.Substring(0, 1).ToLower();
+                int cnt = 1;
                 searcher.Filter = "samAccountName=" + samAccountName + cnt.ToString();
+                while (searcher.FindOne() != null)
+                {
+                    cnt++;
+                    searcher.Filter = "samAccountName=" + samAccountName + cnt.ToString();
+                }
+
+                samAccountName += cnt.ToString();
+                // Свободное имя найдено, создание аккаунта
+
+                // Get path for organizational unit, where user will be created
+                string ou_dn;
+                if (subdepartmentCombo.SelectedIndex > 0)
+                {
+                    ou_dn = doc.Root.Descendants("subdept")
+                        .Where(t => t.Attribute("name").Value == subdepartmentCombo.Text)
+                        .Select(t => t.Attribute("dn").Value)
+                        .First();
+                }
+                else
+                {
+                    ou_dn = doc.Root.Elements()
+                        .Where(t => t.Attribute("russName").Value == departmentCombo.Text)
+                        .Select(t => t.Attribute("dn").Value)
+                        .First();
+                }
+                DirectoryEntry ou = new DirectoryEntry("LDAP://" + ou_dn);
+                userEntry = ou.Children.Add("cn=" + surnameTranslitTextBox.Text + " " + nameTranslitTextBox.Text, "user");
+                ou.Dispose();
+                ou_dn = null;
+
+                userEntry.Properties["samAccountName"].Value = samAccountName;
+                userEntry.Properties["userPrincipalName"].Value = samAccountName + "@nng.kz";
+
+                userEntry.Properties["givenName"].Value = nameTextBox.Text;
+                userEntry.Properties["sn"].Value = surnameTextBox.Text;
+                userEntry.Properties["displayName"].Value = surnameTranslitTextBox.Text + " " + nameTranslitTextBox.Text;
+                userEntry.Properties["middleName"].Value = middleNameTextBox.Text;
+                userEntry.Properties["mobile"].Value = mobileTextBox.Text;
+                userEntry.Properties["l"].Value = cityCombo.Text;
+                userEntry.Properties["department"].Value = departmentCombo.Text;
+                userEntry.Properties["description"].Value = divCombo.Text;
+                userEntry.Properties["title"].Value = posCombo.Text;
+
+                userEntry.CommitChanges();
+
+
+
+                // Set password
+                userEntry.Invoke("SetPassword", new object[] { "1234567Bv" });
+                userEntry.Properties["pwdLastSet"].Value = 0;
+                userEntry.CommitChanges();
+                // End set password
+
+                // Enable user
+                userEntry.Properties["userAccountControl"].Value = 0x200;
+                userEntry.CommitChanges();
+                // End enable user
+
             }
 
-            samAccountName += cnt.ToString();
-            // Свободное имя найдено, создание аккаунта
-            DirectoryEntry newUser = ldapConnection.Children.Add("cn=" + surnameTranslitTextBox.Text + " " + nameTranslitTextBox.Text, "user");
-
             // Set personal information
-            newUser.Properties["samAccountName"].Value = samAccountName;
-            newUser.Properties["userPrincipalName"].Value = samAccountName + "@nng.kz";
-            newUser.Properties["givenName"].Value = nameTextBox.Text;
-            newUser.Properties["sn"].Value = surnameTextBox.Text;
-            newUser.Properties["displayName"].Value = surnameTranslitTextBox.Text + " " + nameTranslitTextBox.Text;
-            newUser.Properties["middleName"].Value = middleNameTextBox.Text;
-            newUser.Properties["mobile"].Value = mobileTextBox.Text;
-            newUser.Properties["streetAddress"].Value = adressTextBox.Text;
-            newUser.Properties["l"].Value = cityCombo.Text;
+
+            userEntry.Properties["givenName"].Value = nameTextBox.Text;
+            userEntry.Properties["sn"].Value = surnameTextBox.Text;
+            userEntry.Properties["displayName"].Value = surnameTranslitTextBox.Text + " " + nameTranslitTextBox.Text;
+            userEntry.Properties["middleName"].Value = middleNameTextBox.Text;
+            userEntry.Properties["mobile"].Value = mobileTextBox.Text;
+            userEntry.Properties["l"].Value = cityCombo.Text;
+            userEntry.Properties["department"].Value = departmentCombo.Text;
+            userEntry.Properties["description"].Value = divCombo.Text;
+            userEntry.Properties["title"].Value = posCombo.Text;
+
+            userEntry.CommitChanges();
+
             if (cityCombo.SelectedIndex < 4)
-                newUser.Properties["c"].Value = "KZ";
+                userEntry.Properties["c"].Value = "KZ";
             else if (cityCombo.SelectedIndex == 4)
-                newUser.Properties["c"].Value = "BY";
+                userEntry.Properties["c"].Value = "BY";
             else
-                newUser.Properties["c"].Value = "RU";
-            newUser.Properties["telephoneNumber"].Value = telCombo.Text;
-            newUser.Properties["physicaldeliveryofficename"].Value = roomCombo.Text;
-            newUser.Properties["extensionAttribute1"].Value = birthdayDatePicker.Value.ToString("dd.MM.yyyy");
+                userEntry.Properties["c"].Value = "RU";
+
+            userEntry.Properties["telephoneNumber"].Value = telCombo.Text;
+            userEntry.Properties["physicaldeliveryofficename"].Value = roomCombo.Text;
+            userEntry.Properties["extensionAttribute2"].Value = birthdayDatePicker.Value.ToString("dd.MM.yyyy");
             try
             {
-                newUser.CommitChanges();
+                userEntry.CommitChanges();
             }
             catch
             {
-                MessageBox.Show("Проверьте правильность введенных данных", "Внимание", MessageBoxButtons.OK);
+                MessageBox.Show("Ошибка, проверьте правильность введенных данных");
                 return;
             }
             // End set personal information
 
 
-            // Set password
-            newUser.Invoke("SetPassword", new object[] { "12345678" });
-            newUser.Properties["pwdLastSet"].Value = 0;
-            newUser.CommitChanges();
-            // End set password
-
-            // Enable user
-            newUser.Properties["userAccountControl"].Value = 0x200;
-            newUser.CommitChanges();
-            // End enable user
-
             // Add to groups
+            // HACK Temporarily disabled groups management - no access to modify membership
+            /*
             if (cdCheck.Checked)
-                AddGroup(newUser, "CN=CD,OU=TestOU,OU=Users,OU=Aktau,DC=nng,DC=kz");
+                AddGroup(userEntry, Properties.Resources.cdGroup);
+            else
+                RemoveGroup(userEntry, Properties.Resources.cdGroup);
+
 
             if (usbDiskCheck.Checked)
-                AddGroup(newUser, "CN=USB Disk,OU=TestOU,OU=Users,OU=Aktau,DC=nng,DC=kz");
+                AddGroup(userEntry, Properties.Resources.usbDiskGroup);
+            else
+                RemoveGroup(userEntry, Properties.Resources.usbDeviceGroup);
+
 
             if (usbDeviceCheck.Checked)
-                AddGroup(newUser, "CN=USB Device,OU=TestOU,OU=Users,OU=Aktau,DC=nng,DC=kz");
+                AddGroup(userEntry, Properties.Resources.usbDeviceGroup);
+            else
+                RemoveGroup(userEntry, Properties.Resources.usbDeviceGroup);
+
 
             if (internetCombo.SelectedIndex == 1)
-                AddGroup(newUser, "CN=Limited Access,OU=TestOU,OU=Users,OU=Aktau,DC=nng,DC=kz");
+                AddGroup(userEntry, Properties.Resources.internetLimitedAccessGroup);
+            else
+                RemoveGroup(userEntry, Properties.Resources.internetLimitedAccessGroup);
+
 
             if (internetCombo.SelectedIndex == 2)
-                AddGroup(newUser, "CN=Full Access,OU=TestOU,OU=Users,OU=Aktau,DC=nng,DC=kz");
+                AddGroup(userEntry, Properties.Resources.internetFullAccessGroup);
+            else
+                RemoveGroup(userEntry, Properties.Resources.internetFullAccessGroup);
+
 
             if (limitedRadio.Checked)
             {
-                newUser.Properties["accountExpires"].Value = expirationDatePicker.Value.AddDays(1).ToFileTime().ToString();
-                newUser.CommitChanges();
+                userEntry.Properties["accountExpires"].Value = expirationDatePicker.Value.AddDays(1).ToFileTime().ToString();
+                userEntry.CommitChanges();
             }
+            */
             // End add to groups
 
-            newUser.Close();
+            if (isNewUser)
+                MessageBox.Show("Пользователь был успешно создан!");
+            else
+                MessageBox.Show("Изменения были успешно сохранены!");
+            this.Close();
         }
 
-        private void limitedRadio_CheckedChanged(object sender, EventArgs e)
+        private void LimitedRadio_CheckedChanged(object sender, EventArgs e)
         {
             expirationDatePicker.Enabled = true;
         }
 
-        private void unlimitedRadio_CheckedChanged(object sender, EventArgs e)
-        {
+        private void UnlimitedRadio_CheckedChanged(object sender, EventArgs e)
+        { 
             expirationDatePicker.Enabled = false;
         }
 
-        private void cityCombo_SelectedIndexChanged(object sender, EventArgs e)
+        private void CityCombo_SelectedIndexChanged(object sender, EventArgs e)
         {
             // departmentCombo List Update
             // if departments exist, enable departmentLabel and departmentCombo
@@ -351,7 +437,7 @@ namespace Active_Directory_Management
 
         
 
-        private void departmentCombo_SelectedIndexChanged(object sender, EventArgs e)
+        private void DepartmentCombo_SelectedIndexChanged(object sender, EventArgs e)
         {
             //Update divCombo
             //Update posCombo
@@ -421,23 +507,23 @@ namespace Active_Directory_Management
         }
 
 
-        private void nameTextBox_TextChanged(object sender, EventArgs e)
+        private void NameTextBox_TextChanged(object sender, EventArgs e)
         {
             MakeTranslit(nameTextBox, nameTranslitTextBox);            
         }
-        private void surnameTextBox_TextChanged(object sender, EventArgs e)
+        private void SurnameTextBox_TextChanged(object sender, EventArgs e)
         {
             MakeTranslit(surnameTextBox, surnameTranslitTextBox); 
         }
 
-        private void divCombo_SelectedIndexChanged(object sender, EventArgs e)
+        private void DivCombo_SelectedIndexChanged(object sender, EventArgs e)
         {
             
             
 
         }
 
-        private void roomCombo_TextChanged(object sender, EventArgs e)
+        private void RoomCombo_TextChanged(object sender, EventArgs e)
         {
             var res = doc.Root.Descendants("user")
                 .Where(t => t.Element("physicaldeliveryofficename").Value == roomCombo.Text)
@@ -452,12 +538,12 @@ namespace Active_Directory_Management
             telCombo.Items.AddRange(diffTels.ToArray());
         }
 
-        private void birthdayDatePicker_ValueChanged(object sender, EventArgs e)
+        private void BirthdayDatePicker_ValueChanged(object sender, EventArgs e)
         {
             birthdayDatePicker.Format = DateTimePickerFormat.Short;
         }
 
-        private void subdepartmentCombo_SelectedIndexChanged(object sender, EventArgs e)
+        private void SubdepartmentCombo_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (subdepartmentCombo.SelectedIndex > 0)
             {
