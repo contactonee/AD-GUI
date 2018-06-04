@@ -16,44 +16,71 @@ namespace Active_Directory_Management
         public string Username { get; set; } = "bazhr1";
         public string Password { get; set; } = "1234567Br";
 
-        private XDocument xmlFile = new XDocument(Active_Directory_Management.Properties.Resources.usersXML);
+        private XDocument xmlFile = XDocument.Load(Active_Directory_Management.Properties.Resources.usersXML);
 
-        public Dictionary<string, string> Properties { get; set; }
+		public Dictionary<string, string> Properties { get; set; } = new Dictionary<string, string>();
 
         private string memberOf;
         public string Dn { get; }
         
         public User(XElement userXmlNode)
         {
-            Dn = xmlNode.Attribute("dn").Value;
-
             xmlNode = userXmlNode;
             entry = new DirectoryEntry("LDAP://" + Dn, Username, Password);
+            
+            Dn = xmlNode.Attribute("dn").Value;
 
             UpdateProperties();
         }
 
         public User(DirectoryEntry userEntry)
         {
-            Dn = entry.Properties["distinguishedName"].Value.ToString();
-
             entry = userEntry;
             xmlNode = xmlFile.Root.Descendants("user")
                 .Where(t => t.Attribute("dn").Value == Dn)
                 .FirstOrDefault();
+
+            Dn = entry.Properties["distinguishedName"].Value.ToString();
 
             UpdateProperties();
         }
 
         public User(XElement userXmlNode, DirectoryEntry userEntry)
         {
-            Dn = entry.Properties["distinguishedName"].Value.ToString();
-
             entry = userEntry;
             xmlNode = userXmlNode;
 
+            Dn = entry.Properties["distinguishedName"].Value.ToString();
+
             UpdateProperties();
         }
+
+        public User(string username)
+        {
+            string lastname, firstname;
+            try
+            {
+                lastname = username.Split(' ')[0];
+                firstname = username.Split(' ')[1];
+            }
+            catch
+            {
+                lastname = string.Empty;
+                firstname = username;
+            }
+
+			xmlNode = xmlFile.Root.Descendants("user")
+				.Where(t => t.Element("sn").Value == lastname
+					&& t.Element("givenName").Value == firstname)
+				.First();
+
+
+			entry = new DirectoryEntry("LDAP://" + Dn, Username, Password);
+
+			Dn = xmlNode.Attribute("dn").Value;
+
+			UpdateProperties();
+		}
 
         private void UpdateProperties()
         {
@@ -93,7 +120,7 @@ namespace Active_Directory_Management
 
         public bool MemberOf(string groupDistinguishedName)
         {
-            return Properties["memberof"].Contains(groupDistinguishedName);
+            return memberOf.Contains(groupDistinguishedName);
         }
         
         public void AddGroup(string groupDistinguishedName)
@@ -133,7 +160,7 @@ namespace Active_Directory_Management
                 xmlNode.Element("memberOf").Value = newMemberOf;
 
                 // Update Active Directory
-                groupEntry.Properties["member"].Remove(Dn);
+				groupEntry.Properties["member"].Remove(Dn);
                 // TODO Commit Changes
 
                 groupEntry.Close();
@@ -142,8 +169,8 @@ namespace Active_Directory_Management
 
         public void SetMembership(string groupDistinguishedName, bool state)
         {
-            if (state == true)
-                AddGroup(groupDistinguishedName);
+			if (state == true)
+				AddGroup(groupDistinguishedName);
             else
                 RemoveGroup(groupDistinguishedName);
         }
