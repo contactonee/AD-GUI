@@ -17,7 +17,8 @@ namespace Active_Directory_Management
     public partial class MainView : Form
     {
         private XDocument doc;
-        private XElement currUser;
+        private XElement SelectedUser;
+        private DirectoryEntry SelectedEntry;
 
         // Массив атрибутов для выгрузки из AD
         // Используется в DumpADtoXML()
@@ -35,7 +36,9 @@ namespace Active_Directory_Management
             "middleName",
             "mobile",
             "samaccountname",
-            "extensionAttribute2"
+            "extensionAttribute2",
+            "userAccountControl",
+            "name"
         };
 
 
@@ -259,8 +262,8 @@ namespace Active_Directory_Management
 
         private void DetailBtn_Click(object sender, EventArgs e)
         {
-            Form detailView = new DetailView(currUser);
-            detailView.ShowDialog();
+            Form detailView = new DetailView(SelectedUser);
+            detailView.ShowDialog(this);
         }
 
         private void TreeView_AfterSelect(object sender, TreeViewEventArgs e)
@@ -268,31 +271,47 @@ namespace Active_Directory_Management
             if (treeView.SelectedNode.Name.StartsWith("CN"))
             {
 
-                currUser = doc.Root.Descendants("user")
+                SelectedUser = doc.Root.Descendants("user")
                     .Where(t => t.Element("sn").Value + " " + t.Element("givenName").Value == treeView.SelectedNode.Text)
                     .First();
 
+                SelectedEntry = new DirectoryEntry("LDAP://" + SelectedUser.Attribute("dn").Value,
+                    "bazhr1",
+                    "1234567Br",
+                    AuthenticationTypes.Secure);
 
-                firstBox.Text = currUser.Element("givenName").Value;
-                lastBox.Text = currUser.Element("sn").Value;
+
+                firstBox.Text = SelectedUser.Element("givenName").Value;
+                lastBox.Text = SelectedUser.Element("sn").Value;
 
 
                 
-                cdCheck.Checked = currUser.Element("memberOf").Value.Contains(Properties.Resources.cdGroup);
-                usbDiskCheck.Checked = currUser.Element("memberOf").Value.Contains(Properties.Resources.usbDiskGroup);
-                usbDeviceCheck.Checked = currUser.Element("memberOf").Value.Contains(Properties.Resources.usbDeviceGroup);
+                cdCheck.Checked = SelectedUser.Element("memberOf").Value.Contains(Properties.Resources.cdGroup);
+                usbDiskCheck.Checked = SelectedUser.Element("memberOf").Value.Contains(Properties.Resources.usbDiskGroup);
+                usbDeviceCheck.Checked = SelectedUser.Element("memberOf").Value.Contains(Properties.Resources.usbDeviceGroup);
 
-                if (currUser.Element("memberOf").Value.Contains(Properties.Resources.internetFullAccessGroup))
+                if (SelectedUser.Element("memberOf").Value.Contains(Properties.Resources.internetFullAccessGroup))
                     internetCombo.SelectedIndex = 2;
                 else
                 {
-                    if (currUser.Element("memberOf").Value.Contains(Properties.Resources.internetLimitedAccessGroup))
+                    if (SelectedUser.Element("memberOf").Value.Contains(Properties.Resources.internetLimitedAccessGroup))
                         internetCombo.SelectedIndex = 1;
                     else
                         internetCombo.SelectedIndex = 0;
                 }
 
-                switchPanel.Enabled = true;
+                disableBtn.Enabled = true;
+
+                if (!Convert.ToBoolean(int.Parse(SelectedUser.Element("userAccountControl").Value) & 0x2))
+                {
+                    switchPanel.Enabled = true;
+                    disableBtn.Text = "Отключить аккаунт";
+                }
+                else
+                {
+                    switchPanel.Enabled = false;
+                    disableBtn.Text = "Активировать аккаунт";
+                }
 
             }
             else
@@ -306,6 +325,7 @@ namespace Active_Directory_Management
 
                 internetCombo.SelectedIndex = 0;
                 switchPanel.Enabled = false;
+                disableBtn.Enabled = false;
             }
         }
 
@@ -339,36 +359,73 @@ namespace Active_Directory_Management
 
         private void SaveBtn_Click(object sender, EventArgs e)
         {
-            DirectoryEntry userEntry = new DirectoryEntry("LDAP://" + currUser.Attribute("dn").Value);
-
             if (cdCheck.Checked)
-                AddGroup(userEntry, Properties.Resources.cdGroup);
+                AddGroup(SelectedEntry, Properties.Resources.cdGroup);
             else
-                RemoveGroup(userEntry, Properties.Resources.cdGroup);
+                RemoveGroup(SelectedEntry, Properties.Resources.cdGroup);
 
 
             if (usbDiskCheck.Checked)
-                AddGroup(userEntry, Properties.Resources.usbDiskGroup);
+                AddGroup(SelectedEntry, Properties.Resources.usbDiskGroup);
             else
-                RemoveGroup(userEntry, Properties.Resources.usbDeviceGroup);
+                RemoveGroup(SelectedEntry, Properties.Resources.usbDeviceGroup);
 
 
             if (usbDeviceCheck.Checked)
-                AddGroup(userEntry, Properties.Resources.usbDeviceGroup);
+                AddGroup(SelectedEntry, Properties.Resources.usbDeviceGroup);
             else
-                RemoveGroup(userEntry, Properties.Resources.usbDeviceGroup);
+                RemoveGroup(SelectedEntry, Properties.Resources.usbDeviceGroup);
 
 
             if (internetCombo.SelectedIndex == 1)
-                AddGroup(userEntry, Properties.Resources.internetLimitedAccessGroup);
+                AddGroup(SelectedEntry, Properties.Resources.internetLimitedAccessGroup);
             else
-                RemoveGroup(userEntry, Properties.Resources.internetLimitedAccessGroup);
+                RemoveGroup(SelectedEntry, Properties.Resources.internetLimitedAccessGroup);
 
 
             if (internetCombo.SelectedIndex == 2)
-                AddGroup(userEntry, Properties.Resources.internetFullAccessGroup);
+                AddGroup(SelectedEntry, Properties.Resources.internetFullAccessGroup);
             else
-                RemoveGroup(userEntry, Properties.Resources.internetFullAccessGroup);
+                RemoveGroup(SelectedEntry, Properties.Resources.internetFullAccessGroup);
+        }
+
+        private void DisableBtn_Click(object sender, EventArgs e)
+        {
+            int val = (int)SelectedEntry.Properties["userAccountControl"].Value;
+            string currDescription = SelectedEntry.Properties["description"].Value.ToString();
+
+            if (switchPanel.Enabled)
+            {
+                DisableReasonForm form = new DisableReasonForm();
+                form.ShowDialog(this);
+                if (form.DialogResult == DialogResult.OK)
+                {
+                    SelectedEntry.Properties["userAccountControl"].Value = val | 0x2;
+
+                    SelectedEntry.Properties["description"].Value = String.Format(
+                        "(Временно отключена {0}, {1}, причина: {2}) {3}",
+                        DateTime.Today.ToShortDateString(),
+                        SelectedEntry.Username,
+                        form.reasonTextBox.Text.ToLower(),
+                        currDescription);
+
+
+                    SelectedUser.Element("userAccountControl").Value = (val | 0x2).ToString();
+                    disableBtn.Text = "Активировать аккаунт";
+                    switchPanel.Enabled = false;
+                }
+            }
+            else
+            {
+                SelectedEntry.Properties["userAccountControl"].Value = val & ~0x2;
+                SelectedEntry.Properties["description"].Value =
+                    currDescription.Substring(currDescription.LastIndexOf(')') + 2);
+
+                SelectedUser.Element("userAccountControl").Value = (val & ~0x2).ToString();
+                disableBtn.Text = "Отключить аккаунт";
+                switchPanel.Enabled = true;
+            }
+            SelectedEntry.CommitChanges();
         }
     }
 }

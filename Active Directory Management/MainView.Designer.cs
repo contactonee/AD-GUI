@@ -43,6 +43,7 @@
             this.listBox = new System.Windows.Forms.ListBox();
             this.treeView = new System.Windows.Forms.TreeView();
             this.switchPanel = new System.Windows.Forms.Panel();
+            this.disableBtn = new System.Windows.Forms.Button();
             this.updBtn = new System.Windows.Forms.Button();
             this.switchPanel.SuspendLayout();
             this.SuspendLayout();
@@ -156,9 +157,9 @@
             // 
             // saveBtn
             // 
-            this.saveBtn.Location = new System.Drawing.Point(220, 243);
+            this.saveBtn.Location = new System.Drawing.Point(195, 235);
             this.saveBtn.Name = "saveBtn";
-            this.saveBtn.Size = new System.Drawing.Size(75, 23);
+            this.saveBtn.Size = new System.Drawing.Size(100, 38);
             this.saveBtn.TabIndex = 13;
             this.saveBtn.Text = "Сохранить";
             this.saveBtn.UseVisualStyleBackColor = true;
@@ -201,8 +202,19 @@
             this.switchPanel.Enabled = false;
             this.switchPanel.Location = new System.Drawing.Point(338, 38);
             this.switchPanel.Name = "switchPanel";
-            this.switchPanel.Size = new System.Drawing.Size(450, 407);
+            this.switchPanel.Size = new System.Drawing.Size(450, 280);
             this.switchPanel.TabIndex = 19;
+            // 
+            // disableBtn
+            // 
+            this.disableBtn.Enabled = false;
+            this.disableBtn.Location = new System.Drawing.Point(533, 317);
+            this.disableBtn.Name = "disableBtn";
+            this.disableBtn.Size = new System.Drawing.Size(100, 38);
+            this.disableBtn.TabIndex = 14;
+            this.disableBtn.Text = "Отключить аккаунт";
+            this.disableBtn.UseVisualStyleBackColor = true;
+            this.disableBtn.Click += new System.EventHandler(this.DisableBtn_Click);
             // 
             // updBtn
             // 
@@ -219,6 +231,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
+            this.Controls.Add(this.disableBtn);
             this.Controls.Add(this.updBtn);
             this.Controls.Add(this.switchPanel);
             this.Controls.Add(this.treeView);
@@ -254,5 +267,6 @@
         private System.Windows.Forms.TreeView treeView;
         private System.Windows.Forms.Panel switchPanel;
         private System.Windows.Forms.Button updBtn;
+        private System.Windows.Forms.Button disableBtn;
     }
 }
