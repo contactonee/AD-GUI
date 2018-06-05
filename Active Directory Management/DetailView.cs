@@ -369,7 +369,6 @@ namespace Active_Directory_Management
 
             // Add to groups
             // HACK Temporarily disabled groups management - no access to modify membership
-            /*
             if (cdCheck.Checked)
                 AddGroup(userEntry, Properties.Resources.cdGroup);
             else
@@ -405,7 +404,10 @@ namespace Active_Directory_Management
                 userEntry.Properties["accountExpires"].Value = expirationDatePicker.Value.AddDays(1).ToFileTime().ToString();
                 userEntry.CommitChanges();
             }
-            */
+			else
+			{
+				userEntry.Properties["accountExpires"].Value = new DateTime(5000, 1, 1);
+			}
             // End add to groups
 
             if (isNewUser)
