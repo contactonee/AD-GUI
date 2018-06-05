@@ -275,10 +275,7 @@ namespace Active_Directory_Management
                     .Where(t => t.Element("sn").Value + " " + t.Element("givenName").Value == treeView.SelectedNode.Text)
                     .First();
 
-                SelectedEntry = new DirectoryEntry("LDAP://" + SelectedUser.Attribute("dn").Value,
-                    "bazhr1",
-                    "1234567Br",
-                    AuthenticationTypes.Secure);
+                SelectedEntry = new DirectoryEntry("LDAP://" + SelectedUser.Attribute("dn").Value);
 
 
                 firstBox.Text = SelectedUser.Element("givenName").Value;
