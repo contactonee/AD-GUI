@@ -15,7 +15,7 @@ using System.Xml.Linq;
 namespace Active_Directory_Management
 {
     public partial class MainView : Form
-    {
+    {  
         private XDocument doc;
         
         private User user;
@@ -35,7 +35,6 @@ namespace Active_Directory_Management
             "memberOf",
             "middleName",
             "mobile",
-            "samaccountname",
             "extensionAttribute2",
             "userAccountControl",
             "name"
@@ -305,8 +304,7 @@ namespace Active_Directory_Management
                     switchPanel.Enabled = false;
                     disableBtn.Text = "Активировать аккаунт";
                 }
-
-            }
+			}
             else
             {
                 firstBox.Text = string.Empty;
@@ -320,6 +318,7 @@ namespace Active_Directory_Management
                 switchPanel.Enabled = false;
                 disableBtn.Enabled = false;
             }
+			
         }
 
         private void UpdBtn_Click(object sender, EventArgs e)
@@ -376,7 +375,6 @@ namespace Active_Directory_Management
 
 				disableBtn.Text = "Отключить аккаунт";
 			}
-			user.CommitChanges();
         }
     }
 }

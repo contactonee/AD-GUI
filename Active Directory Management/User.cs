@@ -5,30 +5,66 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+using System.Diagnostics;
 
 namespace Active_Directory_Management
 {
     class User
     {
-        private XElement xmlNode;
+		private XElement xmlNode;
         private DirectoryEntry entry;
+		private XDocument xmlFile = XDocument.Load("users.xml");
 
-        public string Username { get; set; } = "bazhr1";
-        public string Password { get; set; } = "1234567Br";
+		private string xmlFileLocation = "users.xml";
 
-        private XDocument xmlFile = XDocument.Load(Active_Directory_Management.Properties.Resources.usersXML);
+		private string XmlFileLocation
+		{
+			get
+			{
+				return xmlFileLocation;
+			}
+			set
+			{
+				xmlFileLocation = value;
+				xmlFile = XDocument.Load(XmlFileLocation);
+			}
+		}
+
+
+		private string username = "bazhr1";
+		private string password = "vk.com123";
+		
+        public string Username
+		{
+			get
+			{
+				return username;
+			}
+			set
+			{
+				username = value;
+			}
+		}
+		public string Password {
+			set
+			{
+				password = value;
+			}
+		}
 
 		public Dictionary<string, string> Properties { get; set; } = new Dictionary<string, string>();
-
-        private string memberOf;
+		private string memberOf = string.Empty;
+		private int uac;
         public string Dn { get; }
+
+
         
         public User(XElement userXmlNode)
         {
             xmlNode = userXmlNode;
-            entry = new DirectoryEntry("LDAP://" + Dn, Username, Password);
-            
-            Dn = xmlNode.Attribute("dn").Value;
+			Dn = xmlNode.Attribute("dn").Value;
+
+			entry = new DirectoryEntry("LDAP://" + Dn);
 
             UpdateProperties();
         }
@@ -74,10 +110,9 @@ namespace Active_Directory_Management
 					&& t.Element("givenName").Value == firstname)
 				.First();
 
-
-			entry = new DirectoryEntry("LDAP://" + Dn, Username, Password);
-
 			Dn = xmlNode.Attribute("dn").Value;
+
+			entry = new DirectoryEntry("LDAP://" + Dn);
 
 			UpdateProperties();
 		}
@@ -86,10 +121,12 @@ namespace Active_Directory_Management
         {
             foreach (XElement elem in xmlNode.Elements())
             {
-                if (elem.Name == "memberOf")
-                    memberOf = elem.Value;
-                else
-                    Properties.Add(elem.Name.ToString(), elem.Value.ToString());
+				if (elem.Name == "memberOf")
+					memberOf = elem.Value;
+				else if (elem.Name == "userAccountControl")
+					uac = int.Parse(elem.Value);
+				else
+					Properties.Add(elem.Name.ToString(), elem.Value.ToString());
             }
         }
 
@@ -97,28 +134,31 @@ namespace Active_Directory_Management
         {
             get
             {
-                return !Convert.ToBoolean(int.Parse(Properties["userAccountControl"]) & 0x2);
+                return !Convert.ToBoolean(uac & 0x2);
             }
             set
             {
-                if(value == true)
-                {
-                    string newUserAccountControl = (int.Parse(Properties["userAccountControl"]) | 0x2).ToString();
-                    
-                    // Update local variable
-                    Properties["userAccountControl"] = newUserAccountControl;
-                }
-                else
-                {
-                    string newUserAccountControl = (int.Parse(Properties["userAccountControl"]) & ~0x2).ToString();
+				int newUserAccountControl;
 
-                    // Update local variable
-                    Properties["userAccountControl"] = newUserAccountControl;
-                }
+				if (value == true)
+					// Enable, remove flag
+					newUserAccountControl = uac & ~0x2;
+                else
+					// Disable, set flag
+                    newUserAccountControl = uac | 0x2;
+
+				uac = newUserAccountControl;
+				entry.Properties["userAccountControl"].Value = uac;
+				xmlNode.Element("userAccountControl").Value = uac.ToString();
+
+
+				xmlFile.Save(xmlFileLocation);
+				entry.CommitChanges();
             }
         }
+		
 
-        public bool MemberOf(string groupDistinguishedName)
+		public bool MemberOf(string groupDistinguishedName)
         {
             return memberOf.Contains(groupDistinguishedName);
         }
@@ -130,14 +170,15 @@ namespace Active_Directory_Management
                 DirectoryEntry groupEntry = new DirectoryEntry("LDAP://" + groupDistinguishedName);
 
                 // Update property in object
-                Properties["memberOf"] += groupDistinguishedName;
+                memberOf += groupDistinguishedName;
 
                 // Update property in XML file
                 xmlNode.Element("memberOf").Value += groupDistinguishedName;
+				xmlFile.Save(xmlFileLocation);
 
-                // Update Active Directory
-                groupEntry.Properties["member"].Add(Dn);
-                // TODO Commit Changes
+				// Update Active Directory
+				groupEntry.Properties["member"].Add(Dn);
+				groupEntry.CommitChanges();
 
                 groupEntry.Close();
             }
@@ -149,21 +190,22 @@ namespace Active_Directory_Management
             {
                 DirectoryEntry groupEntry = new DirectoryEntry("LDAP://" + groupDistinguishedName);
 
-                string newMemberOf = Properties["memberOf"].Remove(
-                    Properties["memberOf"].IndexOf(groupDistinguishedName),
+                string newMemberOf = memberOf.Remove(
+                    memberOf.IndexOf(groupDistinguishedName),
                     groupDistinguishedName.Length);
 
                 // Update property in object
-                Properties["memberOf"] = newMemberOf;
+                memberOf = newMemberOf;
 
                 // Update property in XML file
                 xmlNode.Element("memberOf").Value = newMemberOf;
+				xmlFile.Save(xmlFileLocation);
 
                 // Update Active Directory
 				groupEntry.Properties["member"].Remove(Dn);
-                // TODO Commit Changes
+				groupEntry.CommitChanges();
 
-                groupEntry.Close();
+				groupEntry.Close();
             }
         }
 
@@ -175,15 +217,23 @@ namespace Active_Directory_Management
                 RemoveGroup(groupDistinguishedName);
         }
 
+
         public void CommitChanges()
         {
-            foreach(KeyValuePair<string, string> prop in Properties)
+			foreach (KeyValuePair<string, string> prop in Properties)
             {
                 xmlNode.Element(prop.Key).Value = prop.Value;
-
                 entry.Properties[prop.Key].Value = prop.Value;
-                entry.CommitChanges();
             }
-        }
+			xmlFile.Save(XmlFileLocation);
+			entry.CommitChanges();
+		}
+		public void ShowProperties()
+		{
+			foreach(KeyValuePair<string, string> pair in Properties)
+			{
+				System.Diagnostics.Debug.WriteLine(pair);
+			}
+		}
     }
 }
