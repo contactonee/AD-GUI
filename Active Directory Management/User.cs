@@ -9,57 +9,25 @@ using System.Diagnostics;
 
 namespace Active_Directory_Management
 {
-    class User
+    public class User
     {
 		private XElement xmlNode;
         private DirectoryEntry entry;
-		private XDocument xmlFile = XDocument.Load("users.xml");
+		private XDocument xmlFile = XDocument.Load(Active_Directory_Management.Properties.Resources.XmlFile);
 
-		private string xmlFileLocation = "users.xml";
-
-		private string XmlFileLocation
-		{
-			get
-			{
-				return xmlFileLocation;
-			}
-			set
-			{
-				xmlFileLocation = value;
-				xmlFile = XDocument.Load(XmlFileLocation);
-			}
-		}
-
-
+		private string xmlFileLocation = Active_Directory_Management.Properties.Resources.XmlFile;
+		
 		private string username = "bazhr1";
 		private string password = "vk.com123";
-		
-        public string Username
-		{
-			get
-			{
-				return username;
-			}
-			set
-			{
-				username = value;
-			}
-		}
-		public string Password {
-			set
-			{
-				password = value;
-			}
-		}
 
 		public Dictionary<string, string> Properties { get; set; } = new Dictionary<string, string>();
 		private string memberOf = string.Empty;
 		private int uac;
         public string Dn { get; }
+		public string Name { get; }
 
-
-        
-        public User(XElement userXmlNode)
+		
+		public User(XElement userXmlNode)
         {
             xmlNode = userXmlNode;
 			Dn = xmlNode.Attribute("dn").Value;
@@ -69,24 +37,21 @@ namespace Active_Directory_Management
             UpdateProperties();
         }
 
+		public User(string name, DirectoryEntry path, XElement parent)
+		{
+			entry = path.Children.Add("CN=" + name, "user");
+			entry.CommitChanges();
+		}
+
         public User(DirectoryEntry userEntry)
         {
             entry = userEntry;
-            xmlNode = xmlFile.Root.Descendants("user")
+			Dn = entry.Properties["distinguishedName"].Value.ToString();
+			xmlNode = xmlFile.Root.Descendants("user")
                 .Where(t => t.Attribute("dn").Value == Dn)
                 .FirstOrDefault();
 
-            Dn = entry.Properties["distinguishedName"].Value.ToString();
-
-            UpdateProperties();
-        }
-
-        public User(XElement userXmlNode, DirectoryEntry userEntry)
-        {
-            entry = userEntry;
-            xmlNode = userXmlNode;
-
-            Dn = entry.Properties["distinguishedName"].Value.ToString();
+            
 
             UpdateProperties();
         }
@@ -117,7 +82,39 @@ namespace Active_Directory_Management
 			UpdateProperties();
 		}
 
-        private void UpdateProperties()
+		public string Username
+		{
+			get
+			{
+				return username;
+			}
+			set
+			{
+				username = value;
+			}
+		}
+		public string Password
+		{
+			set
+			{
+				password = value;
+			}
+		}
+		private string XmlFileLocation
+		{
+			get
+			{
+				return xmlFileLocation;
+			}
+			set
+			{
+				xmlFileLocation = value;
+				xmlFile = XDocument.Load(XmlFileLocation);
+			}
+		}
+
+
+		private void UpdateProperties()
         {
             foreach (XElement elem in xmlNode.Elements())
             {
@@ -129,7 +126,9 @@ namespace Active_Directory_Management
 					Properties.Add(elem.Name.ToString(), elem.Value.ToString());
             }
         }
-
+		/// <summary>
+		/// Запрашивает или устанавливает значение блокировки аккаунта
+		/// </summary>
         public bool Enabled
         {
             get
@@ -147,33 +146,43 @@ namespace Active_Directory_Management
 					// Disable, set flag
                     newUserAccountControl = uac | 0x2;
 
+				// Set new parameters
 				uac = newUserAccountControl;
 				entry.Properties["userAccountControl"].Value = uac;
 				xmlNode.Element("userAccountControl").Value = uac.ToString();
 
-
+				// Save changes
 				xmlFile.Save(xmlFileLocation);
 				entry.CommitChanges();
             }
         }
-		
 
-		public bool MemberOf(string groupDistinguishedName)
+		/// <summary>
+		/// Возвращает информацию состоит ли пользователь в группе
+		/// </summary>
+		/// <param name="groupDN">Distinguished Name группы </param>
+		/// <returns>Членство в группе</returns>
+		public bool MemberOf(string groupDN)
         {
-            return memberOf.Contains(groupDistinguishedName);
+            return memberOf.Contains(groupDN);
         }
-        
-        public void AddGroup(string groupDistinguishedName)
+
+
+        /// <summary>
+		/// Добавление пользователя в группу
+		/// </summary>
+		/// <param name="groupDN">Distinguished Name группы куда добаляется пользователь</param>
+        public void AddGroup(string groupDN)
         {
-            if (!MemberOf(groupDistinguishedName))
+            if (!MemberOf(groupDN))
             {
-                DirectoryEntry groupEntry = new DirectoryEntry("LDAP://" + groupDistinguishedName);
+                DirectoryEntry groupEntry = new DirectoryEntry("LDAP://" + groupDN);
 
                 // Update property in object
-                memberOf += groupDistinguishedName;
+                memberOf += groupDN;
 
                 // Update property in XML file
-                xmlNode.Element("memberOf").Value += groupDistinguishedName;
+                xmlNode.Element("memberOf").Value += groupDN;
 				xmlFile.Save(xmlFileLocation);
 
 				// Update Active Directory
@@ -184,15 +193,19 @@ namespace Active_Directory_Management
             }
         }
 
-        public void RemoveGroup(string groupDistinguishedName)
+		/// <summary>
+		/// Удаление пользователя из группы
+		/// </summary>
+		/// <param name="groupDN">Distinguished Name группы откуда удаляется пользователь</param>
+		public void RemoveGroup(string groupDN)
         {
-            if (MemberOf(groupDistinguishedName))
+            if (MemberOf(groupDN))
             {
-                DirectoryEntry groupEntry = new DirectoryEntry("LDAP://" + groupDistinguishedName);
+                DirectoryEntry groupEntry = new DirectoryEntry("LDAP://" + groupDN);
 
                 string newMemberOf = memberOf.Remove(
-                    memberOf.IndexOf(groupDistinguishedName),
-                    groupDistinguishedName.Length);
+                    memberOf.IndexOf(groupDN),
+                    groupDN.Length);
 
                 // Update property in object
                 memberOf = newMemberOf;
@@ -209,6 +222,11 @@ namespace Active_Directory_Management
             }
         }
 
+		/// <summary>
+		/// Устанавливает членство пользователя в группе
+		/// </summary>
+		/// <param name="groupDistinguishedName"></param>
+		/// <param name="state"></param>
         public void SetMembership(string groupDistinguishedName, bool state)
         {
 			if (state == true)
@@ -217,7 +235,9 @@ namespace Active_Directory_Management
                 RemoveGroup(groupDistinguishedName);
         }
 
-
+		/// <summary>
+		/// Сохраняет все локальные изменения в Active Directory и XML файл
+		/// </summary>
         public void CommitChanges()
         {
 			foreach (KeyValuePair<string, string> prop in Properties)
@@ -228,6 +248,8 @@ namespace Active_Directory_Management
 			xmlFile.Save(XmlFileLocation);
 			entry.CommitChanges();
 		}
+
+
 		public void ShowProperties()
 		{
 			foreach(KeyValuePair<string, string> pair in Properties)

@@ -117,7 +117,44 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="XmlFile" xml:space="preserve">
-    <value>users.xml</value>
+  <data name="BitrixUsers" xml:space="preserve">
+    <value>CN=bitrixusersgroupSCO,OU=Users,OU=Aktau,DC=nng,DC=kz</value>
+    <comment>Пользователям-членам данной группы разрешается доступ на портал</comment>
+  </data>
+  <data name="Cloud" xml:space="preserve">
+    <value>CN=SEC-OwnCloudAccess,OU=Groups,OU=Aktau,DC=nng,DC=kz</value>
+    <comment>Доступ к cloudsco.nng.kz</comment>
+  </data>
+  <data name="DvdDrives" xml:space="preserve">
+    <value>CN=ESET DVD Drives Allowed,OU=Groups,OU=Aktau,DC=nng,DC=kz</value>
+    <comment>Пользователям - членам данной группы разрешен доступ к CD/DVD приводам на компьютерах</comment>
+  </data>
+  <data name="ExternalMail" xml:space="preserve">
+    <value>CN=External Mail Users,OU=Microsoft Exchange,OU=Groups,DC=nng,DC=kCN=External Mail Users,OU=Microsoft Exchange,OU=Groups,DC=nng,DC=kz</value>
+    <comment>Возможность отправлять/принимать почту за пределами организации</comment>
+  </data>
+  <data name="HomeFolder" xml:space="preserve">
+    <value>CN=SEC-Aktau-HomeFolder,OU=Groups,OU=Aktau,DC=nng,DC=kz</value>
+    <comment>Пользователям - членам данной группы подключается сетевой диск K:\ в качестве персонального хранилища</comment>
+  </data>
+  <data name="InternetFull" xml:space="preserve">
+    <value>CN=FullAccess,OU=InternetAccess,OU=Groups,DC=nng,DC=kz</value>
+    <comment>Полный доступ без применения фильтров</comment>
+  </data>
+  <data name="InternetLimited" xml:space="preserve">
+    <value>CN=LimitedAccess,OU=InternetAccess,OU=Groups,DC=nng,DC=kz</value>
+    <comment>Ограниченный доступ с применением фильтров</comment>
+  </data>
+  <data name="OutlookSignature" xml:space="preserve">
+    <value>CN=APP-OutlookSignature,OU=Groups,OU=Aktau,DC=nng,DC=kz</value>
+    <comment>На пользователей - членов данной группы распространяется политика, при каждом входе создающая подпись в Outlook</comment>
+  </data>
+  <data name="UsbDevices" xml:space="preserve">
+    <value>CN=ESET USB Mobile Devices Allowed,OU=Groups,OU=Aktau,DC=nng,DC=kz</value>
+    <comment>Пользователям - членам данной группы разрешен доступ к USB-устройствам (телефонам, фотоаппаратам и т.д.)  на компьютерах</comment>
+  </data>
+  <data name="UsbDrives" xml:space="preserve">
+    <value>CN=ESET USB Drives Allowed,OU=Groups,OU=Aktau,DC=nng,DC=kz</value>
+    <comment>Пользователям - членам данной группы разрешен доступ к USB-дискам на компьютерах</comment>
   </data>
 </root>

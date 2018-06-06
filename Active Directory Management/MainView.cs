@@ -47,14 +47,14 @@ namespace Active_Directory_Management
 
             try
             {
-                doc = XDocument.Load(Properties.Resources.usersXML);
+                doc = XDocument.Load(Properties.Resources.XmlFile);
                 FillTree();
             }
             catch
             {
                 DumpADtoXML();
 
-                doc = XDocument.Load(Properties.Resources.usersXML);
+                doc = XDocument.Load(Properties.Resources.XmlFile);
                 FillTree();
                 
             }
@@ -91,7 +91,7 @@ namespace Active_Directory_Management
             // Настройка поисковика по записям
             // Поиск департаментов 
             DirectorySearcher searcher = new DirectorySearcher(
-                new DirectoryEntry(Properties.Resources.devAddr))
+                new DirectoryEntry("LDAP://OU=Users,OU=Aktau,DC=nng,DC=kz"))
                 {
                     SearchScope = SearchScope.OneLevel
                 };
@@ -189,7 +189,7 @@ namespace Active_Directory_Management
             }
 
             
-            xmlfile.Save(Properties.Resources.usersXML);
+            xmlfile.Save(Properties.Resources.XmlFile);
         }
                
         private void FillTree()
@@ -226,9 +226,8 @@ namespace Active_Directory_Management
         
         private void SearchBox_TextChanged(object sender, EventArgs e)
         {
-            
+			treeView.BeginUpdate();
 
-            treeView.BeginUpdate();
             treeView.Nodes.Clear();
 
             if (searchBox.Text == string.Empty)
@@ -269,30 +268,24 @@ namespace Active_Directory_Management
         {
             if (treeView.SelectedNode.Name.StartsWith("CN"))
             {
-
-                user = new User(treeView.SelectedNode.Text);
-
-
+				
+				user = new User(new DirectoryEntry("LDAP://" + treeView.SelectedNode.Name));
+				
 				firstBox.Text = user.Properties["givenName"];
 				lastBox.Text = user.Properties["sn"];
-
-
                 
-                cdCheck.Checked = user.MemberOf(Properties.Resources.cdGroup);
-                usbDiskCheck.Checked = user.MemberOf(Properties.Resources.usbDiskGroup);
-                usbDeviceCheck.Checked = user.MemberOf(Properties.Resources.usbDeviceGroup);
+                cdCheck.Checked = user.MemberOf(Properties.Groups.DvdDrives);
+                usbDiskCheck.Checked = user.MemberOf(Properties.Groups.UsbDrives);
+                usbDeviceCheck.Checked = user.MemberOf(Properties.Groups.UsbDevices);
 
-                if (user.MemberOf(Properties.Resources.internetFullAccessGroup))
+                if (user.MemberOf(Properties.Groups.InternetFull))
                     internetCombo.SelectedIndex = 2;
-                else
-                {
-                    if (user.MemberOf(Properties.Resources.internetLimitedAccessGroup))
-                        internetCombo.SelectedIndex = 1;
-                    else
-                        internetCombo.SelectedIndex = 0;
-                }
+                else if (user.MemberOf(Properties.Groups.InternetLimited))
+					internetCombo.SelectedIndex = 1;
+				else
+					internetCombo.SelectedIndex = 0;
 
-                disableBtn.Enabled = true;
+				disableBtn.Enabled = true;
 
                 if (user.Enabled)
                 {
@@ -324,32 +317,26 @@ namespace Active_Directory_Management
         private void UpdBtn_Click(object sender, EventArgs e)
         {
             this.Enabled = false;
+
+			searchBox.Clear();
             DumpADtoXML();
-            doc = XDocument.Load(Properties.Resources.usersXML);
+            doc = XDocument.Load(Properties.Resources.XmlFile);
             FillTree();
+
             this.Enabled = true;
         }
 
 
         private void SaveBtn_Click(object sender, EventArgs e)
         {
-            user.SetMembership(Properties.Resources.cdGroup, cdCheck.Checked);
-			user.SetMembership(Properties.Resources.usbDiskGroup, usbDiskCheck.Checked);
-			user.SetMembership(Properties.Resources.usbDeviceGroup,
+            user.SetMembership(Properties.Groups.DvdDrives, cdCheck.Checked);
+			user.SetMembership(Properties.Groups.UsbDrives, usbDiskCheck.Checked);
+			user.SetMembership(Properties.Groups.UsbDevices,
 				usbDeviceCheck.Checked);
 
-
-			if (internetCombo.SelectedIndex == 1)
-				user.AddGroup(Properties.Resources.internetLimitedAccessGroup);
-            else
-				user.RemoveGroup(Properties.Resources.internetLimitedAccessGroup);
+			user.SetMembership(Properties.Groups.InternetLimited, internetCombo.SelectedIndex == 1);
+			user.SetMembership(Properties.Groups.InternetFull, internetCombo.SelectedIndex == 2);
 			
-
-			if (internetCombo.SelectedIndex == 2)
-				user.AddGroup(Properties.Resources.internetFullAccessGroup);
-			else
-				user.RemoveGroup(Properties.Resources.internetFullAccessGroup);
-
 			user.CommitChanges();
 		}
 
@@ -363,16 +350,16 @@ namespace Active_Directory_Management
                 if (form.DialogResult == DialogResult.OK)
                 {
 					user.Enabled = false;
-                    switchPanel.Enabled = false;
 
+                    switchPanel.Enabled = false;
 					disableBtn.Text = "Активировать аккаунт";
 				}
             }
             else
             {
 				user.Enabled = true;
-                switchPanel.Enabled = true;
 
+                switchPanel.Enabled = true;
 				disableBtn.Text = "Отключить аккаунт";
 			}
         }

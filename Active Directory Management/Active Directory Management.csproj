@@ -74,6 +74,12 @@
     <Compile Include="DisableReasonForm.Designer.cs">
       <DependentUpon>DisableReasonForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="GroupSelector.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="GroupSelector.Designer.cs">
+      <DependentUpon>GroupSelector.cs</DependentUpon>
+    </Compile>
     <Compile Include="MainView.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -82,6 +88,11 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Properties\Groups.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Groups.resx</DependentUpon>
+    </Compile>
     <Compile Include="User.cs" />
     <EmbeddedResource Include="DetailView.resx">
       <DependentUpon>DetailView.cs</DependentUpon>
@@ -89,8 +100,15 @@
     <EmbeddedResource Include="DisableReasonForm.resx">
       <DependentUpon>DisableReasonForm.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="GroupSelector.resx">
+      <DependentUpon>GroupSelector.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="MainView.resx">
       <DependentUpon>MainView.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Groups.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Groups.Designer.cs</LastGenOutput>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

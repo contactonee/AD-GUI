@@ -17,9 +17,8 @@ namespace Active_Directory_Management
 {
     public partial class DetailView : Form
     {
-        private DirectoryEntry ldapConnection = new DirectoryEntry(Properties.Resources.devAddr);
-        private XDocument doc = XDocument.Load("users.xml");
-        private DirectoryEntry userEntry;
+        private XDocument doc = XDocument.Load(Properties.Resources.XmlFile);
+		private User user;
 
 
         public DetailView()
@@ -27,21 +26,67 @@ namespace Active_Directory_Management
             InitializeComponent();
             OnLoad();
         }
-        public DetailView(XElement user)
-        {
-            InitializeComponent();
-            OnLoad();
-            LoadUser(user);
+        public DetailView(User user)
+		{
+			InitializeComponent();
 
-            
-        }
+			this.user = user;
+			this.Text = user.Name;
+
+			create.Text = "Сохранить Изменения";
+
+			nameTextBox.Text = user.Properties["givenName"];
+			surnameTextBox.Text = user.Properties["sn"];
+			middleNameTextBox.Text = user.Properties["middleName"];
+
+			try
+			{
+				surnameTranslitTextBox.Text = user.Name.Split(' ')[0];
+				nameTranslitTextBox.Text = user.Name.Split(' ')[1];
+			}
+			catch
+			{
+				nameTranslitTextBox.Text = user.Name;
+				surnameTranslitTextBox.Text = string.Empty;
+			}
+			mobileTextBox.Text = user.Properties["mobile"];
+
+			try
+			{
+				birthdayDatePicker.Value = DateTime.Parse(user.Properties["extenstionAttribute2"]);
+			}
+			catch
+			{
+				birthdayDatePicker.Format = DateTimePickerFormat.Custom;
+				birthdayDatePicker.CustomFormat = " ";
+			}
+
+			departmentCombo.SelectedIndex = departmentCombo.Items.IndexOf(user.Properties["department"]);
+			divCombo.Text = user.Properties["description"];
+			posCombo.Text = user.Properties["title"];
+			roomCombo.Text = user.Properties["physicalDeliveryOfficeName"];
+			telCombo.Text = user.Properties["telephoneNumber"];
+
+			cdCheck.Checked = user.MemberOf(Properties.Groups.DvdDrives);
+			usbDiskCheck.Checked = user.MemberOf(Properties.Groups.DvdDrives);
+			usbDeviceCheck.Checked = user.MemberOf(Properties.Groups.UsbDevices);
+
+			if (user.MemberOf(Properties.Groups.InternetFull))
+				internetCombo.SelectedIndex = 2;
+			else if (user.MemberOf(Properties.Groups.InternetLimited))
+				internetCombo.SelectedIndex = 1;
+			else
+				internetCombo.SelectedIndex = 0;
+
+
+			OnLoad();
+		}
 
         private void OnLoad()
         {
             cityCombo.Items.Add("Актау");
             cityCombo.Enabled = false;
-
-
+			
             unlimitedRadio.Select();
             cityCombo.SelectedIndex = 0;
             internetCombo.SelectedIndex = 0;
@@ -54,110 +99,9 @@ namespace Active_Directory_Management
             departmentCombo.Items.AddRange(res);                                                                                       
 
         }
-
-        private void LoadUser(XElement user)
+		
+		private string Translit(string text)
         {
-            // Set directory entry value
-            userEntry = new DirectoryEntry("LDAP://" + user.Attribute("dn").Value);
-
-            // Rename window heading
-            this.Text = user.Element("sn").Value + " " + user.Element("givenName").Value;
-
-            // Rename submit button
-            create.Text = "Сохранить изменения";
-
-            // Fill name fields
-            nameTextBox.Text = user.Element("givenName").Value;
-            surnameTextBox.Text = user.Element("sn").Value;
-            middleNameTextBox.Text = user.Element("middleName").Value;
-
-
-            // Перезапись после автотранслита для точного соответствия с базой
-            try
-            {
-                surnameTranslitTextBox.Text = user.Attribute("name").Value.Split(' ')[0];
-                nameTranslitTextBox.Text = user.Attribute("name").Value.Split(' ')[1];
-            }
-            catch
-            {
-                nameTranslitTextBox.Text = user.Attribute("name").Value.Split(' ')[0];
-                surnameTranslitTextBox.Clear();
-            }
-
-            // Mobile number
-            mobileTextBox.Text = user.Element("mobile").Value;
-
-            // Try to set birthday, if not specified, set empty field
-            try
-            {
-                birthdayDatePicker.Value = DateTime.Parse(user.Element("extensionAttribute2").Value);
-            }
-            catch
-            {
-                birthdayDatePicker.Format = DateTimePickerFormat.Custom;
-                birthdayDatePicker.CustomFormat = " ";
-            }
-
-            // Select department
-            if(user.Parent.Name == "dept")
-            {
-                departmentCombo.SelectedIndex = departmentCombo.Items.IndexOf(user.Parent.Attribute("russName").Value);
-            }
-            else
-            {
-                departmentCombo.SelectedIndex = departmentCombo.Items.IndexOf(user.Parent.Parent.Attribute("russName").Value);
-                subdepartmentCombo.SelectedIndex = subdepartmentCombo.Items.IndexOf(user.Parent.Attribute("name").Value);
-            }
-
-            // Lock department combos
-            departmentCombo.Enabled = false;
-            subdepartmentCombo.Enabled = false;
-
-            
-
-            // Fill editable fields regarding position in company
-            divCombo.Text = user.Element("description").Value;
-            posCombo.Text = user.Element("title").Value;
-            roomCombo.Text = user.Element("physicaldeliveryofficename").Value;
-            telCombo.Text = user.Element("telephoneNumber").Value;
-
-            // Second tab (options)
-
-            // Check membership in groups and tick checkboxes
-            cdCheck.Checked = user.Element("memberOf").Value.Contains(Properties.Resources.cdGroup);
-            usbDiskCheck.Checked = user.Element("memberOf").Value.Contains(Properties.Resources.usbDiskGroup);
-            usbDeviceCheck.Checked = user.Element("memberOf").Value.Contains(Properties.Resources.usbDeviceGroup);
-
-            // Determine the level of internet access and set combobox
-            if (user.Element("memberOf").Value.Contains(Properties.Resources.internetFullAccessGroup))
-                internetCombo.SelectedIndex = 2;
-            else
-            {
-                if (user.Element("memberOf").Value.Contains(Properties.Resources.internetLimitedAccessGroup))
-                    internetCombo.SelectedIndex = 1;
-                else
-                    internetCombo.SelectedIndex = 0;
-            }
-
-        }
-
-        private bool CheckChar(string input)
-        {
-            foreach(char ch in input)
-                if((ch < 'А' || ch > 'я') && ch != 'ё' && ch != 'Ё')
-                    return false;
-            return true;
-        }
-        private void MakeTranslit(TextBox sender, TextBox translit)
-        {
-            string input = sender.Text;
-            if (!CheckChar(input))
-            {
-                sender.ForeColor = Color.Red;
-                translit.Text = "";
-                return;
-            }
-            sender.ForeColor = Color.Black;
             Dictionary<char, string> dict = new Dictionary<char, string>
             {
                 ['Й'] = "Y",
@@ -226,12 +170,11 @@ namespace Active_Directory_Management
                 ['ё'] = "yo"
             };
 
-
             string result = "";
-            foreach (char ch in input)
+            foreach (char ch in text)
                 result += dict[ch];
 
-            translit.Text = result;
+			return result;
         }
         
         private void AddGroup(DirectoryEntry user, string groupDN)
@@ -259,6 +202,7 @@ namespace Active_Directory_Management
 
         private void CreateUser()
         {
+			/*
             bool isNewUser = false;
 
             // If creating new user, create their entry first
@@ -297,7 +241,7 @@ namespace Active_Directory_Management
                         .First();
                 }
                 DirectoryEntry ou = new DirectoryEntry("LDAP://" + ou_dn);
-                userEntry = ou.Children.Add("cn=" + surnameTranslitTextBox.Text + " " + nameTranslitTextBox.Text, "user");
+				userEntry = ou.Children.Add("cn=" + surnameTranslitTextBox.Text + " " + nameTranslitTextBox.Text, "user");
                 ou.Dispose();
                 ou_dn = null;
 
@@ -405,7 +349,6 @@ namespace Active_Directory_Management
                 userEntry.Properties["accountExpires"].Value = expirationDatePicker.Value.AddDays(1).ToFileTime().ToString();
                 userEntry.CommitChanges();
             }
-            */
             // End add to groups
 
             if (isNewUser)
@@ -413,6 +356,7 @@ namespace Active_Directory_Management
             else
                 MessageBox.Show("Изменения были успешно сохранены!");
             this.Close();
+			*/
         }
 
         private void LimitedRadio_CheckedChanged(object sender, EventArgs e)
@@ -509,14 +453,46 @@ namespace Active_Directory_Management
 
         private void NameTextBox_TextChanged(object sender, EventArgs e)
         {
-            MakeTranslit(nameTextBox, nameTranslitTextBox);            
+			if (nameTextBox.Text.ToLower().Min() < 'а'
+					|| nameTextBox.Text.ToLower().Max() > 'я')
+				nameTextBox.ForeColor = Color.Red;
+			else
+			{
+				nameTextBox.ForeColor = Color.Black;
+				nameTranslitTextBox.Text = Translit(nameTextBox.Text);
+			}
         }
         private void SurnameTextBox_TextChanged(object sender, EventArgs e)
         {
-            MakeTranslit(surnameTextBox, surnameTranslitTextBox); 
-        }
+			if (surnameTextBox.Text.ToLower().Min() < 'а'
+					|| surnameTextBox.Text.ToLower().Max() > 'я')
+				surnameTextBox.ForeColor = Color.Red;
+			else
+			{
+				surnameTextBox.ForeColor = Color.Black;
+				surnameTranslitTextBox.Text = Translit(surnameTextBox.Text);
+			}
+		}
 
-        private void DivCombo_SelectedIndexChanged(object sender, EventArgs e)
+		private void NameTranslitTextBox_TextChanged(object sender, EventArgs e)
+		{
+			if (nameTranslitTextBox.Text.ToLower().Min() < 'a'
+					|| nameTranslitTextBox.Text.ToLower().Max() > 'z')
+				nameTranslitTextBox.ForeColor = Color.Red;
+			else
+				nameTranslitTextBox.ForeColor = Color.Black;
+		}
+
+		private void SurnameTranslitTextBox_TextChanged(object sender, EventArgs e)
+		{
+			if (surnameTranslitTextBox.Text.ToLower().Min() < 'a'
+					|| surnameTranslitTextBox.Text.ToLower().Max() > 'z')
+				surnameTranslitTextBox.ForeColor = Color.Red;
+			else
+				surnameTranslitTextBox.ForeColor = Color.Black;
+		}
+
+		private void DivCombo_SelectedIndexChanged(object sender, EventArgs e)
         {
             
             
@@ -564,5 +540,7 @@ namespace Active_Directory_Management
             }
             
         }
-    }
+
+		
+	}
 }

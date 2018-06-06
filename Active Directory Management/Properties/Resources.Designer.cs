@@ -61,92 +61,11 @@ namespace Active_Directory_Management.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to CN=ESET DVD Drives Allowed,OU=Groups,OU=Aktau,DC=nng,DC=kz.
-        /// </summary>
-        internal static string cdGroup {
-            get {
-                return ResourceManager.GetString("cdGroup", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to .
-        /// </summary>
-        internal static string cloudGroup {
-            get {
-                return ResourceManager.GetString("cloudGroup", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to LDAP://OU=Users,OU=Aktau,DC=nng,DC=kz.
-        /// </summary>
-        internal static string devAddr {
-            get {
-                return ResourceManager.GetString("devAddr", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to DC=nng,DC=kz.
-        /// </summary>
-        internal static string domain {
-            get {
-                return ResourceManager.GetString("domain", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to CN=FullAccess,OU=InternetAccess,OU=Groups,DC=nng,DC=kz.
-        /// </summary>
-        internal static string internetFullAccessGroup {
-            get {
-                return ResourceManager.GetString("internetFullAccessGroup", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to CN=LimitedAccess,OU=InternetAccess,OU=Groups,DC=nng,DC=kz.
-        /// </summary>
-        internal static string internetLimitedAccessGroup {
-            get {
-                return ResourceManager.GetString("internetLimitedAccessGroup", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to LDAP://OU=Users,OU=Uralsk,DC=ura,DC=nng,DC=kz.
-        /// </summary>
-        internal static string uradevAddr {
-            get {
-                return ResourceManager.GetString("uradevAddr", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to CN=ESET USB Mobile Devices Allowed,OU=Groups,OU=Aktau,DC=nng,DC=kz.
-        /// </summary>
-        internal static string usbDeviceGroup {
-            get {
-                return ResourceManager.GetString("usbDeviceGroup", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to CN=ESET USB Drives Allowed,OU=Groups,OU=Aktau,DC=nng,DC=kz.
-        /// </summary>
-        internal static string usbDiskGroup {
-            get {
-                return ResourceManager.GetString("usbDiskGroup", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to users.xml.
         /// </summary>
-        internal static string usersXML {
+        internal static string XmlFile {
             get {
-                return ResourceManager.GetString("usersXML", resourceCulture);
+                return ResourceManager.GetString("XmlFile", resourceCulture);
             }
         }
     }
