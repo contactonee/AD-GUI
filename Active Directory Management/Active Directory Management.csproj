@@ -74,6 +74,12 @@
     <Compile Include="DisableReasonForm.Designer.cs">
       <DependentUpon>DisableReasonForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Groups.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Groups.Designer.cs">
+      <DependentUpon>Groups.cs</DependentUpon>
+    </Compile>
     <Compile Include="MainView.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -88,6 +94,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="DisableReasonForm.resx">
       <DependentUpon>DisableReasonForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Groups.resx">
+      <DependentUpon>Groups.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="MainView.resx">
       <DependentUpon>MainView.cs</DependentUpon>

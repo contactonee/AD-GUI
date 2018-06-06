@@ -148,90 +148,89 @@ namespace Active_Directory_Management
                     return false;
             return true;
         }
+
+		
+
         private void MakeTranslit(TextBox sender, TextBox translit)
         {
             string input = sender.Text;
-            if (!CheckChar(input))
-            {
-                sender.ForeColor = Color.Red;
-                translit.Text = "";
-                return;
-            }
-            sender.ForeColor = Color.Black;
-            Dictionary<char, string> dict = new Dictionary<char, string>
-            {
-                ['Й'] = "Y",
-                ['Ц'] = "C",
-                ['У'] = "U",
-                ['К'] = "K",
-                ['Е'] = "Ye",
-                ['Н'] = "N",
-                ['Г'] = "G",
-                ['Ш'] = "Sh",
-                ['Щ'] = "Shh",
-                ['З'] = "Z",
-                ['Х'] = "Kh",
-                ['Ф'] = "F",
-                ['Ы'] = "I",
-                ['В'] = "V",
-                ['А'] = "A",
-                ['П'] = "P",
-                ['Р'] = "R",
-                ['О'] = "O",
-                ['Л'] = "L",
-                ['Д'] = "D",
-                ['Ж'] = "Zh",
-                ['Э'] = "E",
-                ['Я'] = "Ya",
-                ['Ч'] = "Ch",
-                ['С'] = "S",
-                ['М'] = "M",
-                ['И'] = "I",
-                ['Т'] = "T",
-                ['Б'] = "B",
-                ['Ю'] = "Yu", // Yuriyev
-                ['Ё'] = "Yo", // Yozhikov
+			if (sender.ForeColor == Color.Black)
+			{
+				Dictionary<char, string> dict = new Dictionary<char, string>
+				{
+					['Й'] = "Y",
+					['Ц'] = "C",
+					['У'] = "U",
+					['К'] = "K",
+					['Е'] = "Ye",
+					['Н'] = "N",
+					['Г'] = "G",
+					['Ш'] = "Sh",
+					['Щ'] = "Shh",
+					['З'] = "Z",
+					['Х'] = "Kh",
+					['Ф'] = "F",
+					['Ы'] = "I",
+					['В'] = "V",
+					['А'] = "A",
+					['П'] = "P",
+					['Р'] = "R",
+					['О'] = "O",
+					['Л'] = "L",
+					['Д'] = "D",
+					['Ж'] = "Zh",
+					['Э'] = "E",
+					['Я'] = "Ya",
+					['Ч'] = "Ch",
+					['С'] = "S",
+					['М'] = "M",
+					['И'] = "I",
+					['Т'] = "T",
+					['Б'] = "B",
+					['Ю'] = "Yu", // Yuriyev
+					['Ё'] = "Yo", // Yozhikov
 
-                ['й'] = "y",
-                ['ц'] = "c",
-                ['у'] = "u",
-                ['к'] = "k",
-                ['е'] = "e",
-                ['н'] = "n",
-                ['г'] = "g",
-                ['ш'] = "sh",
-                ['щ'] = "shh",
-                ['з'] = "z",
-                ['х'] = "kh",
-                ['ф'] = "f",
-                ['ы'] = "i",
-                ['в'] = "v",
-                ['а'] = "a",
-                ['п'] = "p",
-                ['р'] = "r",
-                ['о'] = "o",
-                ['л'] = "l",
-                ['д'] = "d",
-                ['ж'] = "zh",
-                ['э'] = "e",
-                ['я'] = "ya",
-                ['ч'] = "ch",
-                ['с'] = "s",
-                ['м'] = "m",
-                ['и'] = "i",
-                ['т'] = "t",
-                ['ь'] = "i",
-                ['б'] = "b",
-                ['ю'] = "yu",
-                ['ё'] = "yo"
-            };
+					['й'] = "y",
+					['ц'] = "c",
+					['у'] = "u",
+					['к'] = "k",
+					['е'] = "e",
+					['н'] = "n",
+					['г'] = "g",
+					['ш'] = "sh",
+					['щ'] = "shh",
+					['з'] = "z",
+					['х'] = "kh",
+					['ф'] = "f",
+					['ы'] = "i",
+					['в'] = "v",
+					['а'] = "a",
+					['п'] = "p",
+					['р'] = "r",
+					['о'] = "o",
+					['л'] = "l",
+					['д'] = "d",
+					['ж'] = "zh",
+					['э'] = "e",
+					['я'] = "ya",
+					['ч'] = "ch",
+					['с'] = "s",
+					['м'] = "m",
+					['и'] = "i",
+					['т'] = "t",
+					['ь'] = "i",
+					['б'] = "b",
+					['ю'] = "yu",
+					['ё'] = "yo"
+				};
 
 
-            string result = "";
-            foreach (char ch in input)
-                result += dict[ch];
+				string result = "";
+				foreach (char ch in input)
+					result += dict[ch];
 
-            translit.Text = result;
+				translit.Text = result;
+			}
         }
         
         private void AddGroup(DirectoryEntry user, string groupDN)
@@ -511,11 +510,21 @@ namespace Active_Directory_Management
 
         private void NameTextBox_TextChanged(object sender, EventArgs e)
         {
+			if (nameTextBox.Text.ToLower().Min() < 'а' || nameTextBox.Text.ToLower().Max() > 'я')
+				nameTextBox.ForeColor = Color.Red;
+			else
+				nameTextBox.ForeColor = Color.Black;
+
             MakeTranslit(nameTextBox, nameTranslitTextBox);            
         }
         private void SurnameTextBox_TextChanged(object sender, EventArgs e)
         {
-            MakeTranslit(surnameTextBox, surnameTranslitTextBox); 
+			if (surnameTextBox.Text.ToLower().Min() < 'а' || surnameTextBox.Text.ToLower().Max() > 'я')
+				surnameTextBox.ForeColor = Color.Red;
+			else
+				surnameTextBox.ForeColor = Color.Black;
+
+			MakeTranslit(surnameTextBox, surnameTranslitTextBox); 
         }
 
         private void DivCombo_SelectedIndexChanged(object sender, EventArgs e)
@@ -566,5 +575,21 @@ namespace Active_Directory_Management
             }
             
         }
-    }
+
+		private void nameTranslitTextBox_TextChanged(object sender, EventArgs e)
+		{
+			if (nameTranslitTextBox.Text.ToLower().Min() < 'a' || nameTranslitTextBox.Text.ToLower().Max() > 'z')
+				nameTranslitTextBox.ForeColor = Color.Red;
+			else
+				nameTranslitTextBox.ForeColor = Color.Black;
+		}
+
+		private void surnameTranslitTextBox_TextChanged(object sender, EventArgs e)
+		{
+			if (surnameTranslitTextBox.Text.ToLower().Min() < 'a' || surnameTranslitTextBox.Text.ToLower().Max() > 'z')
+				surnameTranslitTextBox.ForeColor = Color.Red;
+			else
+				surnameTranslitTextBox.ForeColor = Color.Black;
+		}
+	}
 }

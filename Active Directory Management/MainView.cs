@@ -46,23 +46,12 @@ namespace Active_Directory_Management
         {
             InitializeComponent();
 
-            try
-            {
-                doc = XDocument.Load(Properties.Resources.usersXML);
-                FillTree();
-            }
-            catch
-            {
-                DumpADtoXML();
+			treeView.Sort();
 
-                doc = XDocument.Load(Properties.Resources.usersXML);
-                FillTree();
-                
-            }
-            finally
-            {
-                Application.Exit();
-            }
+			DumpADtoXML();
+			doc = XDocument.Load("users.xml");
+			FillTree();
+
         }
 
 
@@ -192,7 +181,9 @@ namespace Active_Directory_Management
             
             xmlfile.Save(Properties.Resources.usersXML);
         }
-               
+        
+		// TODO FillTree Method with autoselect after update competed
+		// FillTree(string name)
         private void FillTree()
         {
             treeView.Nodes.Clear();
@@ -257,7 +248,7 @@ namespace Active_Directory_Management
         private void CreateBtn_Click(object sender, EventArgs e)
         {
             Form detailView = new DetailView();
-            detailView.ShowDialog();
+            detailView.ShowDialog(this);
         }
 
         private void DetailBtn_Click(object sender, EventArgs e)
@@ -326,13 +317,36 @@ namespace Active_Directory_Management
             }
         }
 
-        private void UpdBtn_Click(object sender, EventArgs e)
-        {
-            this.Enabled = false;
-            DumpADtoXML();
-            doc = XDocument.Load(Properties.Resources.usersXML);
-            FillTree();
-            this.Enabled = true;
+		private void UpdBtn_Click(object sender, EventArgs e)
+		{
+			string txt = string.Empty;
+			if (treeView.SelectedNode != null)
+				txt = treeView.SelectedNode.Text;
+
+			searchBox.Clear();
+			this.Enabled = false;
+
+			
+
+			DumpADtoXML();
+			doc = XDocument.Load(Properties.Resources.usersXML);
+
+			if (txt != string.Empty)
+			{
+				FillTree();
+
+				foreach (TreeNode dept in treeView.Nodes)
+				{
+					foreach (TreeNode us in dept.Nodes)
+						if (us.Text == txt)
+						{
+							treeView.SelectedNode = us;
+							treeView.SelectedNode.EnsureVisible();
+						}
+				}
+			}
+
+			this.Enabled = true;
         }
 
         private void AddGroup(DirectoryEntry user, string groupDN)
@@ -365,7 +379,7 @@ namespace Active_Directory_Management
             if (usbDiskCheck.Checked)
                 AddGroup(SelectedEntry, Properties.Resources.usbDiskGroup);
             else
-                RemoveGroup(SelectedEntry, Properties.Resources.usbDeviceGroup);
+                RemoveGroup(SelectedEntry, Properties.Resources.usbDiskGroup);
 
 
             if (usbDeviceCheck.Checked)
@@ -399,10 +413,10 @@ namespace Active_Directory_Management
                 {
                     SelectedEntry.Properties["userAccountControl"].Value = val | 0x2;
 
-                    SelectedEntry.Properties["description"].Value = String.Format(
-                        "(Временно отключена {0}, {1}, причина: {2}) {3}",
-                        DateTime.Today.ToShortDateString(),
-                        SelectedEntry.Username,
+					SelectedEntry.Properties["description"].Value = String.Format(
+						"(Временно отключена {0}, {1}, причина: {2}) {3}",
+						DateTime.Today.ToShortDateString(),
+						Environment.UserName,
                         form.reasonTextBox.Text.ToLower(),
                         currDescription);
 
@@ -424,5 +438,12 @@ namespace Active_Directory_Management
             }
             SelectedEntry.CommitChanges();
         }
-    }
+
+		private void treeView_NodeMouseDoubleClick(object sender, TreeNodeMouseClickEventArgs e)
+		{
+			Form detailView = new DetailView(SelectedUser);
+			detailView.ShowDialog(this);
+			
+		}
+	}
 }
