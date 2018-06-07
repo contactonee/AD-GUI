@@ -202,162 +202,64 @@ namespace Active_Directory_Management
 
         private void CreateUser()
         {
-			/*
-            bool isNewUser = false;
+			string displayName = surnameTranslitTextBox.Text + " " + nameTranslitTextBox.Text;
+			bool newUser = false;
 
-            // If creating new user, create their entry first
-            if (userEntry == null)
-            {
-                isNewUser = true;
+			if (user == null)
+			{
+				XElement par = doc.Root.Elements("dept")
+					.Where(t => t.Attribute("russName").Value == departmentCombo.Text)
+					.FirstOrDefault();
 
-                // Проверка занятости имени
-                DirectorySearcher searcher = new DirectorySearcher("LDAP://DC=nng,DC=kz");
-                string samAccountName = surnameTranslitTextBox.Text.Substring(0, Math.Min(surnameTranslitTextBox.Text.Length, 4)).ToLower() + nameTranslitTextBox.Text.Substring(0, 1).ToLower();
-                int cnt = 1;
-                searcher.Filter = "samAccountName=" + samAccountName + cnt.ToString();
-                while (searcher.FindOne() != null)
-                {
-                    cnt++;
-                    searcher.Filter = "samAccountName=" + samAccountName + cnt.ToString();
-                }
+				DirectoryEntry ou = new DirectoryEntry("LDAP://" + par.Attribute("dn").Value);
 
-                samAccountName += cnt.ToString();
-                // Свободное имя найдено, создание аккаунта
+				user = new User(displayName, ou, par);
+				newUser = true;
+			}
 
-                // Get path for organizational unit, where user will be created
-                string ou_dn;
-                if (subdepartmentCombo.SelectedIndex > 0)
-                {
-                    ou_dn = doc.Root.Descendants("subdept")
-                        .Where(t => t.Attribute("name").Value == subdepartmentCombo.Text)
-                        .Select(t => t.Attribute("dn").Value)
-                        .First();
-                }
-                else
-                {
-                    ou_dn = doc.Root.Elements()
-                        .Where(t => t.Attribute("russName").Value == departmentCombo.Text)
-                        .Select(t => t.Attribute("dn").Value)
-                        .First();
-                }
-                DirectoryEntry ou = new DirectoryEntry("LDAP://" + ou_dn);
-				userEntry = ou.Children.Add("cn=" + surnameTranslitTextBox.Text + " " + nameTranslitTextBox.Text, "user");
-                ou.Dispose();
-                ou_dn = null;
+			user.Properties["givenName"] = nameTextBox.Text;
+			user.Properties["sn"] = surnameTextBox.Text;
+			user.Properties["displayName"] = displayName;
+			user.Properties["middleName"] = middleNameTextBox.Text;
+			user.Properties["mobile"] = mobileTextBox.Text;
+			user.Properties["l"] = cityCombo.Text;
+			user.Properties["department"] = departmentCombo.Text;
+			user.Properties["description"] = divCombo.Text;
+			user.Properties["title"] = posCombo.Text;
+			user.Properties["telephoneNumber"] = telCombo.Text;
+			user.Properties["ipPhone"] = telCombo.Text;
+			user.Properties["physicaldeliveryofficename"] = roomCombo.Text;
+			user.Properties["extensionAttribute2"] = birthdayDatePicker.Value.ToString("dd.MM.yyyy");
+			if (limitedRadio.Checked)
+				user.Properties["accountExpires"] = expirationDatePicker.Value.AddDays(1)
+					.ToFileTime()
+					.ToString();
 
-                userEntry.Properties["samAccountName"].Value = samAccountName;
-                userEntry.Properties["userPrincipalName"].Value = samAccountName + "@nng.kz";
+			user.CommitChanges();
 
-                userEntry.Properties["givenName"].Value = nameTextBox.Text;
-                userEntry.Properties["sn"].Value = surnameTextBox.Text;
-                userEntry.Properties["displayName"].Value = surnameTranslitTextBox.Text + " " + nameTranslitTextBox.Text;
-                userEntry.Properties["middleName"].Value = middleNameTextBox.Text;
-                userEntry.Properties["mobile"].Value = mobileTextBox.Text;
-                userEntry.Properties["l"].Value = cityCombo.Text;
-                userEntry.Properties["department"].Value = departmentCombo.Text;
-                userEntry.Properties["description"].Value = divCombo.Text;
-                userEntry.Properties["title"].Value = posCombo.Text;
+			try
+			{
+				user.SetMembership(Properties.Groups.DvdDrives, cdCheck.Checked);
+				user.SetMembership(Properties.Groups.UsbDrives, usbDiskCheck.Checked);
+				user.SetMembership(Properties.Groups.UsbDevices, usbDeviceCheck.Checked);
+				user.SetMembership(Properties.Groups.InternetLimited, internetCombo.SelectedIndex == 1);
+				user.SetMembership(Properties.Groups.InternetFull, internetCombo.SelectedIndex == 2);
+			}
+			catch
+			{
+				Debug.WriteLine("Невозможно назначить группы, возможно не хватает прав");
+			}
 
-                userEntry.CommitChanges();
-
-
-
-                // Set password
-                userEntry.Invoke("SetPassword", new object[] { "1234567Bv" });
-                userEntry.Properties["pwdLastSet"].Value = 0;
-                userEntry.CommitChanges();
-                // End set password
-
-                // Enable user
-                userEntry.Properties["userAccountControl"].Value = 0x200;
-                userEntry.CommitChanges();
-                // End enable user
-
-            }
-
-            // Set personal information
-
-            userEntry.Properties["givenName"].Value = nameTextBox.Text;
-            userEntry.Properties["sn"].Value = surnameTextBox.Text;
-            userEntry.Properties["displayName"].Value = surnameTranslitTextBox.Text + " " + nameTranslitTextBox.Text;
-            userEntry.Properties["middleName"].Value = middleNameTextBox.Text;
-            userEntry.Properties["mobile"].Value = mobileTextBox.Text;
-            userEntry.Properties["l"].Value = cityCombo.Text;
-            userEntry.Properties["department"].Value = departmentCombo.Text;
-            userEntry.Properties["description"].Value = divCombo.Text;
-            userEntry.Properties["title"].Value = posCombo.Text;
-
-            userEntry.CommitChanges();
-
-            if (cityCombo.SelectedIndex < 4)
-                userEntry.Properties["c"].Value = "KZ";
-            else if (cityCombo.SelectedIndex == 4)
-                userEntry.Properties["c"].Value = "BY";
-            else
-                userEntry.Properties["c"].Value = "RU";
-
-            userEntry.Properties["telephoneNumber"].Value = telCombo.Text;
-            userEntry.Properties["physicaldeliveryofficename"].Value = roomCombo.Text;
-            userEntry.Properties["extensionAttribute2"].Value = birthdayDatePicker.Value.ToString("dd.MM.yyyy");
-            try
-            {
-                userEntry.CommitChanges();
-            }
-            catch
-            {
-                MessageBox.Show("Ошибка, проверьте правильность введенных данных");
-                return;
-            }
-            // End set personal information
-
-
-            // Add to groups
-            // HACK Temporarily disabled groups management - no access to modify membership
-            /*
-            if (cdCheck.Checked)
-                AddGroup(userEntry, Properties.Resources.cdGroup);
-            else
-                RemoveGroup(userEntry, Properties.Resources.cdGroup);
-
-
-            if (usbDiskCheck.Checked)
-                AddGroup(userEntry, Properties.Resources.usbDiskGroup);
-            else
-                RemoveGroup(userEntry, Properties.Resources.usbDeviceGroup);
-
-
-            if (usbDeviceCheck.Checked)
-                AddGroup(userEntry, Properties.Resources.usbDeviceGroup);
-            else
-                RemoveGroup(userEntry, Properties.Resources.usbDeviceGroup);
-
-
-            if (internetCombo.SelectedIndex == 1)
-                AddGroup(userEntry, Properties.Resources.internetLimitedAccessGroup);
-            else
-                RemoveGroup(userEntry, Properties.Resources.internetLimitedAccessGroup);
-
-
-            if (internetCombo.SelectedIndex == 2)
-                AddGroup(userEntry, Properties.Resources.internetFullAccessGroup);
-            else
-                RemoveGroup(userEntry, Properties.Resources.internetFullAccessGroup);
-
-
-            if (limitedRadio.Checked)
-            {
-                userEntry.Properties["accountExpires"].Value = expirationDatePicker.Value.AddDays(1).ToFileTime().ToString();
-                userEntry.CommitChanges();
-            }
-            // End add to groups
-
-            if (isNewUser)
-                MessageBox.Show("Пользователь был успешно создан!");
-            else
-                MessageBox.Show("Изменения были успешно сохранены!");
-            this.Close();
-			*/
-        }
+			if(newUser)
+			{
+				MessageBox.Show("Пользователь успешно создан");
+				this.Close();
+			}
+			else
+			{
+				MessageBox.Show("Изменения успешно сохранены");
+			}
+		}
 
         private void LimitedRadio_CheckedChanged(object sender, EventArgs e)
         {
@@ -453,8 +355,9 @@ namespace Active_Directory_Management
 
         private void NameTextBox_TextChanged(object sender, EventArgs e)
         {
-			if (nameTextBox.Text.ToLower().Min() < 'а'
-					|| nameTextBox.Text.ToLower().Max() > 'я')
+			if (nameTextBox.Text.Length > 0
+					&& (nameTextBox.Text.ToLower().Min() < 'а'
+					|| nameTextBox.Text.ToLower().Max() > 'я'))
 				nameTextBox.ForeColor = Color.Red;
 			else
 			{
@@ -464,8 +367,9 @@ namespace Active_Directory_Management
         }
         private void SurnameTextBox_TextChanged(object sender, EventArgs e)
         {
-			if (surnameTextBox.Text.ToLower().Min() < 'а'
-					|| surnameTextBox.Text.ToLower().Max() > 'я')
+			if (surnameTextBox.Text.Length > 0
+					&& (surnameTextBox.Text.ToLower().Min() < 'а'
+					|| surnameTextBox.Text.ToLower().Max() > 'я'))
 				surnameTextBox.ForeColor = Color.Red;
 			else
 			{
@@ -476,8 +380,9 @@ namespace Active_Directory_Management
 
 		private void NameTranslitTextBox_TextChanged(object sender, EventArgs e)
 		{
-			if (nameTranslitTextBox.Text.ToLower().Min() < 'a'
-					|| nameTranslitTextBox.Text.ToLower().Max() > 'z')
+			if (nameTranslitTextBox.Text.Length > 0
+					&& (nameTranslitTextBox.Text.ToLower().Min() < 'a'
+					|| nameTranslitTextBox.Text.ToLower().Max() > 'z'))
 				nameTranslitTextBox.ForeColor = Color.Red;
 			else
 				nameTranslitTextBox.ForeColor = Color.Black;
@@ -485,8 +390,9 @@ namespace Active_Directory_Management
 
 		private void SurnameTranslitTextBox_TextChanged(object sender, EventArgs e)
 		{
-			if (surnameTranslitTextBox.Text.ToLower().Min() < 'a'
-					|| surnameTranslitTextBox.Text.ToLower().Max() > 'z')
+			if (surnameTranslitTextBox.Text.Length > 0
+					&& (surnameTranslitTextBox.Text.ToLower().Min() < 'a'
+					|| surnameTranslitTextBox.Text.ToLower().Max() > 'z'))
 				surnameTranslitTextBox.ForeColor = Color.Red;
 			else
 				surnameTranslitTextBox.ForeColor = Color.Black;

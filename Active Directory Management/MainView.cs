@@ -17,7 +17,6 @@ namespace Active_Directory_Management
     public partial class MainView : Form
     {  
         private XDocument doc;
-        
         private User user;
 
         // Массив атрибутов для выгрузки из AD
@@ -25,19 +24,17 @@ namespace Active_Directory_Management
 
         private string[] props = new string[]
         {
-            "description",
-            "title",
-            "physicaldeliveryofficename",
-            "telephoneNumber",
-            "givenName",
-            "sn",
-            "department",
-            "memberOf",
-            "middleName",
-            "mobile",
-            "extensionAttribute2",
-            "userAccountControl",
-            "name"
+			"sn",
+			"givenName",
+			"middleName",
+			"mobile",
+			"extensionAttribute2",
+			"title",
+			"description",
+			"department",
+			"physicaldeliveryofficename",
+			"telephoneNumber",
+			"userAccountControl"
         };
 
 
@@ -45,209 +42,130 @@ namespace Active_Directory_Management
         {
             InitializeComponent();
 
-            try
-            {
-                doc = XDocument.Load(Properties.Resources.XmlFile);
-                FillTree();
-            }
-            catch
-            {
-                DumpADtoXML();
-
-                doc = XDocument.Load(Properties.Resources.XmlFile);
-                FillTree();
-                
-            }
-            finally
-            {
-                Application.Exit();
-            }
+			doc = DumpToXml();
+			FillTree();
         }
+		
 
+		private XDocument DumpToXml()
+		{
+			XDocument dump = new XDocument();
 
-        //TODO Сделать нормальный метод вытягивания данных с AD
-        private void AppendUsers(SearchResultCollection response, XElement parent)
+			DirectorySearcher searcher = new DirectorySearcher()
+			{
+				SearchRoot = new DirectoryEntry("LDAP://OU=Users,OU=Aktau,DC=nng,DC=kz"),
+				SearchScope = SearchScope.OneLevel
+			};
+			searcher.PropertiesToLoad.Add("name");
+			searcher.PropertiesToLoad.Add("memberOf");
+			searcher.PropertiesToLoad.Add("userAccountControl");
+			searcher.PropertiesToLoad.AddRange(props);
+
+			
+			dump.Add(new XElement("company"));
+
+			searcher.Filter = "(objectClass=organizationalUnit)";
+			SearchResultCollection departmentsResponse = searcher.FindAll();
+
+			searcher.Filter = "(objectClass=user)";
+			foreach(SearchResult res in departmentsResponse)
+			{
+				DirectoryEntry dept = res.GetDirectoryEntry();
+
+				XElement deptElem = new XElement("dept",
+					new XAttribute("name", dept.Properties["name"].Value),
+					new XAttribute("nameRU", dept.Properties["description"].Value),
+					new XAttribute("dn", dept.Properties["distinguishedName"].Value));
+
+				searcher.SearchRoot = dept;
+				SearchResultCollection usersResponse = searcher.FindAll();
+				foreach(SearchResult userRes in usersResponse)
+				{
+					DirectoryEntry user = userRes.GetDirectoryEntry();
+
+					Debug.WriteLine(user.Properties["memberOf"]);
+
+					XElement userElem = new XElement("user",
+						new XAttribute("name", user.Properties["name"].Value),
+						new XAttribute("dn", user.Properties["distinguishedName"].Value));
+					
+
+					foreach (string prop in props)
+						userElem.Add(new XElement(prop, user.Properties[prop].Value));
+
+					XElement memberOf = new XElement("memberOf");
+					foreach (string group in user.Properties["memberOf"])
+						memberOf.Add(new XElement("group", group));
+					userElem.Add(memberOf);
+
+					deptElem.Add(userElem);
+				}
+				dump.Root.Add(deptElem);
+			}
+			dump.Save(Properties.Resources.XmlFile);
+			return dump;
+		}
+		               
+        private void FillTree(string query = "")
         {
-            foreach(SearchResult res in response)
-            {
-                DirectoryEntry entry = res.GetDirectoryEntry();
-                XElement elem = new XElement("user",
-                    new XAttribute("name", entry.Properties["name"]));
-                
-                foreach(string prop in props)
-                    elem.Add(new XElement(prop), entry.Properties[prop]);
+			query = query.Trim();
 
-                parent.Add(elem);
-
-                entry.Dispose();
-                
-            }
-        }
-
-        
-
-        private void DumpADtoXML()
-        {
-            // Настройка поисковика по записям
-            // Поиск департаментов 
-            DirectorySearcher searcher = new DirectorySearcher(
-                new DirectoryEntry("LDAP://OU=Users,OU=Aktau,DC=nng,DC=kz"))
-                {
-                    SearchScope = SearchScope.OneLevel
-                };
-
-            searcher.PropertiesToLoad.Add("name");
-            searcher.PropertiesToLoad.AddRange(props);
-
-            // Создание нового документа XML и создание в нем корня company
-            XDocument xmlfile = new XDocument();
-            xmlfile.Add(new XElement("company"));
-
-            searcher.Filter = "(objectClass=organizationalUnit)";
-            var departmentSearchResult = searcher.FindAll();
-
-            // Переход на уровень глубже по департаментам
-            foreach (SearchResult departmentRes in departmentSearchResult)
-            {
-
-                // Поиск субдепартаментов
-                DirectoryEntry deptEntry = departmentRes.GetDirectoryEntry();
-
-                
-
-                string deptName = deptEntry.Properties["name"].Value.ToString();
-                XElement deptNode = new XElement("dept",
-                    new XAttribute("name", deptName),
-                    new XAttribute("russName", ""),
-                    new XAttribute("dn", deptEntry.Properties["distinguishedName"].Value.ToString()));
-
-                searcher.SearchRoot = deptEntry;
-                searcher.Filter = "(objectClass=organizationalUnit)";
-                var divResults = searcher.FindAll();
-                
-                // Поиск людей в субдепартаментах
-                foreach(SearchResult divRes in divResults)
-                {
-                    DirectoryEntry divEntry = divRes.GetDirectoryEntry();
-
-                    string divName = divEntry.Properties["name"].Value.ToString();
-                    XElement divNode = new XElement("subdept",
-                        new XAttribute("name", divName),
-                        new XAttribute("dn", divEntry.Properties["distinguishedName"].Value.ToString()));
-
-
-                    searcher.Filter = "(objectClass=user)";
-                    searcher.SearchRoot = divEntry;
-                    var userResults = searcher.FindAll();
-
-                    foreach (SearchResult userRes in userResults)
-                    {
-                        DirectoryEntry userEntry = userRes.GetDirectoryEntry();
-
-                        XElement userNode = new XElement("user",
-                            new XAttribute("name", userEntry.Properties["name"].Value),
-                            new XAttribute("dn", userEntry.Properties["distinguishedName"].Value));
-
-                        foreach(string prop in props)
-                            userNode.Add(new XElement(prop, userEntry.Properties[prop]));
-
-                        if (deptNode.Attribute("russName").Value == string.Empty)
-                            deptNode.Attribute("russName").SetValue(userNode.Element("department").Value);
-                        
-
-                        divNode.Add(userNode);
-                    }
-                    deptNode.Add(divNode);
-                }
-
-
-
-                searcher.Filter = "(objectClass=user)";
-                searcher.SearchRoot = deptEntry;
-
-                var deptUserResults = searcher.FindAll();
-                
-
-                foreach (SearchResult userRes in deptUserResults)
-                {
-                    DirectoryEntry userEntry = userRes.GetDirectoryEntry();
-
-                    XElement userNode = new XElement("user",
-                        new XAttribute("name", userEntry.Properties["name"].Value),
-                        new XAttribute("dn", userEntry.Properties["distinguishedName"].Value));
-
-                    foreach (string prop in props)
-                        userNode.Add(new XElement(prop, userEntry.Properties[prop]));
-
-                    if (deptNode.Attribute("russName").Value == string.Empty)
-                        deptNode.Attribute("russName").SetValue(userNode.Element("department").Value);
-
-                    deptNode.Add(userNode);
-                }
-
-                xmlfile.Root.Add(deptNode);
-            }
-
-            
-            xmlfile.Save(Properties.Resources.XmlFile);
-        }
-               
-        private void FillTree()
-        {
+			treeView.BeginUpdate();
             treeView.Nodes.Clear();
 
+			if (query == string.Empty)
+			{
+				foreach (XElement dept in doc.Root.Elements("dept"))
+				{
 
-            foreach(XElement deptNode in doc.Root.Elements())
-            {
-                
-                treeView.Nodes.Add(deptNode.Attribute("dn").Value, deptNode.Attribute("russName").Value);
-                var divNodes = deptNode.Elements("subdept");
-                foreach(XElement divNode in divNodes)
-                {
-                    treeView.Nodes[deptNode.Attribute("dn").Value].Nodes.Add(divNode.Attribute("dn").Value,
-                           divNode.Attribute("name").Value);
+					TreeNode deptNode = new TreeNode(dept.Attribute("nameRU").Value);
+					foreach (XElement user in dept.Elements("user"))
+					{
+						string displayName = String.Concat(
+							user.Element("sn").Value,
+							" ",
+							user.Element("givenName").Value);
 
-                    var userNodes = divNode.Elements();
-                    foreach(XElement userNode in userNodes)
-                    {
-                        treeView.Nodes[deptNode.Attribute("dn").Value].Nodes[divNode.Attribute("dn").Value].Nodes.Add(userNode.Attribute("dn").Value,
-                           userNode.Element("sn").Value + " " + userNode.Element ("givenName").Value);
-                    }
-                }
-                var users = deptNode.Elements("user");
-                foreach(XElement userNode in users)
-                {
-                    treeView.Nodes[deptNode.Attribute("dn").Value].Nodes.Add(userNode.Attribute("dn").Value,
-                           userNode.Element("sn").Value + " " + userNode.Element ("givenName").Value);
-                }
-            }
-            
+						displayName = displayName.Trim();
+
+						if (displayName == string.Empty)
+							displayName = user.Attribute("name").Value;
+
+						deptNode.Nodes.Add(user.Attribute("dn").Value, displayName);
+					}
+					treeView.Nodes.Add(deptNode);
+				}
+			}
+			else
+			{
+				query = query.ToLower();
+				var response = doc.Root.Descendants("user")
+					.Where(t => t.Element("givenName").Value.ToLower().StartsWith(query)
+						|| t.Element("sn").Value.ToLower().StartsWith(query)
+						|| t.Attribute("name").Value.ToLower().StartsWith(query)
+						|| t.Attribute("name").Value.ToLower().Contains(" " + query));
+				foreach(XElement user in response)
+				{
+					string displayName = String.Concat(
+						user.Element("sn").Value,
+						" ",
+						user.Element("givenName").Value);
+
+					displayName = displayName.Trim();
+
+					if (displayName == string.Empty)
+						displayName = user.Attribute("name").Value;
+
+					treeView.Nodes.Add(user.Attribute("dn").Value, displayName);
+				}
+			}
+			treeView.Sort();
+			treeView.EndUpdate();
         }
         
         private void SearchBox_TextChanged(object sender, EventArgs e)
         {
-			treeView.BeginUpdate();
-
-            treeView.Nodes.Clear();
-
-            if (searchBox.Text == string.Empty)
-            {
-                FillTree();
-            }
-            else
-            {
-                var users = doc.Root.Descendants("user")
-                    .Where(t => t.Element("givenName").Value.ToLower().StartsWith(searchBox.Text.ToLower())
-                    || t.Element("sn").Value.ToLower().StartsWith(searchBox.Text.ToLower())
-                    || t.Attribute("name").Value.ToLower().StartsWith(searchBox.Text.ToLower()))
-                    .ToList();
-
-                foreach (XElement elem in users)
-                    treeView.Nodes.Add(elem.Attribute("dn").Value, elem.Element("sn").Value + " " + elem.Element("givenName").Value);
-                
-            }
-
-            treeView.EndUpdate();
+			FillTree(searchBox.Text);
         }
 
         // Buttons behaviour
@@ -319,7 +237,6 @@ namespace Active_Directory_Management
             this.Enabled = false;
 
 			searchBox.Clear();
-            DumpADtoXML();
             doc = XDocument.Load(Properties.Resources.XmlFile);
             FillTree();
 

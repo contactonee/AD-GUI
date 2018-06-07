@@ -27,23 +27,89 @@ namespace Active_Directory_Management
 		public string Name { get; }
 
 		
-		public User(XElement userXmlNode)
-        {
-            xmlNode = userXmlNode;
+		
+
+		public User(string name, DirectoryEntry path, XElement parent)
+		{
+			// Get first name and family name from name string
+			string surname = name.Split(' ')[0].ToLower();
+			string firstName = name.Split(' ')[1].ToLower();
+
+			// Create entry in Active Directory
+			entry = path.Children.Add("CN=" + name, "user");
+			
+
+			// Build Searcher 
+			DirectorySearcher searcher = new DirectorySearcher()
+			{
+				SearchRoot = new DirectoryEntry("LDAP://DC=nng,DC=kz"),
+				SearchScope = SearchScope.Subtree
+			};
+
+			// Supposed samAccountName (login)
+			string samAccountName = surname.Substring(0, Math.Min(4, surname.Length))
+				+ firstName[0];
+			int cnt = 0;
+			
+			// Iterate cnt while available login is found 
+			do
+			{
+				cnt++;
+				searcher.Filter = String.Format("(samAccountName={0})",
+					samAccountName + cnt.ToString());
+			}
+			while (searcher.FindOne() != null);
+
+			// Set final samAccountName
+			samAccountName += cnt.ToString();
+			entry.Properties["samAccountName"].Value = samAccountName;
+			entry.Properties["userPrincipalName"].Value = samAccountName + "@nng.kz";
+
+			// Commit changes to Active Directory (create user)
+			entry.CommitChanges();
+
+			// Set standart password and require to change it on next logon
+			entry.Invoke("SetPassword", new object[] { "1234567Aa" });
+			entry.Properties["pwdLastSet"].Value = 0;
+			entry.CommitChanges();
+
+			// Manually enable account
+			entry.Properties["userAccountControl"].Value = 0x200;
+			entry.CommitChanges();
+			
+
+			// Write local parameters
+			Dn = entry.Properties["distinguishedName"].Value.ToString();
+			uac = 0x200;
+			memberOf = string.Empty;
+
+			// Create new xml node 
+			xmlNode = new XElement("user",
+				new XAttribute("name", name),
+				new XAttribute("dn", Dn),
+				new XAttribute("uac", uac),
+				new XAttribute("memberOf", memberOf));
+
+			// Append node to parent in document
+			parent.Add(xmlNode);
+
+			// Save changes
+			xmlFile.Save(Active_Directory_Management.Properties.Resources.XmlFile);
+
+			
+		}
+		
+		public User (XElement userXmlNode)
+		{
+			xmlNode = userXmlNode;
 			Dn = xmlNode.Attribute("dn").Value;
 
 			entry = new DirectoryEntry("LDAP://" + Dn);
 
-            UpdateProperties();
-        }
-
-		public User(string name, DirectoryEntry path, XElement parent)
-		{
-			entry = path.Children.Add("CN=" + name, "user");
-			entry.CommitChanges();
+			UpdateProperties();
 		}
 
-        public User(DirectoryEntry userEntry)
+		public User(DirectoryEntry userEntry)
         {
             entry = userEntry;
 			Dn = entry.Properties["distinguishedName"].Value.ToString();
@@ -242,7 +308,14 @@ namespace Active_Directory_Management
         {
 			foreach (KeyValuePair<string, string> prop in Properties)
             {
-                xmlNode.Element(prop.Key).Value = prop.Value;
+				try
+				{
+					xmlNode.Element(prop.Key).Value = prop.Value;
+				}
+				catch
+				{
+					xmlNode.Add(new XElement(prop.Key, prop.Value));
+				}
                 entry.Properties[prop.Key].Value = prop.Value;
             }
 			xmlFile.Save(XmlFileLocation);
@@ -256,6 +329,13 @@ namespace Active_Directory_Management
 			{
 				System.Diagnostics.Debug.WriteLine(pair);
 			}
+		}
+
+		public void DropPassword()
+		{
+			entry.Invoke("SetPassword", new object[] { "12345678Ab" });
+			entry.Properties["pwdLastSet"].Value = 0;
+			entry.CommitChanges();
 		}
     }
 }
