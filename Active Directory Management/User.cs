@@ -9,25 +9,24 @@ using System.Diagnostics;
 
 namespace Active_Directory_Management
 {
-    public class User
-    {
+	public class User
+	{
 		private XElement xmlNode;
-        private DirectoryEntry entry;
+		private DirectoryEntry entry;
 		private XDocument xmlFile = XDocument.Load(Active_Directory_Management.Properties.Resources.XmlFile);
 
 		private string xmlFileLocation = Active_Directory_Management.Properties.Resources.XmlFile;
-		
+
 		private string username = "bazhr1";
 		private string password = "vk.com123";
 
-		public Dictionary<string, string> Properties { get; set; } = new Dictionary<string, string>();
-		private string memberOf = string.Empty;
+		public Dictionary<string, string> Properties { get; } = new Dictionary<string, string>();
+
+		private Dictionary<string, bool> memberOf = new Dictionary<string, bool>();
+		
 		private int uac;
         public string Dn { get; }
 		public string Name { get; }
-
-		
-		
 
 		public User(string name, DirectoryEntry path, XElement parent)
 		{
@@ -38,7 +37,6 @@ namespace Active_Directory_Management
 			// Create entry in Active Directory
 			entry = path.Children.Add("CN=" + name, "user");
 			
-
 			// Build Searcher 
 			DirectorySearcher searcher = new DirectorySearcher()
 			{
@@ -65,6 +63,8 @@ namespace Active_Directory_Management
 			entry.Properties["samAccountName"].Value = samAccountName;
 			entry.Properties["userPrincipalName"].Value = samAccountName + "@nng.kz";
 
+			
+
 			// Commit changes to Active Directory (create user)
 			entry.CommitChanges();
 
@@ -77,18 +77,19 @@ namespace Active_Directory_Management
 			entry.Properties["userAccountControl"].Value = 0x200;
 			entry.CommitChanges();
 			
+			
 
 			// Write local parameters
 			Dn = entry.Properties["distinguishedName"].Value.ToString();
 			uac = 0x200;
-			memberOf = string.Empty;
+			Name = name;
 
 			// Create new xml node 
 			xmlNode = new XElement("user",
-				new XAttribute("name", name),
+				new XAttribute("name", Name),
 				new XAttribute("dn", Dn),
-				new XAttribute("uac", uac),
-				new XAttribute("memberOf", memberOf));
+				new XElement("userAccountControl", uac),
+				new XElement("memberOf"));
 
 			// Append node to parent in document
 			parent.Add(xmlNode);
@@ -99,53 +100,28 @@ namespace Active_Directory_Management
 			
 		}
 		
-		public User (XElement userXmlNode)
+		/// <summary>
+		/// Возвращает ранее созданного пользователя
+		/// </summary>
+		/// <param name="userDN">Distinguished Name искомого пользователя</param>
+		/// <returns>Пользователь</returns>
+		public static User Load(string userDN)
 		{
-			xmlNode = userXmlNode;
-			Dn = xmlNode.Attribute("dn").Value;
-
-			entry = new DirectoryEntry("LDAP://" + Dn);
-
-			UpdateProperties();
+			return new User(userDN);
 		}
+		
 
-		public User(DirectoryEntry userEntry)
+        private User(string userDN)
         {
-            entry = userEntry;
-			Dn = entry.Properties["distinguishedName"].Value.ToString();
 			xmlNode = xmlFile.Root.Descendants("user")
-                .Where(t => t.Attribute("dn").Value == Dn)
-                .FirstOrDefault();
-
-            
-
-            UpdateProperties();
-        }
-
-        public User(string username)
-        {
-            string lastname, firstname;
-            try
-            {
-                lastname = username.Split(' ')[0];
-                firstname = username.Split(' ')[1];
-            }
-            catch
-            {
-                lastname = string.Empty;
-                firstname = username;
-            }
-
-			xmlNode = xmlFile.Root.Descendants("user")
-				.Where(t => t.Element("sn").Value == lastname
-					&& t.Element("givenName").Value == firstname)
+				.Where(t => t.Attribute("dn").Value == userDN)
 				.First();
 
 			Dn = xmlNode.Attribute("dn").Value;
+			Name = xmlNode.Attribute("name").Value;
+			uac = int.Parse(xmlNode.Element("userAccountControl").Value);
 
 			entry = new DirectoryEntry("LDAP://" + Dn);
-
-			UpdateProperties();
 		}
 
 		public string Username
@@ -184,11 +160,7 @@ namespace Active_Directory_Management
         {
             foreach (XElement elem in xmlNode.Elements())
             {
-				if (elem.Name == "memberOf")
-					memberOf = elem.Value;
-				else if (elem.Name == "userAccountControl")
-					uac = int.Parse(elem.Value);
-				else
+				if(elem.Value != "memberOf" && elem.Value != "userAccountControl")
 					Properties.Add(elem.Name.ToString(), elem.Value.ToString());
             }
         }
@@ -230,8 +202,11 @@ namespace Active_Directory_Management
 		/// <returns>Членство в группе</returns>
 		public bool MemberOf(string groupDN)
         {
-            return memberOf.Contains(groupDN);
-        }
+			return xmlNode.Element("memberOf").Elements()
+				.Where(t => t.Value == groupDN)
+				.ToArray()
+				.Length > 0;
+		}
 
 
         /// <summary>
@@ -244,11 +219,11 @@ namespace Active_Directory_Management
             {
                 DirectoryEntry groupEntry = new DirectoryEntry("LDAP://" + groupDN);
 
-                // Update property in object
-                memberOf += groupDN;
+				// Update property in object
+				memberOf[groupDN] = true;
 
-                // Update property in XML file
-                xmlNode.Element("memberOf").Value += groupDN;
+				// Update property in XML file
+				xmlNode.Element("memberOf").Add(new XElement("group", groupDN));
 				xmlFile.Save(xmlFileLocation);
 
 				// Update Active Directory
@@ -269,15 +244,14 @@ namespace Active_Directory_Management
             {
                 DirectoryEntry groupEntry = new DirectoryEntry("LDAP://" + groupDN);
 
-                string newMemberOf = memberOf.Remove(
-                    memberOf.IndexOf(groupDN),
-                    groupDN.Length);
+				
+				// Update property in object
+				memberOf[groupDN] = false;
 
-                // Update property in object
-                memberOf = newMemberOf;
-
-                // Update property in XML file
-                xmlNode.Element("memberOf").Value = newMemberOf;
+				// Update property in XML file
+				xmlNode.Element("memberOf").Elements()
+					.Where(t => t.Value == groupDN)
+					.Remove();
 				xmlFile.Save(xmlFileLocation);
 
                 // Update Active Directory
@@ -291,14 +265,14 @@ namespace Active_Directory_Management
 		/// <summary>
 		/// Устанавливает членство пользователя в группе
 		/// </summary>
-		/// <param name="groupDistinguishedName"></param>
-		/// <param name="state"></param>
-        public void SetMembership(string groupDistinguishedName, bool state)
+		/// <param name="groupDN">Distinguished Name группы</param>
+		/// <param name="state">Флаг "Членство в группе"</param>
+		public void SetMembership(string groupDN, bool state)
         {
 			if (state == true)
-				AddGroup(groupDistinguishedName);
+				AddGroup(groupDN);
             else
-                RemoveGroup(groupDistinguishedName);
+                RemoveGroup(groupDN);
         }
 
 		/// <summary>
@@ -308,27 +282,16 @@ namespace Active_Directory_Management
         {
 			foreach (KeyValuePair<string, string> prop in Properties)
             {
-				try
-				{
-					xmlNode.Element(prop.Key).Value = prop.Value;
-				}
-				catch
-				{
-					xmlNode.Add(new XElement(prop.Key, prop.Value));
-				}
+				if (prop.Value == string.Empty)
+					continue;
+				try { xmlNode.Element(prop.Key).Value = prop.Value; }
+				catch { xmlNode.Add(new XElement(prop.Key, prop.Value)); }
+
                 entry.Properties[prop.Key].Value = prop.Value;
             }
+			Properties.Clear();
 			xmlFile.Save(XmlFileLocation);
 			entry.CommitChanges();
-		}
-
-
-		public void ShowProperties()
-		{
-			foreach(KeyValuePair<string, string> pair in Properties)
-			{
-				System.Diagnostics.Debug.WriteLine(pair);
-			}
 		}
 
 		public void DropPassword()
@@ -336,6 +299,18 @@ namespace Active_Directory_Management
 			entry.Invoke("SetPassword", new object[] { "12345678Ab" });
 			entry.Properties["pwdLastSet"].Value = 0;
 			entry.CommitChanges();
+		}
+
+		/// <summary>
+		/// Возвращает значение атрибута пользователя
+		/// </summary>
+		/// <param name="property">Имя атрибута</param>
+		/// <returns>Значение атрибута</returns>
+		public string GetProperty(string property)
+		{
+			if (property == "department")
+				return xmlNode.Parent.Attribute("nameRU").Value;
+			return xmlNode.Element(property).Value;
 		}
     }
 }

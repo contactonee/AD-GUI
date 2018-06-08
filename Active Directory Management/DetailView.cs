@@ -28,32 +28,35 @@ namespace Active_Directory_Management
         }
         public DetailView(User user)
 		{
+
+
 			InitializeComponent();
+			OnLoad();
 
 			this.user = user;
 			this.Text = user.Name;
 
-			create.Text = "Сохранить Изменения";
+			saveBtn.Text = "Сохранить Изменения";
 
-			nameTextBox.Text = user.Properties["givenName"];
-			surnameTextBox.Text = user.Properties["sn"];
-			middleNameTextBox.Text = user.Properties["middleName"];
+			nameBox.Text = user.GetProperty("givenName");
+			surnameBox.Text = user.GetProperty("sn");
+			familyNameBox.Text = user.GetProperty("middleName");
 
 			try
 			{
-				surnameTranslitTextBox.Text = user.Name.Split(' ')[0];
-				nameTranslitTextBox.Text = user.Name.Split(' ')[1];
+				surnameEnBox.Text = user.Name.Split(' ')[0];
+				nameEnBox.Text = user.Name.Split(' ')[1];
 			}
 			catch
 			{
-				nameTranslitTextBox.Text = user.Name;
-				surnameTranslitTextBox.Text = string.Empty;
+				nameEnBox.Text = user.Name;
+				surnameEnBox.Text = string.Empty;
 			}
-			mobileTextBox.Text = user.Properties["mobile"];
+			mobileTextBox.Text = user.GetProperty("mobile");
 
 			try
 			{
-				birthdayDatePicker.Value = DateTime.Parse(user.Properties["extenstionAttribute2"]);
+				birthdayDatePicker.Value = DateTime.Parse(user.GetProperty("extenstionAttribute2"));
 			}
 			catch
 			{
@@ -61,11 +64,11 @@ namespace Active_Directory_Management
 				birthdayDatePicker.CustomFormat = " ";
 			}
 
-			departmentCombo.SelectedIndex = departmentCombo.Items.IndexOf(user.Properties["department"]);
-			divCombo.Text = user.Properties["description"];
-			posCombo.Text = user.Properties["title"];
-			roomCombo.Text = user.Properties["physicalDeliveryOfficeName"];
-			telCombo.Text = user.Properties["telephoneNumber"];
+			departmentCombo.SelectedIndex = departmentCombo.Items.IndexOf(user.GetProperty("department"));
+			divCombo.Text = user.GetProperty("description");
+			posCombo.Text = user.GetProperty("title");
+			roomCombo.Text = user.GetProperty("physicalDeliveryOfficeName");
+			telCombo.Text = user.GetProperty("telephoneNumber");
 
 			cdCheck.Checked = user.MemberOf(Properties.Groups.DvdDrives);
 			usbDiskCheck.Checked = user.MemberOf(Properties.Groups.DvdDrives);
@@ -79,7 +82,7 @@ namespace Active_Directory_Management
 				internetCombo.SelectedIndex = 0;
 
 
-			OnLoad();
+			
 		}
 
         private void OnLoad()
@@ -94,10 +97,9 @@ namespace Active_Directory_Management
             mobileTextBox.TextMaskFormat = MaskFormat.ExcludePromptAndLiterals;
 
             var res = doc.Root.Elements("dept")
-                .Select(t => t.Attribute("russName").Value)
+                .Select(t => t.Attribute("nameRU").Value)
                 .ToArray();
-            departmentCombo.Items.AddRange(res);                                                                                       
-
+            departmentCombo.Items.AddRange(res);
         }
 		
 		private string Translit(string text)
@@ -176,24 +178,6 @@ namespace Active_Directory_Management
 
 			return result;
         }
-        
-        private void AddGroup(DirectoryEntry user, string groupDN)
-        {
-            DirectoryEntry group = new DirectoryEntry("LDAP://" + groupDN);
-            group.Properties["member"].Add((string)user.Properties["distinguishedName"].Value);
-            group.CommitChanges();
-            group.Close();
-            user.Close();
-        }
-
-        private void RemoveGroup(DirectoryEntry user, string groupDN)
-        {
-            DirectoryEntry group = new DirectoryEntry("LDAP://" + groupDN);
-            group.Properties["member"].Remove((string)user.Properties["distinguishedName"].Value);
-            group.CommitChanges();
-            group.Close();
-            user.Close();
-        }
 
         private void CreateButton(object sender, EventArgs e)
         {
@@ -202,13 +186,13 @@ namespace Active_Directory_Management
 
         private void CreateUser()
         {
-			string displayName = surnameTranslitTextBox.Text + " " + nameTranslitTextBox.Text;
+			string displayName = surnameEnBox.Text + " " + nameEnBox.Text;
 			bool newUser = false;
 
 			if (user == null)
 			{
 				XElement par = doc.Root.Elements("dept")
-					.Where(t => t.Attribute("russName").Value == departmentCombo.Text)
+					.Where(t => t.Attribute("nameRU").Value == departmentCombo.Text)
 					.FirstOrDefault();
 
 				DirectoryEntry ou = new DirectoryEntry("LDAP://" + par.Attribute("dn").Value);
@@ -217,10 +201,10 @@ namespace Active_Directory_Management
 				newUser = true;
 			}
 
-			user.Properties["givenName"] = nameTextBox.Text;
-			user.Properties["sn"] = surnameTextBox.Text;
+			user.Properties["givenName"] = nameBox.Text;
+			user.Properties["sn"] = surnameBox.Text;
 			user.Properties["displayName"] = displayName;
-			user.Properties["middleName"] = middleNameTextBox.Text;
+			user.Properties["middleName"] = familyNameBox.Text;
 			user.Properties["mobile"] = mobileTextBox.Text;
 			user.Properties["l"] = cityCombo.Text;
 			user.Properties["department"] = departmentCombo.Text;
@@ -228,7 +212,7 @@ namespace Active_Directory_Management
 			user.Properties["title"] = posCombo.Text;
 			user.Properties["telephoneNumber"] = telCombo.Text;
 			user.Properties["ipPhone"] = telCombo.Text;
-			user.Properties["physicaldeliveryofficename"] = roomCombo.Text;
+			user.Properties["physicalDeliveryOfficeName"] = roomCombo.Text;
 			user.Properties["extensionAttribute2"] = birthdayDatePicker.Value.ToString("dd.MM.yyyy");
 			if (limitedRadio.Checked)
 				user.Properties["accountExpires"] = expirationDatePicker.Value.AddDays(1)
@@ -285,36 +269,65 @@ namespace Active_Directory_Management
 
         private void DepartmentCombo_SelectedIndexChanged(object sender, EventArgs e)
         {
-            //Update divCombo
-            //Update posCombo
-            //Update rooms
-            //Update telephones
+			//Update divCombo
+			//Update posCombo
+			//Update rooms
+			//Update telephones
 
 
-            XElement deptElem = doc.Root.Elements("dept")
-                .Where(t => t.Attribute("russName").Value == departmentCombo.Text)
-                .First();
+			var users = doc.Root.Elements("dept")
+				.Where(t => t.Attribute("nameRU").Value == departmentCombo.Text)
+				.Select(t => t.Elements("user"))
+				.First();
 
-            
+			HashSet<string> diffDivs = new HashSet<string>();
+			HashSet<string> diffPoss = new HashSet<string>();
+			HashSet<string> diffRooms = new HashSet<string>();
+			HashSet<string> diffTels = new HashSet<string>();
 
-            subdepartmentCombo.BeginUpdate();
-            subdepartmentCombo.Items.Clear();
-            subdepartmentCombo.Items.Add("-");
-            subdepartmentCombo.SelectedIndex = 0;
+			foreach (XElement elem in users)
+			{
+				if (elem.Element("description").Value.Trim() != string.Empty
+						&& !elem.Element("description").Value.StartsWith("("))
+					diffDivs.Add(elem.Element("description").Value);
 
-            foreach (XElement elem in deptElem.Elements("subdept"))
-                subdepartmentCombo.Items.Add(elem.Attribute("name").Value);
-            
-            subdepartmentCombo.EndUpdate();
+				if (elem.Element("title").Value.Trim() != string.Empty
+						&& !elem.Element("title").Value.StartsWith("("))
+					diffPoss.Add(elem.Element("title").Value);
 
-            UpdateCombos(deptElem.Descendants("user").ToArray());
-            
+				if (elem.Element("physicalDeliveryOfficeName").Value.Trim() != string.Empty
+						&& !elem.Element("physicalDeliveryOfficeName").Value.StartsWith("("))
+					diffRooms.Add(elem.Element("physicalDeliveryOfficeName").Value);
 
-        }
+				if (elem.Element("telephoneNumber").Value.Trim() != string.Empty
+						&& !elem.Element("telephoneNumber").Value.StartsWith("("))
+					diffTels.Add(elem.Element("telephoneNumber").Value);
+			}
+
+			divCombo.BeginUpdate();
+			posCombo.BeginUpdate();
+			roomCombo.BeginUpdate();
+			telCombo.BeginUpdate();
+
+			divCombo.Items.Clear();
+			posCombo.Items.Clear();
+			roomCombo.Items.Clear();
+			telCombo.Items.Clear();
+
+			divCombo.Items.AddRange(diffDivs.ToArray());
+			posCombo.Items.AddRange(diffPoss.ToArray());
+			roomCombo.Items.AddRange(diffRooms.ToArray());
+			telCombo.Items.AddRange(diffTels.ToArray());
+
+			divCombo.EndUpdate();
+			posCombo.EndUpdate();
+			roomCombo.EndUpdate();
+			telCombo.EndUpdate();
+		}
 
         private void UpdateCombos(XElement[] users)
         {
-            // Common code after department or subdepartment change
+			// Common code after department change
 
             HashSet<string> diffDivs = new HashSet<string>();
             HashSet<string> diffPoss = new HashSet<string>();
@@ -331,16 +344,21 @@ namespace Active_Directory_Management
                         && !elem.Element("title").Value.StartsWith("("))
                     diffPoss.Add(elem.Element("title").Value);
 
-                if (elem.Element("physicaldeliveryofficename").Value.Trim() != string.Empty
-                        && !elem.Element("physicaldeliveryofficename").Value.StartsWith("("))
-                    diffRooms.Add(elem.Element("physicaldeliveryofficename").Value);
+                if (elem.Element("physicalDeliveryOfficeName").Value.Trim() != string.Empty
+                        && !elem.Element("physicalDeliveryOfficeName").Value.StartsWith("("))
+                    diffRooms.Add(elem.Element("physicalDeliveryOfficeName").Value);
 
                 if (elem.Element("telephoneNumber").Value.Trim() != string.Empty
                         && !elem.Element("telephoneNumber").Value.StartsWith("("))
                     diffTels.Add(elem.Element("telephoneNumber").Value);
             }
 
-            divCombo.Items.Clear();
+			divCombo.BeginUpdate();
+			posCombo.BeginUpdate();
+			roomCombo.BeginUpdate();
+			telCombo.BeginUpdate();
+
+			divCombo.Items.Clear();
             posCombo.Items.Clear();
             roomCombo.Items.Clear();
             telCombo.Items.Clear();
@@ -350,52 +368,59 @@ namespace Active_Directory_Management
             roomCombo.Items.AddRange(diffRooms.ToArray());
             telCombo.Items.AddRange(diffTels.ToArray());
 
-        }
+			// Debug.WriteLine(diffDiv.)
+
+			divCombo.EndUpdate();
+			posCombo.EndUpdate();
+			roomCombo.EndUpdate();
+			telCombo.EndUpdate();
+
+		}
 
 
         private void NameTextBox_TextChanged(object sender, EventArgs e)
         {
-			if (nameTextBox.Text.Length > 0
-					&& (nameTextBox.Text.ToLower().Min() < 'а'
-					|| nameTextBox.Text.ToLower().Max() > 'я'))
-				nameTextBox.ForeColor = Color.Red;
+			if (nameBox.Text.Length > 0
+					&& (nameBox.Text.ToLower().Min() < 'а'
+					|| nameBox.Text.ToLower().Max() > 'я'))
+				nameBox.ForeColor = Color.Red;
 			else
 			{
-				nameTextBox.ForeColor = Color.Black;
-				nameTranslitTextBox.Text = Translit(nameTextBox.Text);
+				nameBox.ForeColor = Color.Black;
+				nameEnBox.Text = Translit(nameBox.Text);
 			}
         }
         private void SurnameTextBox_TextChanged(object sender, EventArgs e)
         {
-			if (surnameTextBox.Text.Length > 0
-					&& (surnameTextBox.Text.ToLower().Min() < 'а'
-					|| surnameTextBox.Text.ToLower().Max() > 'я'))
-				surnameTextBox.ForeColor = Color.Red;
+			if (surnameBox.Text.Length > 0
+					&& (surnameBox.Text.ToLower().Min() < 'а'
+					|| surnameBox.Text.ToLower().Max() > 'я'))
+				surnameBox.ForeColor = Color.Red;
 			else
 			{
-				surnameTextBox.ForeColor = Color.Black;
-				surnameTranslitTextBox.Text = Translit(surnameTextBox.Text);
+				surnameBox.ForeColor = Color.Black;
+				surnameEnBox.Text = Translit(surnameBox.Text);
 			}
 		}
 
 		private void NameTranslitTextBox_TextChanged(object sender, EventArgs e)
 		{
-			if (nameTranslitTextBox.Text.Length > 0
-					&& (nameTranslitTextBox.Text.ToLower().Min() < 'a'
-					|| nameTranslitTextBox.Text.ToLower().Max() > 'z'))
-				nameTranslitTextBox.ForeColor = Color.Red;
+			if (nameEnBox.Text.Length > 0
+					&& (nameEnBox.Text.ToLower().Min() < 'a'
+					|| nameEnBox.Text.ToLower().Max() > 'z'))
+				nameEnBox.ForeColor = Color.Red;
 			else
-				nameTranslitTextBox.ForeColor = Color.Black;
+				nameEnBox.ForeColor = Color.Black;
 		}
 
 		private void SurnameTranslitTextBox_TextChanged(object sender, EventArgs e)
 		{
-			if (surnameTranslitTextBox.Text.Length > 0
-					&& (surnameTranslitTextBox.Text.ToLower().Min() < 'a'
-					|| surnameTranslitTextBox.Text.ToLower().Max() > 'z'))
-				surnameTranslitTextBox.ForeColor = Color.Red;
+			if (surnameEnBox.Text.Length > 0
+					&& (surnameEnBox.Text.ToLower().Min() < 'a'
+					|| surnameEnBox.Text.ToLower().Max() > 'z'))
+				surnameEnBox.ForeColor = Color.Red;
 			else
-				surnameTranslitTextBox.ForeColor = Color.Black;
+				surnameEnBox.ForeColor = Color.Black;
 		}
 
 		private void DivCombo_SelectedIndexChanged(object sender, EventArgs e)
@@ -408,7 +433,7 @@ namespace Active_Directory_Management
         private void RoomCombo_TextChanged(object sender, EventArgs e)
         {
             var res = doc.Root.Descendants("user")
-                .Where(t => t.Element("physicaldeliveryofficename").Value == roomCombo.Text)
+                .Where(t => t.Element("physicalDeliveryOfficeName").Value == roomCombo.Text)
                 .Select(t => t.Element("telephoneNumber").Value);
 
             HashSet<string> diffTels = new HashSet<string>();
@@ -424,29 +449,6 @@ namespace Active_Directory_Management
         {
             birthdayDatePicker.Format = DateTimePickerFormat.Short;
         }
-
-        private void SubdepartmentCombo_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            if (subdepartmentCombo.SelectedIndex > 0)
-            {
-                
-                UpdateCombos(doc.Root.Descendants("subdept")
-                    .Where(t => t.Attribute("name").Value == subdepartmentCombo.Text)
-                    .Select(t => t.Descendants("user"))
-                    .First()
-                    .ToArray());
-            }
-            else
-            {
-                UpdateCombos(doc.Root.Elements("dept")
-                    .Where(t => t.Attribute("russName").Value == departmentCombo.Text)
-                    .Select(t => t.Descendants("user"))
-                    .First()
-                    .ToArray());
-            }
-            
-        }
-
 		
 	}
 }

@@ -37,14 +37,15 @@
 			this.listBox = new System.Windows.Forms.ListBox();
 			this.treeView = new System.Windows.Forms.TreeView();
 			this.switchPanel = new System.Windows.Forms.Panel();
-			this.disableBtn = new System.Windows.Forms.Button();
-			this.updBtn = new System.Windows.Forms.Button();
 			this.cdCheck = new System.Windows.Forms.CheckBox();
 			this.usbDiskCheck = new System.Windows.Forms.CheckBox();
 			this.usbDeviceCheck = new System.Windows.Forms.CheckBox();
 			this.cloudCheck = new System.Windows.Forms.CheckBox();
-			this.internetLabel = new System.Windows.Forms.Label();
 			this.internetCombo = new System.Windows.Forms.ComboBox();
+			this.internetLabel = new System.Windows.Forms.Label();
+			this.disableBtn = new System.Windows.Forms.Button();
+			this.updBtn = new System.Windows.Forms.Button();
+			this.disableReason = new System.Windows.Forms.Label();
 			this.switchPanel.SuspendLayout();
 			this.SuspendLayout();
 			// 
@@ -142,6 +143,65 @@
 			this.switchPanel.Size = new System.Drawing.Size(450, 280);
 			this.switchPanel.TabIndex = 19;
 			// 
+			// cdCheck
+			// 
+			this.cdCheck.Location = new System.Drawing.Point(67, 14);
+			this.cdCheck.Name = "cdCheck";
+			this.cdCheck.Size = new System.Drawing.Size(168, 28);
+			this.cdCheck.TabIndex = 6;
+			this.cdCheck.Text = "Доступ к CD/DVD";
+			this.cdCheck.UseVisualStyleBackColor = true;
+			// 
+			// usbDiskCheck
+			// 
+			this.usbDiskCheck.Location = new System.Drawing.Point(67, 48);
+			this.usbDiskCheck.Name = "usbDiskCheck";
+			this.usbDiskCheck.Size = new System.Drawing.Size(168, 28);
+			this.usbDiskCheck.TabIndex = 7;
+			this.usbDiskCheck.Text = "Доступ к USB дискам";
+			this.usbDiskCheck.UseVisualStyleBackColor = true;
+			// 
+			// usbDeviceCheck
+			// 
+			this.usbDeviceCheck.Location = new System.Drawing.Point(67, 82);
+			this.usbDeviceCheck.Name = "usbDeviceCheck";
+			this.usbDeviceCheck.Size = new System.Drawing.Size(168, 28);
+			this.usbDeviceCheck.TabIndex = 8;
+			this.usbDeviceCheck.Text = "Доступ к USB устройствам";
+			this.usbDeviceCheck.UseVisualStyleBackColor = true;
+			// 
+			// cloudCheck
+			// 
+			this.cloudCheck.Enabled = false;
+			this.cloudCheck.Location = new System.Drawing.Point(67, 116);
+			this.cloudCheck.Name = "cloudCheck";
+			this.cloudCheck.Size = new System.Drawing.Size(168, 28);
+			this.cloudCheck.TabIndex = 9;
+			this.cloudCheck.Text = "Личная папка (Диск K:\\)";
+			this.cloudCheck.UseVisualStyleBackColor = true;
+			// 
+			// internetCombo
+			// 
+			this.internetCombo.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+			this.internetCombo.FormattingEnabled = true;
+			this.internetCombo.Items.AddRange(new object[] {
+            "Отсутствует",
+            "Ограниченный",
+            "Полный"});
+			this.internetCombo.Location = new System.Drawing.Point(174, 167);
+			this.internetCombo.Name = "internetCombo";
+			this.internetCombo.Size = new System.Drawing.Size(121, 21);
+			this.internetCombo.TabIndex = 10;
+			// 
+			// internetLabel
+			// 
+			this.internetLabel.AutoSize = true;
+			this.internetLabel.Location = new System.Drawing.Point(64, 170);
+			this.internetLabel.Name = "internetLabel";
+			this.internetLabel.Size = new System.Drawing.Size(104, 13);
+			this.internetLabel.TabIndex = 11;
+			this.internetLabel.Text = "Доступ в Интернет";
+			// 
 			// disableBtn
 			// 
 			this.disableBtn.Enabled = false;
@@ -163,79 +223,29 @@
 			this.updBtn.UseVisualStyleBackColor = true;
 			this.updBtn.Click += new System.EventHandler(this.UpdBtn_Click);
 			// 
-			// cdCheck
+			// disableReason
 			// 
-			this.cdCheck.Appearance = System.Windows.Forms.Appearance.Button;
-			this.cdCheck.Location = new System.Drawing.Point(67, 14);
-			this.cdCheck.Name = "cdCheck";
-			this.cdCheck.Size = new System.Drawing.Size(168, 28);
-			this.cdCheck.TabIndex = 6;
-			this.cdCheck.Text = "Доступ к CD/DVD";
-			this.cdCheck.UseVisualStyleBackColor = true;
-			// 
-			// usbDiskCheck
-			// 
-			this.usbDiskCheck.Appearance = System.Windows.Forms.Appearance.Button;
-			this.usbDiskCheck.Location = new System.Drawing.Point(67, 48);
-			this.usbDiskCheck.Name = "usbDiskCheck";
-			this.usbDiskCheck.Size = new System.Drawing.Size(168, 28);
-			this.usbDiskCheck.TabIndex = 7;
-			this.usbDiskCheck.Text = "Доступ к USB дискам";
-			this.usbDiskCheck.UseVisualStyleBackColor = true;
-			// 
-			// usbDeviceCheck
-			// 
-			this.usbDeviceCheck.Appearance = System.Windows.Forms.Appearance.Button;
-			this.usbDeviceCheck.Location = new System.Drawing.Point(67, 82);
-			this.usbDeviceCheck.Name = "usbDeviceCheck";
-			this.usbDeviceCheck.Size = new System.Drawing.Size(168, 28);
-			this.usbDeviceCheck.TabIndex = 8;
-			this.usbDeviceCheck.Text = "Доступ к USB устройствам";
-			this.usbDeviceCheck.UseVisualStyleBackColor = true;
-			// 
-			// cloudCheck
-			// 
-			this.cloudCheck.Appearance = System.Windows.Forms.Appearance.Button;
-			this.cloudCheck.Enabled = false;
-			this.cloudCheck.Location = new System.Drawing.Point(67, 116);
-			this.cloudCheck.Name = "cloudCheck";
-			this.cloudCheck.Size = new System.Drawing.Size(168, 28);
-			this.cloudCheck.TabIndex = 9;
-			this.cloudCheck.Text = "Личная папка (Диск K:\\)";
-			this.cloudCheck.UseVisualStyleBackColor = true;
-			// 
-			// internetLabel
-			// 
-			this.internetLabel.AutoSize = true;
-			this.internetLabel.Location = new System.Drawing.Point(64, 170);
-			this.internetLabel.Name = "internetLabel";
-			this.internetLabel.Size = new System.Drawing.Size(104, 13);
-			this.internetLabel.TabIndex = 11;
-			this.internetLabel.Text = "Доступ в Интернет";
-			// 
-			// internetCombo
-			// 
-			this.internetCombo.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-			this.internetCombo.FormattingEnabled = true;
-			this.internetCombo.Items.AddRange(new object[] {
-            "Отсутствует",
-            "Ограниченный",
-            "Полный"});
-			this.internetCombo.Location = new System.Drawing.Point(174, 167);
-			this.internetCombo.Name = "internetCombo";
-			this.internetCombo.Size = new System.Drawing.Size(121, 21);
-			this.internetCombo.TabIndex = 10;
+			this.disableReason.AutoSize = true;
+			this.disableReason.Location = new System.Drawing.Point(405, 317);
+			this.disableReason.MaximumSize = new System.Drawing.Size(100, 200);
+			this.disableReason.Name = "disableReason";
+			this.disableReason.Size = new System.Drawing.Size(44, 13);
+			this.disableReason.TabIndex = 21;
+			this.disableReason.Text = "Reason";
+			this.disableReason.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+			this.disableReason.Visible = false;
 			// 
 			// MainView
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.ClientSize = new System.Drawing.Size(800, 450);
+			this.Controls.Add(this.disableReason);
 			this.Controls.Add(this.disableBtn);
-			this.Controls.Add(this.updBtn);
 			this.Controls.Add(this.switchPanel);
 			this.Controls.Add(this.treeView);
 			this.Controls.Add(this.listBox);
+			this.Controls.Add(this.updBtn);
 			this.Controls.Add(this.lastBox);
 			this.Controls.Add(this.firstBox);
 			this.Controls.Add(this.createBtn);
@@ -268,5 +278,6 @@
 		private System.Windows.Forms.CheckBox cloudCheck;
 		private System.Windows.Forms.ComboBox internetCombo;
 		private System.Windows.Forms.Label internetLabel;
+		private System.Windows.Forms.Label disableReason;
 	}
 }

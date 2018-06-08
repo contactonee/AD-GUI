@@ -32,7 +32,7 @@ namespace Active_Directory_Management
 			"title",
 			"description",
 			"department",
-			"physicaldeliveryofficename",
+			"physicalDeliveryOfficeName",
 			"telephoneNumber",
 			"userAccountControl"
         };
@@ -44,9 +44,9 @@ namespace Active_Directory_Management
 
 			doc = DumpToXml();
 			FillTree();
+			
         }
 		
-
 		private XDocument DumpToXml()
 		{
 			XDocument dump = new XDocument();
@@ -82,9 +82,7 @@ namespace Active_Directory_Management
 				foreach(SearchResult userRes in usersResponse)
 				{
 					DirectoryEntry user = userRes.GetDirectoryEntry();
-
-					Debug.WriteLine(user.Properties["memberOf"]);
-
+				
 					XElement userElem = new XElement("user",
 						new XAttribute("name", user.Properties["name"].Value),
 						new XAttribute("dn", user.Properties["distinguishedName"].Value));
@@ -163,6 +161,8 @@ namespace Active_Directory_Management
 			treeView.EndUpdate();
         }
         
+		
+
         private void SearchBox_TextChanged(object sender, EventArgs e)
         {
 			FillTree(searchBox.Text);
@@ -178,19 +178,18 @@ namespace Active_Directory_Management
 
         private void DetailBtn_Click(object sender, EventArgs e)
         {
-            //Form detailView = new DetailView(user);
-            //detailView.ShowDialog(this);
+            Form detailView = new DetailView(user);
+            detailView.ShowDialog(this);
         }
 
         private void TreeView_AfterSelect(object sender, TreeViewEventArgs e)
         {
             if (treeView.SelectedNode.Name.StartsWith("CN"))
             {
-				
-				user = new User(new DirectoryEntry("LDAP://" + treeView.SelectedNode.Name));
-				
-				firstBox.Text = user.Properties["givenName"];
-				lastBox.Text = user.Properties["sn"];
+				user = User.Load(treeView.SelectedNode.Name);
+
+				firstBox.Text = user.GetProperty("givenName");
+				lastBox.Text = user.GetProperty("sn");
                 
                 cdCheck.Checked = user.MemberOf(Properties.Groups.DvdDrives);
                 usbDiskCheck.Checked = user.MemberOf(Properties.Groups.UsbDrives);
@@ -202,18 +201,23 @@ namespace Active_Directory_Management
 					internetCombo.SelectedIndex = 1;
 				else
 					internetCombo.SelectedIndex = 0;
-
+			
 				disableBtn.Enabled = true;
 
                 if (user.Enabled)
                 {
+					disableReason.Visible = false;
                     switchPanel.Enabled = true;
                     disableBtn.Text = "Отключить аккаунт";
-                }
+					
+				}
                 else
                 {
-                    switchPanel.Enabled = false;
+					disableReason.Text = user.GetProperty("description").Trim('(').Split(')')[0];
+					disableReason.Visible = true;
+					switchPanel.Enabled = false;
                     disableBtn.Text = "Активировать аккаунт";
+
                 }
 			}
             else
@@ -236,9 +240,17 @@ namespace Active_Directory_Management
         {
             this.Enabled = false;
 
+			string sel = treeView.SelectedNode.Name;
+			doc = DumpToXml();
 			searchBox.Clear();
-            doc = XDocument.Load(Properties.Resources.XmlFile);
-            FillTree();
+			
+			foreach(TreeNode node in treeView.Nodes)
+				foreach (TreeNode user in node.Nodes)
+					if (user.Name == sel)
+					{
+						treeView.SelectedNode = user;
+						user.EnsureVisible();
+					}
 
             this.Enabled = true;
         }
@@ -246,39 +258,68 @@ namespace Active_Directory_Management
 
         private void SaveBtn_Click(object sender, EventArgs e)
         {
-            user.SetMembership(Properties.Groups.DvdDrives, cdCheck.Checked);
-			user.SetMembership(Properties.Groups.UsbDrives, usbDiskCheck.Checked);
-			user.SetMembership(Properties.Groups.UsbDevices,
-				usbDeviceCheck.Checked);
+			try
+			{
+				user.SetMembership(Properties.Groups.DvdDrives, cdCheck.Checked);
+				user.SetMembership(Properties.Groups.UsbDrives, usbDiskCheck.Checked);
+				user.SetMembership(Properties.Groups.UsbDevices,
+					usbDeviceCheck.Checked);
 
-			user.SetMembership(Properties.Groups.InternetLimited, internetCombo.SelectedIndex == 1);
-			user.SetMembership(Properties.Groups.InternetFull, internetCombo.SelectedIndex == 2);
-			
-			user.CommitChanges();
+				user.SetMembership(Properties.Groups.InternetLimited, internetCombo.SelectedIndex == 1);
+				user.SetMembership(Properties.Groups.InternetFull, internetCombo.SelectedIndex == 2);
+
+			}
+			catch
+			{
+				MessageBox.Show("Невозможно сохранить, возможно не хватает прав");
+			}
 		}
 
         private void DisableBtn_Click(object sender, EventArgs e)
         {
-            if (user.Enabled)
-            {
-                DisableReasonForm form = new DisableReasonForm();
-                form.ShowDialog(this);
+			string descr = user.GetProperty("description");
+			try
+			{
+				if (user.Enabled)
+				{
+					DisableReasonForm form = new DisableReasonForm();
+					form.ShowDialog(this);
 
-                if (form.DialogResult == DialogResult.OK)
-                {
-					user.Enabled = false;
+					if (form.DialogResult == DialogResult.OK)
+					{
+						descr = String.Format("(Временно отключена {0}, {1}, причина: {2}) {3}",
+							DateTime.Today.ToShortDateString(),
+							Environment.UserName,
+							form.reasonTextBox.Text,
+							descr);
 
-                    switchPanel.Enabled = false;
-					disableBtn.Text = "Активировать аккаунт";
+						user.Properties["description"] = descr;
+						user.CommitChanges();
+						user.Enabled = false;
+
+						disableReason.Text = descr.Trim('(').Split(')')[0];
+						disableReason.Visible = true;
+						switchPanel.Enabled = false;
+						disableBtn.Text = "Активировать аккаунт";
+					}
 				}
-            }
-            else
-            {
-				user.Enabled = true;
+				else
+				{
+					descr = descr.Substring(descr.LastIndexOf(')') + 2);
 
-                switchPanel.Enabled = true;
-				disableBtn.Text = "Отключить аккаунт";
+					user.Properties["description"] = descr;
+					user.CommitChanges();
+					user.Enabled = true;
+
+					disableReason.Visible = false;
+					switchPanel.Enabled = true;
+					disableBtn.Text = "Отключить аккаунт";
+				}
+			}
+			catch
+			{
+				MessageBox.Show("Недостаточно прав");
 			}
         }
-    }
+	}
 }

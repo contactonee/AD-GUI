@@ -28,12 +28,10 @@
         /// </summary>
         private void InitializeComponent()
         {
-			this.create = new System.Windows.Forms.Button();
+			this.saveBtn = new System.Windows.Forms.Button();
 			this.tabControl1 = new System.Windows.Forms.TabControl();
 			this.tabPage1 = new System.Windows.Forms.TabPage();
 			this.groupBox2 = new System.Windows.Forms.GroupBox();
-			this.subdepartmentLabel = new System.Windows.Forms.Label();
-			this.subdepartmentCombo = new System.Windows.Forms.ComboBox();
 			this.posCombo = new System.Windows.Forms.ComboBox();
 			this.internalLabel = new System.Windows.Forms.Label();
 			this.divLabel = new System.Windows.Forms.Label();
@@ -48,17 +46,17 @@
 			this.cityLabel = new System.Windows.Forms.Label();
 			this.groupBox1 = new System.Windows.Forms.GroupBox();
 			this.mobileTextBox = new System.Windows.Forms.MaskedTextBox();
-			this.nameTranslitTextBox = new System.Windows.Forms.TextBox();
+			this.nameEnBox = new System.Windows.Forms.TextBox();
 			this.adressLabel = new System.Windows.Forms.Label();
-			this.nameTextBox = new System.Windows.Forms.TextBox();
+			this.nameBox = new System.Windows.Forms.TextBox();
 			this.adressTextBox = new System.Windows.Forms.TextBox();
 			this.nameLabel = new System.Windows.Forms.Label();
 			this.mobileLabel = new System.Windows.Forms.Label();
-			this.surnameTextBox = new System.Windows.Forms.TextBox();
+			this.surnameBox = new System.Windows.Forms.TextBox();
 			this.surnameLabel = new System.Windows.Forms.Label();
 			this.middleNameLabel = new System.Windows.Forms.Label();
-			this.surnameTranslitTextBox = new System.Windows.Forms.TextBox();
-			this.middleNameTextBox = new System.Windows.Forms.TextBox();
+			this.surnameEnBox = new System.Windows.Forms.TextBox();
+			this.familyNameBox = new System.Windows.Forms.TextBox();
 			this.nameTranslitLabel = new System.Windows.Forms.Label();
 			this.surnameTranslitLabel = new System.Windows.Forms.Label();
 			this.birthdayLabel = new System.Windows.Forms.Label();
@@ -82,17 +80,17 @@
 			this.groupBox3.SuspendLayout();
 			this.SuspendLayout();
 			// 
-			// create
+			// saveBtn
 			// 
-			this.create.Anchor = System.Windows.Forms.AnchorStyles.Top;
-			this.create.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-			this.create.Location = new System.Drawing.Point(327, 391);
-			this.create.Name = "create";
-			this.create.Size = new System.Drawing.Size(131, 42);
-			this.create.TabIndex = 18;
-			this.create.Text = "Создать пользователя";
-			this.create.UseVisualStyleBackColor = true;
-			this.create.Click += new System.EventHandler(this.CreateButton);
+			this.saveBtn.Anchor = System.Windows.Forms.AnchorStyles.Top;
+			this.saveBtn.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+			this.saveBtn.Location = new System.Drawing.Point(327, 391);
+			this.saveBtn.Name = "saveBtn";
+			this.saveBtn.Size = new System.Drawing.Size(131, 42);
+			this.saveBtn.TabIndex = 18;
+			this.saveBtn.Text = "Создать пользователя";
+			this.saveBtn.UseVisualStyleBackColor = true;
+			this.saveBtn.Click += new System.EventHandler(this.CreateButton);
 			// 
 			// tabControl1
 			// 
@@ -118,8 +116,6 @@
 			// 
 			// groupBox2
 			// 
-			this.groupBox2.Controls.Add(this.subdepartmentLabel);
-			this.groupBox2.Controls.Add(this.subdepartmentCombo);
 			this.groupBox2.Controls.Add(this.posCombo);
 			this.groupBox2.Controls.Add(this.internalLabel);
 			this.groupBox2.Controls.Add(this.divLabel);
@@ -139,30 +135,10 @@
 			this.groupBox2.TabStop = false;
 			this.groupBox2.Text = "Информация о сотруднике";
 			// 
-			// subdepartmentLabel
-			// 
-			this.subdepartmentLabel.AutoSize = true;
-			this.subdepartmentLabel.Location = new System.Drawing.Point(28, 76);
-			this.subdepartmentLabel.Name = "subdepartmentLabel";
-			this.subdepartmentLabel.Size = new System.Drawing.Size(91, 13);
-			this.subdepartmentLabel.TabIndex = 47;
-			this.subdepartmentLabel.Text = "Субдепартамент";
-			// 
-			// subdepartmentCombo
-			// 
-			this.subdepartmentCombo.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-			this.subdepartmentCombo.FormattingEnabled = true;
-			this.subdepartmentCombo.Location = new System.Drawing.Point(125, 73);
-			this.subdepartmentCombo.Name = "subdepartmentCombo";
-			this.subdepartmentCombo.Size = new System.Drawing.Size(289, 21);
-			this.subdepartmentCombo.Sorted = true;
-			this.subdepartmentCombo.TabIndex = 46;
-			this.subdepartmentCombo.SelectedIndexChanged += new System.EventHandler(this.SubdepartmentCombo_SelectedIndexChanged);
-			// 
 			// posCombo
 			// 
 			this.posCombo.FormattingEnabled = true;
-			this.posCombo.Location = new System.Drawing.Point(125, 127);
+			this.posCombo.Location = new System.Drawing.Point(125, 100);
 			this.posCombo.Name = "posCombo";
 			this.posCombo.Size = new System.Drawing.Size(289, 21);
 			this.posCombo.Sorted = true;
@@ -171,7 +147,7 @@
 			// internalLabel
 			// 
 			this.internalLabel.AutoSize = true;
-			this.internalLabel.Location = new System.Drawing.Point(420, 49);
+			this.internalLabel.Location = new System.Drawing.Point(446, 49);
 			this.internalLabel.Name = "internalLabel";
 			this.internalLabel.Size = new System.Drawing.Size(101, 13);
 			this.internalLabel.TabIndex = 44;
@@ -180,7 +156,7 @@
 			// divLabel
 			// 
 			this.divLabel.AutoSize = true;
-			this.divLabel.Location = new System.Drawing.Point(81, 103);
+			this.divLabel.Location = new System.Drawing.Point(81, 76);
 			this.divLabel.Name = "divLabel";
 			this.divLabel.Size = new System.Drawing.Size(38, 13);
 			this.divLabel.TabIndex = 43;
@@ -189,7 +165,7 @@
 			// positionLabel
 			// 
 			this.positionLabel.AutoSize = true;
-			this.positionLabel.Location = new System.Drawing.Point(54, 130);
+			this.positionLabel.Location = new System.Drawing.Point(54, 103);
 			this.positionLabel.Name = "positionLabel";
 			this.positionLabel.Size = new System.Drawing.Size(65, 13);
 			this.positionLabel.TabIndex = 42;
@@ -198,7 +174,7 @@
 			// telCombo
 			// 
 			this.telCombo.FormattingEnabled = true;
-			this.telCombo.Location = new System.Drawing.Point(527, 46);
+			this.telCombo.Location = new System.Drawing.Point(553, 46);
 			this.telCombo.Name = "telCombo";
 			this.telCombo.Size = new System.Drawing.Size(123, 21);
 			this.telCombo.Sorted = true;
@@ -207,7 +183,7 @@
 			// roomCombo
 			// 
 			this.roomCombo.FormattingEnabled = true;
-			this.roomCombo.Location = new System.Drawing.Point(527, 19);
+			this.roomCombo.Location = new System.Drawing.Point(553, 19);
 			this.roomCombo.Name = "roomCombo";
 			this.roomCombo.Size = new System.Drawing.Size(123, 21);
 			this.roomCombo.Sorted = true;
@@ -217,7 +193,7 @@
 			// divCombo
 			// 
 			this.divCombo.FormattingEnabled = true;
-			this.divCombo.Location = new System.Drawing.Point(125, 100);
+			this.divCombo.Location = new System.Drawing.Point(125, 73);
 			this.divCombo.Name = "divCombo";
 			this.divCombo.Size = new System.Drawing.Size(289, 21);
 			this.divCombo.Sorted = true;
@@ -227,7 +203,7 @@
 			// roomLabel
 			// 
 			this.roomLabel.AutoSize = true;
-			this.roomLabel.Location = new System.Drawing.Point(472, 22);
+			this.roomLabel.Location = new System.Drawing.Point(498, 22);
 			this.roomLabel.Name = "roomLabel";
 			this.roomLabel.Size = new System.Drawing.Size(49, 13);
 			this.roomLabel.TabIndex = 37;
@@ -256,7 +232,6 @@
 			// departmentCombo
 			// 
 			this.departmentCombo.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-			this.departmentCombo.Enabled = false;
 			this.departmentCombo.FormattingEnabled = true;
 			this.departmentCombo.Location = new System.Drawing.Point(125, 46);
 			this.departmentCombo.Name = "departmentCombo";
@@ -277,17 +252,17 @@
 			// groupBox1
 			// 
 			this.groupBox1.Controls.Add(this.mobileTextBox);
-			this.groupBox1.Controls.Add(this.nameTranslitTextBox);
+			this.groupBox1.Controls.Add(this.nameEnBox);
 			this.groupBox1.Controls.Add(this.adressLabel);
-			this.groupBox1.Controls.Add(this.nameTextBox);
+			this.groupBox1.Controls.Add(this.nameBox);
 			this.groupBox1.Controls.Add(this.adressTextBox);
 			this.groupBox1.Controls.Add(this.nameLabel);
 			this.groupBox1.Controls.Add(this.mobileLabel);
-			this.groupBox1.Controls.Add(this.surnameTextBox);
+			this.groupBox1.Controls.Add(this.surnameBox);
 			this.groupBox1.Controls.Add(this.surnameLabel);
 			this.groupBox1.Controls.Add(this.middleNameLabel);
-			this.groupBox1.Controls.Add(this.surnameTranslitTextBox);
-			this.groupBox1.Controls.Add(this.middleNameTextBox);
+			this.groupBox1.Controls.Add(this.surnameEnBox);
+			this.groupBox1.Controls.Add(this.familyNameBox);
 			this.groupBox1.Controls.Add(this.nameTranslitLabel);
 			this.groupBox1.Controls.Add(this.surnameTranslitLabel);
 			this.groupBox1.Controls.Add(this.birthdayLabel);
@@ -307,14 +282,14 @@
 			this.mobileTextBox.Size = new System.Drawing.Size(197, 20);
 			this.mobileTextBox.TabIndex = 44;
 			// 
-			// nameTranslitTextBox
+			// nameEnBox
 			// 
-			this.nameTranslitTextBox.Location = new System.Drawing.Point(453, 19);
-			this.nameTranslitTextBox.Name = "nameTranslitTextBox";
-			this.nameTranslitTextBox.Size = new System.Drawing.Size(197, 20);
-			this.nameTranslitTextBox.TabIndex = 26;
-			this.nameTranslitTextBox.TabStop = false;
-			this.nameTranslitTextBox.TextChanged += new System.EventHandler(this.NameTranslitTextBox_TextChanged);
+			this.nameEnBox.Location = new System.Drawing.Point(453, 19);
+			this.nameEnBox.Name = "nameEnBox";
+			this.nameEnBox.Size = new System.Drawing.Size(197, 20);
+			this.nameEnBox.TabIndex = 26;
+			this.nameEnBox.TabStop = false;
+			this.nameEnBox.TextChanged += new System.EventHandler(this.NameTranslitTextBox_TextChanged);
 			// 
 			// adressLabel
 			// 
@@ -326,13 +301,13 @@
 			this.adressLabel.TabIndex = 43;
 			this.adressLabel.Text = "Домашний адрес";
 			// 
-			// nameTextBox
+			// nameBox
 			// 
-			this.nameTextBox.Location = new System.Drawing.Point(125, 19);
-			this.nameTextBox.Name = "nameTextBox";
-			this.nameTextBox.Size = new System.Drawing.Size(197, 20);
-			this.nameTextBox.TabIndex = 22;
-			this.nameTextBox.TextChanged += new System.EventHandler(this.NameTextBox_TextChanged);
+			this.nameBox.Location = new System.Drawing.Point(125, 19);
+			this.nameBox.Name = "nameBox";
+			this.nameBox.Size = new System.Drawing.Size(197, 20);
+			this.nameBox.TabIndex = 22;
+			this.nameBox.TextChanged += new System.EventHandler(this.NameTextBox_TextChanged);
 			// 
 			// adressTextBox
 			// 
@@ -360,13 +335,13 @@
 			this.mobileLabel.TabIndex = 41;
 			this.mobileLabel.Text = "Номер моб. телефона";
 			// 
-			// surnameTextBox
+			// surnameBox
 			// 
-			this.surnameTextBox.Location = new System.Drawing.Point(125, 45);
-			this.surnameTextBox.Name = "surnameTextBox";
-			this.surnameTextBox.Size = new System.Drawing.Size(197, 20);
-			this.surnameTextBox.TabIndex = 24;
-			this.surnameTextBox.TextChanged += new System.EventHandler(this.SurnameTextBox_TextChanged);
+			this.surnameBox.Location = new System.Drawing.Point(125, 45);
+			this.surnameBox.Name = "surnameBox";
+			this.surnameBox.Size = new System.Drawing.Size(197, 20);
+			this.surnameBox.TabIndex = 24;
+			this.surnameBox.TextChanged += new System.EventHandler(this.SurnameTextBox_TextChanged);
 			// 
 			// surnameLabel
 			// 
@@ -386,21 +361,21 @@
 			this.middleNameLabel.TabIndex = 39;
 			this.middleNameLabel.Text = "Отчество";
 			// 
-			// surnameTranslitTextBox
+			// surnameEnBox
 			// 
-			this.surnameTranslitTextBox.Location = new System.Drawing.Point(453, 45);
-			this.surnameTranslitTextBox.Name = "surnameTranslitTextBox";
-			this.surnameTranslitTextBox.Size = new System.Drawing.Size(197, 20);
-			this.surnameTranslitTextBox.TabIndex = 27;
-			this.surnameTranslitTextBox.TabStop = false;
-			this.surnameTranslitTextBox.TextChanged += new System.EventHandler(this.SurnameTranslitTextBox_TextChanged);
+			this.surnameEnBox.Location = new System.Drawing.Point(453, 45);
+			this.surnameEnBox.Name = "surnameEnBox";
+			this.surnameEnBox.Size = new System.Drawing.Size(197, 20);
+			this.surnameEnBox.TabIndex = 27;
+			this.surnameEnBox.TabStop = false;
+			this.surnameEnBox.TextChanged += new System.EventHandler(this.SurnameTranslitTextBox_TextChanged);
 			// 
-			// middleNameTextBox
+			// familyNameBox
 			// 
-			this.middleNameTextBox.Location = new System.Drawing.Point(125, 71);
-			this.middleNameTextBox.Name = "middleNameTextBox";
-			this.middleNameTextBox.Size = new System.Drawing.Size(197, 20);
-			this.middleNameTextBox.TabIndex = 38;
+			this.familyNameBox.Location = new System.Drawing.Point(125, 71);
+			this.familyNameBox.Name = "familyNameBox";
+			this.familyNameBox.Size = new System.Drawing.Size(197, 20);
+			this.familyNameBox.TabIndex = 38;
 			// 
 			// nameTranslitLabel
 			// 
@@ -572,7 +547,7 @@
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.ClientSize = new System.Drawing.Size(784, 445);
 			this.Controls.Add(this.tabControl1);
-			this.Controls.Add(this.create);
+			this.Controls.Add(this.saveBtn);
 			this.Name = "DetailView";
 			this.Text = "Детали учетной записи";
 			this.tabControl1.ResumeLayout(false);
@@ -590,7 +565,7 @@
         }
 
         #endregion
-        private System.Windows.Forms.Button create;
+        private System.Windows.Forms.Button saveBtn;
         private System.Windows.Forms.TabControl tabControl1;
         private System.Windows.Forms.TabPage tabPage1;
         private System.Windows.Forms.Label roomLabel;
@@ -602,15 +577,15 @@
         private System.Windows.Forms.Label birthdayLabel;
         private System.Windows.Forms.Label surnameTranslitLabel;
         private System.Windows.Forms.Label nameTranslitLabel;
-        private System.Windows.Forms.TextBox surnameTranslitTextBox;
-        private System.Windows.Forms.TextBox nameTranslitTextBox;
+        private System.Windows.Forms.TextBox surnameEnBox;
+        private System.Windows.Forms.TextBox nameEnBox;
         private System.Windows.Forms.Label surnameLabel;
-        private System.Windows.Forms.TextBox surnameTextBox;
+        private System.Windows.Forms.TextBox surnameBox;
         private System.Windows.Forms.Label nameLabel;
-        private System.Windows.Forms.TextBox nameTextBox;
+        private System.Windows.Forms.TextBox nameBox;
         private System.Windows.Forms.TabPage tabPage2;
         private System.Windows.Forms.Label middleNameLabel;
-        private System.Windows.Forms.TextBox middleNameTextBox;
+        private System.Windows.Forms.TextBox familyNameBox;
         private System.Windows.Forms.Label mobileLabel;
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.Label adressLabel;
@@ -630,8 +605,6 @@
         private System.Windows.Forms.DateTimePicker expirationDatePicker;
         private System.Windows.Forms.MaskedTextBox mobileTextBox;
         private System.Windows.Forms.ComboBox posCombo;
-        private System.Windows.Forms.Label subdepartmentLabel;
-        private System.Windows.Forms.ComboBox subdepartmentCombo;
         private System.Windows.Forms.CheckBox cdCheck;
         private System.Windows.Forms.CheckBox usbDiskCheck;
         private System.Windows.Forms.CheckBox usbDeviceCheck;
