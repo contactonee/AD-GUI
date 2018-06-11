@@ -13,12 +13,12 @@ namespace Active_Directory_Management
 	{
 		private XElement xmlNode;
 		private DirectoryEntry entry;
-		private XDocument xmlFile = XDocument.Load(Active_Directory_Management.Properties.Resources.XmlFile);
+		static private XDocument xmlFile = XDocument.Load(Active_Directory_Management.Properties.Resources.XmlFile);
 
-		private string xmlFileLocation = Active_Directory_Management.Properties.Resources.XmlFile;
+		static private string xmlFileLocation = Active_Directory_Management.Properties.Resources.XmlFile;
 
-		private string username = "bazhr1";
-		private string password = "vk.com123";
+		static private string username = "bazhr1";
+		static private string password = "vk.com123";
 
 		public Dictionary<string, string> Properties { get; } = new Dictionary<string, string>();
 
@@ -142,7 +142,7 @@ namespace Active_Directory_Management
 				password = value;
 			}
 		}
-		private string XmlFileLocation
+		static public string XmlFileLocation
 		{
 			get
 			{
@@ -158,6 +158,8 @@ namespace Active_Directory_Management
 
 		private void UpdateProperties()
         {
+			
+
             foreach (XElement elem in xmlNode.Elements())
             {
 				if(elem.Value != "memberOf" && elem.Value != "userAccountControl")
@@ -280,14 +282,27 @@ namespace Active_Directory_Management
 		/// </summary>
         public void CommitChanges()
         {
+				
 			foreach (KeyValuePair<string, string> prop in Properties)
             {
-				if (prop.Value == string.Empty)
-					continue;
-				try { xmlNode.Element(prop.Key).Value = prop.Value; }
-				catch { xmlNode.Add(new XElement(prop.Key, prop.Value)); }
+				string k = prop.Key;
+				string v = prop.Value;
 
-                entry.Properties[prop.Key].Value = prop.Value;
+				if (v == string.Empty)
+					continue;
+
+				if (v == null)
+				{
+					entry.Properties[k].Clear();
+					v = string.Empty;
+				}
+				else
+					entry.Properties[k].Value = v;
+
+				try { xmlNode.Element(k).Value = v; }
+				catch { xmlNode.Add(new XElement(k, v)); }
+
+                
             }
 			Properties.Clear();
 			xmlFile.Save(XmlFileLocation);
@@ -311,6 +326,23 @@ namespace Active_Directory_Management
 			if (property == "department")
 				return xmlNode.Parent.Attribute("nameRU").Value;
 			return xmlNode.Element(property).Value;
+		}
+		/// <summary>
+		/// Удаляет пользователя из всех групп, ощитает поле руководителя и переносит в группу отключенных аккаунтов
+		/// </summary>
+		public void Remove()
+		{
+			foreach(string group in xmlNode.Element("memberOf").Elements()
+					.Select(t => t.Value))
+				RemoveGroup(group);
+
+			entry.Properties["manager"].Clear();
+			entry.CommitChanges();
+
+			entry.MoveTo(new DirectoryEntry("LDAP://OU=Disabled Accounts,DC=nng,DC=kz"));
+			xmlNode.Remove();
+			xmlFile.Save(XmlFileLocation);
+			
 		}
     }
 }

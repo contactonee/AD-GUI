@@ -74,6 +74,12 @@
     <Compile Include="DisableReasonForm.Designer.cs">
       <DependentUpon>DisableReasonForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="GenderSelector.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="GenderSelector.Designer.cs">
+      <DependentUpon>GenderSelector.cs</DependentUpon>
+    </Compile>
     <Compile Include="GroupSelector.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -99,6 +105,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="DisableReasonForm.resx">
       <DependentUpon>DisableReasonForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="GenderSelector.resx">
+      <DependentUpon>GenderSelector.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="GroupSelector.resx">
       <DependentUpon>GroupSelector.cs</DependentUpon>

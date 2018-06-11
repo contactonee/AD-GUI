@@ -72,19 +72,25 @@
 			this.limitedRadio = new System.Windows.Forms.RadioButton();
 			this.internetLabel = new System.Windows.Forms.Label();
 			this.internetCombo = new System.Windows.Forms.ComboBox();
+			this.cancelBtn = new System.Windows.Forms.Button();
+			this.managerLabel = new System.Windows.Forms.Label();
+			this.managerCheck = new System.Windows.Forms.CheckBox();
+			this.managerPanel = new System.Windows.Forms.Panel();
+			this.genderSelector = new Active_Directory_Management.GenderSelector();
 			this.tabControl1.SuspendLayout();
 			this.tabPage1.SuspendLayout();
 			this.groupBox2.SuspendLayout();
 			this.groupBox1.SuspendLayout();
 			this.tabPage2.SuspendLayout();
 			this.groupBox3.SuspendLayout();
+			this.managerPanel.SuspendLayout();
 			this.SuspendLayout();
 			// 
 			// saveBtn
 			// 
 			this.saveBtn.Anchor = System.Windows.Forms.AnchorStyles.Top;
 			this.saveBtn.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-			this.saveBtn.Location = new System.Drawing.Point(327, 391);
+			this.saveBtn.Location = new System.Drawing.Point(248, 391);
 			this.saveBtn.Name = "saveBtn";
 			this.saveBtn.Size = new System.Drawing.Size(131, 42);
 			this.saveBtn.TabIndex = 18;
@@ -116,6 +122,7 @@
 			// 
 			// groupBox2
 			// 
+			this.groupBox2.Controls.Add(this.managerPanel);
 			this.groupBox2.Controls.Add(this.posCombo);
 			this.groupBox2.Controls.Add(this.internalLabel);
 			this.groupBox2.Controls.Add(this.divLabel);
@@ -137,6 +144,8 @@
 			// 
 			// posCombo
 			// 
+			this.posCombo.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.Append;
+			this.posCombo.AutoCompleteSource = System.Windows.Forms.AutoCompleteSource.ListItems;
 			this.posCombo.FormattingEnabled = true;
 			this.posCombo.Location = new System.Drawing.Point(125, 100);
 			this.posCombo.Name = "posCombo";
@@ -173,6 +182,8 @@
 			// 
 			// telCombo
 			// 
+			this.telCombo.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.SuggestAppend;
+			this.telCombo.AutoCompleteSource = System.Windows.Forms.AutoCompleteSource.ListItems;
 			this.telCombo.FormattingEnabled = true;
 			this.telCombo.Location = new System.Drawing.Point(553, 46);
 			this.telCombo.Name = "telCombo";
@@ -182,6 +193,8 @@
 			// 
 			// roomCombo
 			// 
+			this.roomCombo.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.SuggestAppend;
+			this.roomCombo.AutoCompleteSource = System.Windows.Forms.AutoCompleteSource.ListItems;
 			this.roomCombo.FormattingEnabled = true;
 			this.roomCombo.Location = new System.Drawing.Point(553, 19);
 			this.roomCombo.Name = "roomCombo";
@@ -192,13 +205,14 @@
 			// 
 			// divCombo
 			// 
+			this.divCombo.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.Suggest;
+			this.divCombo.AutoCompleteSource = System.Windows.Forms.AutoCompleteSource.ListItems;
 			this.divCombo.FormattingEnabled = true;
 			this.divCombo.Location = new System.Drawing.Point(125, 73);
 			this.divCombo.Name = "divCombo";
 			this.divCombo.Size = new System.Drawing.Size(289, 21);
 			this.divCombo.Sorted = true;
 			this.divCombo.TabIndex = 38;
-			this.divCombo.SelectedIndexChanged += new System.EventHandler(this.DivCombo_SelectedIndexChanged);
 			// 
 			// roomLabel
 			// 
@@ -251,6 +265,7 @@
 			// 
 			// groupBox1
 			// 
+			this.groupBox1.Controls.Add(this.genderSelector);
 			this.groupBox1.Controls.Add(this.mobileTextBox);
 			this.groupBox1.Controls.Add(this.nameEnBox);
 			this.groupBox1.Controls.Add(this.adressLabel);
@@ -541,15 +556,64 @@
 			this.internetCombo.Size = new System.Drawing.Size(121, 21);
 			this.internetCombo.TabIndex = 4;
 			// 
+			// cancelBtn
+			// 
+			this.cancelBtn.Location = new System.Drawing.Point(412, 391);
+			this.cancelBtn.Name = "cancelBtn";
+			this.cancelBtn.Size = new System.Drawing.Size(131, 42);
+			this.cancelBtn.TabIndex = 23;
+			this.cancelBtn.Text = "Отмена";
+			this.cancelBtn.UseVisualStyleBackColor = true;
+			this.cancelBtn.Click += new System.EventHandler(this.cancelBtn_Click);
+			// 
+			// managerLabel
+			// 
+			this.managerLabel.AutoSize = true;
+			this.managerLabel.Location = new System.Drawing.Point(14, 5);
+			this.managerLabel.Name = "managerLabel";
+			this.managerLabel.Size = new System.Drawing.Size(78, 13);
+			this.managerLabel.TabIndex = 46;
+			this.managerLabel.Text = "Руководитель";
+			// 
+			// managerCheck
+			// 
+			this.managerCheck.AutoSize = true;
+			this.managerCheck.Location = new System.Drawing.Point(98, 4);
+			this.managerCheck.Name = "managerCheck";
+			this.managerCheck.Size = new System.Drawing.Size(99, 17);
+			this.managerCheck.TabIndex = 47;
+			this.managerCheck.Text = "Manager Name";
+			this.managerCheck.UseVisualStyleBackColor = true;
+			this.managerCheck.Visible = false;
+			// 
+			// managerPanel
+			// 
+			this.managerPanel.Controls.Add(this.managerLabel);
+			this.managerPanel.Controls.Add(this.managerCheck);
+			this.managerPanel.Location = new System.Drawing.Point(27, 125);
+			this.managerPanel.Name = "managerPanel";
+			this.managerPanel.Size = new System.Drawing.Size(387, 28);
+			this.managerPanel.TabIndex = 48;
+			// 
+			// genderSelector
+			// 
+			this.genderSelector.Gender = "Male";
+			this.genderSelector.Location = new System.Drawing.Point(413, 100);
+			this.genderSelector.Name = "genderSelector";
+			this.genderSelector.Size = new System.Drawing.Size(93, 28);
+			this.genderSelector.TabIndex = 45;
+			// 
 			// DetailView
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.ClientSize = new System.Drawing.Size(784, 445);
+			this.Controls.Add(this.cancelBtn);
 			this.Controls.Add(this.tabControl1);
 			this.Controls.Add(this.saveBtn);
 			this.Name = "DetailView";
 			this.Text = "Детали учетной записи";
+			this.KeyUp += new System.Windows.Forms.KeyEventHandler(this.DetailView_KeyUp);
 			this.tabControl1.ResumeLayout(false);
 			this.tabPage1.ResumeLayout(false);
 			this.groupBox2.ResumeLayout(false);
@@ -560,6 +624,8 @@
 			this.tabPage2.PerformLayout();
 			this.groupBox3.ResumeLayout(false);
 			this.groupBox3.PerformLayout();
+			this.managerPanel.ResumeLayout(false);
+			this.managerPanel.PerformLayout();
 			this.ResumeLayout(false);
 
         }
@@ -609,6 +675,11 @@
         private System.Windows.Forms.CheckBox usbDiskCheck;
         private System.Windows.Forms.CheckBox usbDeviceCheck;
         private System.Windows.Forms.CheckBox cloudCheck;
-    }
+		private System.Windows.Forms.Button cancelBtn;
+		private GenderSelector genderSelector;
+		private System.Windows.Forms.Label managerLabel;
+		private System.Windows.Forms.CheckBox managerCheck;
+		private System.Windows.Forms.Panel managerPanel;
+	}
 }
 

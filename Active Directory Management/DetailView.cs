@@ -19,6 +19,7 @@ namespace Active_Directory_Management
     {
         private XDocument doc = XDocument.Load(Properties.Resources.XmlFile);
 		private User user;
+		public DialogResult success = DialogResult.None;
 
 
         public DetailView()
@@ -49,6 +50,7 @@ namespace Active_Directory_Management
 			}
 			catch
 			{
+				Debug.WriteLine("No lastname");
 				nameEnBox.Text = user.Name;
 				surnameEnBox.Text = string.Empty;
 			}
@@ -56,12 +58,23 @@ namespace Active_Directory_Management
 
 			try
 			{
-				birthdayDatePicker.Value = DateTime.Parse(user.GetProperty("extenstionAttribute2"));
+				birthdayDatePicker.Value = DateTime.Parse(user.GetProperty("extensionAttribute2"));
 			}
 			catch
 			{
+				Debug.WriteLine("No birthday");
 				birthdayDatePicker.Format = DateTimePickerFormat.Custom;
 				birthdayDatePicker.CustomFormat = " ";
+			}
+
+			try
+			{
+				genderSelector.Gender = user.GetProperty("extensionAttribute3");
+			}
+			catch (Exception e)
+			{
+				Debug.WriteLine(e.Message);
+				Debug.WriteLine("Не задан пол в атрибутах");
 			}
 
 			departmentCombo.SelectedIndex = departmentCombo.Items.IndexOf(user.GetProperty("department"));
@@ -69,6 +82,11 @@ namespace Active_Directory_Management
 			posCombo.Text = user.GetProperty("title");
 			roomCombo.Text = user.GetProperty("physicalDeliveryOfficeName");
 			telCombo.Text = user.GetProperty("telephoneNumber");
+
+			if (user.GetProperty("manager") == string.Empty)
+				managerCheck.Checked = false;
+			if ((string)managerCheck.Tag == user.Dn)
+				managerCheck.Enabled = false;
 
 			cdCheck.Checked = user.MemberOf(Properties.Groups.DvdDrives);
 			usbDiskCheck.Checked = user.MemberOf(Properties.Groups.DvdDrives);
@@ -214,10 +232,15 @@ namespace Active_Directory_Management
 			user.Properties["ipPhone"] = telCombo.Text;
 			user.Properties["physicalDeliveryOfficeName"] = roomCombo.Text;
 			user.Properties["extensionAttribute2"] = birthdayDatePicker.Value.ToString("dd.MM.yyyy");
+			user.Properties["extensionAttribute3"] = genderSelector.Gender.Substring(0, 1);
 			if (limitedRadio.Checked)
 				user.Properties["accountExpires"] = expirationDatePicker.Value.AddDays(1)
 					.ToFileTime()
 					.ToString();
+			if (managerCheck.Checked)
+				user.Properties["manager"] = (string)managerCheck.Tag;
+			else
+				user.Properties["manager"] = null;
 
 			user.CommitChanges();
 
@@ -236,7 +259,12 @@ namespace Active_Directory_Management
 
 			if(newUser)
 			{
-				MessageBox.Show("Пользователь успешно создан");
+				success = MessageBox.Show(
+					"Пользователь успешно создан",
+					"Пользователь создан",
+					MessageBoxButtons.OK,
+					MessageBoxIcon.Information);
+				
 				this.Close();
 			}
 			else
@@ -280,100 +308,74 @@ namespace Active_Directory_Management
 				.Select(t => t.Elements("user"))
 				.First();
 
+			User manager = null;
+
 			HashSet<string> diffDivs = new HashSet<string>();
 			HashSet<string> diffPoss = new HashSet<string>();
 			HashSet<string> diffRooms = new HashSet<string>();
 			HashSet<string> diffTels = new HashSet<string>();
 
+			
 			foreach (XElement elem in users)
 			{
 				if (elem.Element("description").Value.Trim() != string.Empty
 						&& !elem.Element("description").Value.StartsWith("("))
 					diffDivs.Add(elem.Element("description").Value);
 
-				if (elem.Element("title").Value.Trim() != string.Empty
-						&& !elem.Element("title").Value.StartsWith("("))
+				if (elem.Element("title").Value.Trim() != string.Empty)
 					diffPoss.Add(elem.Element("title").Value);
 
-				if (elem.Element("physicalDeliveryOfficeName").Value.Trim() != string.Empty
-						&& !elem.Element("physicalDeliveryOfficeName").Value.StartsWith("("))
+				if (elem.Element("physicalDeliveryOfficeName").Value.Trim() != string.Empty)
 					diffRooms.Add(elem.Element("physicalDeliveryOfficeName").Value);
 
-				if (elem.Element("telephoneNumber").Value.Trim() != string.Empty
-						&& !elem.Element("telephoneNumber").Value.StartsWith("("))
+				if (elem.Element("telephoneNumber").Value.Trim() != string.Empty)
 					diffTels.Add(elem.Element("telephoneNumber").Value);
+
+				if (elem.Element("manager").Value.Trim() != string.Empty && manager == null)					
+					manager = User.Load(elem.Element("manager").Value);
+					
 			}
 
 			divCombo.BeginUpdate();
-			posCombo.BeginUpdate();
-			roomCombo.BeginUpdate();
-			telCombo.BeginUpdate();
-
 			divCombo.Items.Clear();
-			posCombo.Items.Clear();
-			roomCombo.Items.Clear();
-			telCombo.Items.Clear();
-
+			divCombo.ResetText();
 			divCombo.Items.AddRange(diffDivs.ToArray());
-			posCombo.Items.AddRange(diffPoss.ToArray());
-			roomCombo.Items.AddRange(diffRooms.ToArray());
-			telCombo.Items.AddRange(diffTels.ToArray());
-
 			divCombo.EndUpdate();
-			posCombo.EndUpdate();
-			roomCombo.EndUpdate();
-			telCombo.EndUpdate();
-		}
 
-        private void UpdateCombos(XElement[] users)
-        {
-			// Common code after department change
-
-            HashSet<string> diffDivs = new HashSet<string>();
-            HashSet<string> diffPoss = new HashSet<string>();
-            HashSet<string> diffRooms = new HashSet<string>();
-            HashSet<string> diffTels = new HashSet<string>();
-
-            foreach (XElement elem in users)
-            {
-                if (elem.Element("description").Value.Trim() != string.Empty
-                        && !elem.Element("description").Value.StartsWith("("))
-                    diffDivs.Add(elem.Element("description").Value);
-
-                if (elem.Element("title").Value.Trim() != string.Empty
-                        && !elem.Element("title").Value.StartsWith("("))
-                    diffPoss.Add(elem.Element("title").Value);
-
-                if (elem.Element("physicalDeliveryOfficeName").Value.Trim() != string.Empty
-                        && !elem.Element("physicalDeliveryOfficeName").Value.StartsWith("("))
-                    diffRooms.Add(elem.Element("physicalDeliveryOfficeName").Value);
-
-                if (elem.Element("telephoneNumber").Value.Trim() != string.Empty
-                        && !elem.Element("telephoneNumber").Value.StartsWith("("))
-                    diffTels.Add(elem.Element("telephoneNumber").Value);
-            }
-
-			divCombo.BeginUpdate();
 			posCombo.BeginUpdate();
-			roomCombo.BeginUpdate();
-			telCombo.BeginUpdate();
-
-			divCombo.Items.Clear();
-            posCombo.Items.Clear();
-            roomCombo.Items.Clear();
-            telCombo.Items.Clear();
-
-            divCombo.Items.AddRange(diffDivs.ToArray());
-            posCombo.Items.AddRange(diffPoss.ToArray());
-            roomCombo.Items.AddRange(diffRooms.ToArray());
-            telCombo.Items.AddRange(diffTels.ToArray());
-
-			// Debug.WriteLine(diffDiv.)
-
-			divCombo.EndUpdate();
+			posCombo.Items.Clear();
+			posCombo.ResetText();
+			posCombo.Items.AddRange(diffPoss.ToArray());
 			posCombo.EndUpdate();
+
+			roomCombo.BeginUpdate();
+			roomCombo.Items.Clear();
+			roomCombo.ResetText();
+			roomCombo.Items.AddRange(diffRooms.ToArray());
 			roomCombo.EndUpdate();
+
+			telCombo.BeginUpdate();
+			telCombo.Items.Clear();
+			telCombo.ResetText();
+			telCombo.Items.AddRange(diffTels.ToArray());
 			telCombo.EndUpdate();
+
+			if (manager == null)
+			{
+				managerPanel.Enabled = false;
+				managerCheck.Visible = false;
+				managerCheck.Checked = false;
+			}
+			else
+			{
+				managerPanel.Enabled = true;
+				managerCheck.Visible = true;
+				managerCheck.Checked = true;
+				
+				managerCheck.Text = manager.GetProperty("sn") + " " + manager.GetProperty("givenName");
+				managerCheck.Tag = manager.Dn;
+			}
+
 
 		}
 
@@ -423,13 +425,6 @@ namespace Active_Directory_Management
 				surnameEnBox.ForeColor = Color.Black;
 		}
 
-		private void DivCombo_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            
-            
-
-        }
-
         private void RoomCombo_TextChanged(object sender, EventArgs e)
         {
             var res = doc.Root.Descendants("user")
@@ -449,6 +444,28 @@ namespace Active_Directory_Management
         {
             birthdayDatePicker.Format = DateTimePickerFormat.Short;
         }
+
+		private void cancelBtn_Click(object sender, EventArgs e)
+		{
+			DialogResult dialogResult = MessageBox.Show(
+				"Все несохраненные изменения будут потеряны",
+				"Внимание",
+				MessageBoxButtons.YesNo,
+				MessageBoxIcon.Warning,
+				MessageBoxDefaultButton.Button2);
+			if (dialogResult == DialogResult.Yes)
+			{
+				this.Close();
+			}
+		}
 		
+
+		private void DetailView_KeyUp(object sender, KeyEventArgs e)
+		{
+			if (e.KeyCode == Keys.Enter)
+				saveBtn.PerformClick();
+			if (e.KeyCode == Keys.Escape)
+				cancelBtn.PerformClick();
+		}
 	}
 }

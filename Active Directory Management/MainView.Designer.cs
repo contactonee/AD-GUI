@@ -34,7 +34,6 @@
 			this.lastBox = new System.Windows.Forms.TextBox();
 			this.detailBtn = new System.Windows.Forms.Button();
 			this.saveBtn = new System.Windows.Forms.Button();
-			this.listBox = new System.Windows.Forms.ListBox();
 			this.treeView = new System.Windows.Forms.TreeView();
 			this.switchPanel = new System.Windows.Forms.Panel();
 			this.cdCheck = new System.Windows.Forms.CheckBox();
@@ -53,13 +52,13 @@
 			// 
 			this.searchBox.Location = new System.Drawing.Point(12, 12);
 			this.searchBox.Name = "searchBox";
-			this.searchBox.Size = new System.Drawing.Size(239, 20);
+			this.searchBox.Size = new System.Drawing.Size(313, 20);
 			this.searchBox.TabIndex = 0;
 			this.searchBox.TextChanged += new System.EventHandler(this.SearchBox_TextChanged);
 			// 
 			// createBtn
 			// 
-			this.createBtn.Location = new System.Drawing.Point(257, 10);
+			this.createBtn.Location = new System.Drawing.Point(853, 10);
 			this.createBtn.Name = "createBtn";
 			this.createBtn.Size = new System.Drawing.Size(75, 23);
 			this.createBtn.TabIndex = 2;
@@ -69,7 +68,7 @@
 			// 
 			// firstBox
 			// 
-			this.firstBox.Location = new System.Drawing.Point(511, 12);
+			this.firstBox.Location = new System.Drawing.Point(619, 12);
 			this.firstBox.Name = "firstBox";
 			this.firstBox.ReadOnly = true;
 			this.firstBox.Size = new System.Drawing.Size(100, 20);
@@ -77,7 +76,7 @@
 			// 
 			// lastBox
 			// 
-			this.lastBox.Location = new System.Drawing.Point(405, 12);
+			this.lastBox.Location = new System.Drawing.Point(513, 12);
 			this.lastBox.Name = "lastBox";
 			this.lastBox.ReadOnly = true;
 			this.lastBox.Size = new System.Drawing.Size(100, 20);
@@ -95,37 +94,23 @@
 			// 
 			// saveBtn
 			// 
-			this.saveBtn.Location = new System.Drawing.Point(195, 235);
+			this.saveBtn.Location = new System.Drawing.Point(777, 104);
 			this.saveBtn.Name = "saveBtn";
-			this.saveBtn.Size = new System.Drawing.Size(100, 38);
+			this.saveBtn.Size = new System.Drawing.Size(134, 58);
 			this.saveBtn.TabIndex = 13;
 			this.saveBtn.Text = "Сохранить";
 			this.saveBtn.UseVisualStyleBackColor = true;
 			this.saveBtn.Click += new System.EventHandler(this.SaveBtn_Click);
 			// 
-			// listBox
-			// 
-			this.listBox.FormattingEnabled = true;
-			this.listBox.HorizontalScrollbar = true;
-			this.listBox.Items.AddRange(new object[] {
-            "abacaba",
-            "param 1",
-            "param 2",
-            "test "});
-			this.listBox.Location = new System.Drawing.Point(12, 38);
-			this.listBox.Name = "listBox";
-			this.listBox.ScrollAlwaysVisible = true;
-			this.listBox.Size = new System.Drawing.Size(320, 407);
-			this.listBox.Sorted = true;
-			this.listBox.TabIndex = 16;
-			// 
 			// treeView
 			// 
 			this.treeView.Location = new System.Drawing.Point(12, 38);
 			this.treeView.Name = "treeView";
-			this.treeView.Size = new System.Drawing.Size(320, 407);
+			this.treeView.Size = new System.Drawing.Size(394, 407);
 			this.treeView.TabIndex = 17;
+			this.treeView.BeforeSelect += new System.Windows.Forms.TreeViewCancelEventHandler(this.treeView_BeforeSelect);
 			this.treeView.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.TreeView_AfterSelect);
+			this.treeView.NodeMouseDoubleClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.treeView_NodeMouseDoubleClick);
 			// 
 			// switchPanel
 			// 
@@ -133,14 +118,13 @@
 			this.switchPanel.Controls.Add(this.usbDiskCheck);
 			this.switchPanel.Controls.Add(this.usbDeviceCheck);
 			this.switchPanel.Controls.Add(this.cloudCheck);
-			this.switchPanel.Controls.Add(this.saveBtn);
 			this.switchPanel.Controls.Add(this.internetCombo);
 			this.switchPanel.Controls.Add(this.detailBtn);
 			this.switchPanel.Controls.Add(this.internetLabel);
 			this.switchPanel.Enabled = false;
-			this.switchPanel.Location = new System.Drawing.Point(338, 38);
+			this.switchPanel.Location = new System.Drawing.Point(446, 38);
 			this.switchPanel.Name = "switchPanel";
-			this.switchPanel.Size = new System.Drawing.Size(450, 280);
+			this.switchPanel.Size = new System.Drawing.Size(357, 280);
 			this.switchPanel.TabIndex = 19;
 			// 
 			// cdCheck
@@ -205,7 +189,7 @@
 			// disableBtn
 			// 
 			this.disableBtn.Enabled = false;
-			this.disableBtn.Location = new System.Drawing.Point(533, 317);
+			this.disableBtn.Location = new System.Drawing.Point(641, 273);
 			this.disableBtn.Name = "disableBtn";
 			this.disableBtn.Size = new System.Drawing.Size(100, 38);
 			this.disableBtn.TabIndex = 14;
@@ -215,7 +199,7 @@
 			// 
 			// updBtn
 			// 
-			this.updBtn.Location = new System.Drawing.Point(713, 10);
+			this.updBtn.Location = new System.Drawing.Point(331, 10);
 			this.updBtn.Name = "updBtn";
 			this.updBtn.Size = new System.Drawing.Size(75, 23);
 			this.updBtn.TabIndex = 20;
@@ -226,7 +210,7 @@
 			// disableReason
 			// 
 			this.disableReason.AutoSize = true;
-			this.disableReason.Location = new System.Drawing.Point(405, 317);
+			this.disableReason.Location = new System.Drawing.Point(513, 317);
 			this.disableReason.MaximumSize = new System.Drawing.Size(100, 200);
 			this.disableReason.Name = "disableReason";
 			this.disableReason.Size = new System.Drawing.Size(44, 13);
@@ -239,12 +223,12 @@
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(800, 450);
+			this.ClientSize = new System.Drawing.Size(940, 450);
 			this.Controls.Add(this.disableReason);
+			this.Controls.Add(this.saveBtn);
 			this.Controls.Add(this.disableBtn);
 			this.Controls.Add(this.switchPanel);
 			this.Controls.Add(this.treeView);
-			this.Controls.Add(this.listBox);
 			this.Controls.Add(this.updBtn);
 			this.Controls.Add(this.lastBox);
 			this.Controls.Add(this.firstBox);
@@ -267,8 +251,6 @@
         private System.Windows.Forms.TextBox lastBox;
         private System.Windows.Forms.Button detailBtn;
         private System.Windows.Forms.Button saveBtn;
-        private System.Windows.Forms.ListBox listBox;
-        private System.Windows.Forms.TreeView treeView;
         private System.Windows.Forms.Panel switchPanel;
         private System.Windows.Forms.Button updBtn;
         private System.Windows.Forms.Button disableBtn;
@@ -279,5 +261,6 @@
 		private System.Windows.Forms.ComboBox internetCombo;
 		private System.Windows.Forms.Label internetLabel;
 		private System.Windows.Forms.Label disableReason;
+		private System.Windows.Forms.TreeView treeView;
 	}
 }

@@ -24,17 +24,20 @@ namespace Active_Directory_Management
 
         private string[] props = new string[]
         {
-			"sn",
-			"givenName",
-			"middleName",
-			"mobile",
-			"extensionAttribute2",
-			"title",
-			"description",
-			"department",
-			"physicalDeliveryOfficeName",
-			"telephoneNumber",
-			"userAccountControl"
+			"sn", // Фамилия
+			"givenName", // Имя
+			"middleName", // Отчество
+			"extensionAttribute3", //  Пол
+			"mobile", // Мобильный телефон
+			"extensionAttribute2", // Дата рождения
+			"title", // Должность
+			"description", // Отдел\направление
+			"department", // Департамент
+			"physicalDeliveryOfficeName", // Кабинет
+			"manager", // Руководитель
+			"telephoneNumber", // Внутренний телефон
+			"ipPhone", // Внутренний телефон
+			"userAccountControl" // Флаги аккаунта
         };
 
 
@@ -68,7 +71,7 @@ namespace Active_Directory_Management
 			SearchResultCollection departmentsResponse = searcher.FindAll();
 
 			searcher.Filter = "(objectClass=user)";
-			foreach(SearchResult res in departmentsResponse)
+			foreach (SearchResult res in departmentsResponse)
 			{
 				DirectoryEntry dept = res.GetDirectoryEntry();
 
@@ -79,14 +82,14 @@ namespace Active_Directory_Management
 
 				searcher.SearchRoot = dept;
 				SearchResultCollection usersResponse = searcher.FindAll();
-				foreach(SearchResult userRes in usersResponse)
+				foreach (SearchResult userRes in usersResponse)
 				{
 					DirectoryEntry user = userRes.GetDirectoryEntry();
-				
+
 					XElement userElem = new XElement("user",
 						new XAttribute("name", user.Properties["name"].Value),
 						new XAttribute("dn", user.Properties["distinguishedName"].Value));
-					
+
 
 					foreach (string prop in props)
 						userElem.Add(new XElement(prop, user.Properties[prop].Value));
@@ -100,7 +103,9 @@ namespace Active_Directory_Management
 				}
 				dump.Root.Add(deptElem);
 			}
+			searcher.Dispose();
 			dump.Save(Properties.Resources.XmlFile);
+			User.XmlFileLocation = Properties.Resources.XmlFile;
 			return dump;
 		}
 		               
@@ -116,22 +121,28 @@ namespace Active_Directory_Management
 				foreach (XElement dept in doc.Root.Elements("dept"))
 				{
 
-					TreeNode deptNode = new TreeNode(dept.Attribute("nameRU").Value);
-					foreach (XElement user in dept.Elements("user"))
+					TreeNode deptNode = treeView.Nodes.Add(dept.Attribute("nameRU").Value);
+					foreach (XElement userElem in dept.Elements("user"))
 					{
+						User user = User.Load(userElem.Attribute("dn").Value);
+
 						string displayName = String.Concat(
-							user.Element("sn").Value,
+							user.GetProperty("sn"),
 							" ",
-							user.Element("givenName").Value);
+							user.GetProperty("givenName"));
 
 						displayName = displayName.Trim();
 
 						if (displayName == string.Empty)
-							displayName = user.Attribute("name").Value;
-
-						deptNode.Nodes.Add(user.Attribute("dn").Value, displayName);
+							displayName = user.Name;
+						
+						TreeNode userNode = deptNode.Nodes.Add(user.Dn, displayName);
+						userNode.NodeFont = new Font(
+						treeView.Font, user.Enabled ?
+							FontStyle.Regular:
+							FontStyle.Italic);
 					}
-					treeView.Nodes.Add(deptNode);
+					
 				}
 			}
 			else
@@ -142,19 +153,25 @@ namespace Active_Directory_Management
 						|| t.Element("sn").Value.ToLower().StartsWith(query)
 						|| t.Attribute("name").Value.ToLower().StartsWith(query)
 						|| t.Attribute("name").Value.ToLower().Contains(" " + query));
-				foreach(XElement user in response)
+				foreach(XElement userElem in response)
 				{
+					User user = User.Load(userElem.Attribute("dn").Value);
+
 					string displayName = String.Concat(
-						user.Element("sn").Value,
+						user.GetProperty("sn"),
 						" ",
-						user.Element("givenName").Value);
+						user.GetProperty("givenName"));
 
 					displayName = displayName.Trim();
 
 					if (displayName == string.Empty)
-						displayName = user.Attribute("name").Value;
+						displayName = user.Name;
 
-					treeView.Nodes.Add(user.Attribute("dn").Value, displayName);
+					TreeNode userNode = treeView.Nodes.Add(user.Dn, displayName);
+					userNode.NodeFont = new Font(
+						treeView.Font, user.Enabled ?
+						FontStyle.Regular :
+						FontStyle.Italic);
 				}
 			}
 			treeView.Sort();
@@ -172,8 +189,13 @@ namespace Active_Directory_Management
 
         private void CreateBtn_Click(object sender, EventArgs e)
         {
-            Form detailView = new DetailView();
+            DetailView detailView = new DetailView();
             detailView.ShowDialog();
+			if (detailView.success == DialogResult.OK)
+			{
+				doc = XDocument.Load(Properties.Resources.XmlFile);
+				FillTree();
+			}
         }
 
         private void DetailBtn_Click(object sender, EventArgs e)
@@ -186,6 +208,11 @@ namespace Active_Directory_Management
         {
             if (treeView.SelectedNode.Name.StartsWith("CN"))
             {
+				treeView.BeginUpdate();
+				treeView.SelectedNode.NodeFont = new Font(treeView.Font,
+					treeView.SelectedNode.NodeFont.Style | FontStyle.Bold);
+				treeView.EndUpdate();
+
 				user = User.Load(treeView.SelectedNode.Name);
 
 				firstBox.Text = user.GetProperty("givenName");
@@ -239,21 +266,34 @@ namespace Active_Directory_Management
         private void UpdBtn_Click(object sender, EventArgs e)
         {
             this.Enabled = false;
-
-			string sel = treeView.SelectedNode.Name;
 			doc = DumpToXml();
-			searchBox.Clear();
 			
-			foreach(TreeNode node in treeView.Nodes)
-				foreach (TreeNode user in node.Nodes)
-					if (user.Name == sel)
-					{
-						treeView.SelectedNode = user;
-						user.EnsureVisible();
-					}
 
-            this.Enabled = true;
-        }
+			if (treeView.SelectedNode != null)
+			{
+				string sel = treeView.SelectedNode.Name;
+				searchBox.Clear();
+				FillTree();
+
+				foreach (TreeNode node in treeView.Nodes)
+					foreach (TreeNode user in node.Nodes)
+						if (user.Name == sel)
+						{
+							Debug.WriteLine(user.Name);
+							treeView.SelectedNode = user;
+							user.EnsureVisible();
+						}
+			}
+			else
+			{
+				searchBox.Clear();
+				FillTree();
+			}
+				
+			
+			this.Enabled = true;
+
+		}
 
 
         private void SaveBtn_Click(object sender, EventArgs e)
@@ -271,7 +311,7 @@ namespace Active_Directory_Management
 			}
 			catch
 			{
-				MessageBox.Show("Невозможно сохранить, возможно не хватает прав");
+				MessageBox.Show("Невозможно сохранить, недостаточно прав");
 			}
 		}
 
@@ -282,25 +322,59 @@ namespace Active_Directory_Management
 			{
 				if (user.Enabled)
 				{
-					DisableReasonForm form = new DisableReasonForm();
-					form.ShowDialog(this);
+					DialogResult fullDeactivation = MessageBox.Show(
+							"Желаете полностью деактивировать учетную запись (увольнение) ?",
+							"Увольнение?",
+							MessageBoxButtons.YesNoCancel,
+							MessageBoxIcon.Asterisk,
+							MessageBoxDefaultButton.Button2);
 
-					if (form.DialogResult == DialogResult.OK)
+					if (fullDeactivation == DialogResult.Yes)
 					{
-						descr = String.Format("(Временно отключена {0}, {1}, причина: {2}) {3}",
-							DateTime.Today.ToShortDateString(),
-							Environment.UserName,
-							form.reasonTextBox.Text,
-							descr);
+						DisableReasonForm form = new DisableReasonForm();
+						form.reasonTextBox.Text = "уволен";
+						form.ShowDialog(this);
+						if(form.DialogResult == DialogResult.OK)
+						{
+							descr = String.Format("(Временно отключена {0}, {1}, причина: {2}) {3}",
+								DateTime.Today.ToShortDateString(),
+								Environment.UserName,
+								form.reasonTextBox.Text,
+								descr);
 
-						user.Properties["description"] = descr;
-						user.CommitChanges();
-						user.Enabled = false;
+							user.Properties["description"] = descr;
+							user.CommitChanges();
+							user.Enabled = false;
+							user.Remove();
 
-						disableReason.Text = descr.Trim('(').Split(')')[0];
-						disableReason.Visible = true;
-						switchPanel.Enabled = false;
-						disableBtn.Text = "Активировать аккаунт";
+							treeView.SelectedNode.Remove();
+						}
+					}
+					if (fullDeactivation == DialogResult.No)
+					{
+
+						DisableReasonForm form = new DisableReasonForm();
+						form.ShowDialog(this);
+
+						if (form.DialogResult == DialogResult.OK)
+						{
+
+							descr = String.Format("(Временно отключена {0}, {1}, причина: {2}) {3}",
+								DateTime.Today.ToShortDateString(),
+								Environment.UserName,
+								form.reasonTextBox.Text,
+								descr);
+
+							user.Properties["description"] = descr;
+							user.CommitChanges();
+							user.Enabled = false;
+
+							disableReason.Text = descr.Trim('(').Split(')')[0];
+							disableReason.Visible = true;
+							switchPanel.Enabled = false;
+							disableBtn.Text = "Активировать аккаунт";
+							treeView.SelectedNode.NodeFont = new Font(treeView.Font, FontStyle.Italic | FontStyle.Bold);
+						}
 					}
 				}
 				else
@@ -314,6 +388,7 @@ namespace Active_Directory_Management
 					disableReason.Visible = false;
 					switchPanel.Enabled = true;
 					disableBtn.Text = "Отключить аккаунт";
+					treeView.SelectedNode.NodeFont = new Font(treeView.Font, FontStyle.Bold);
 				}
 			}
 			catch
@@ -321,5 +396,22 @@ namespace Active_Directory_Management
 				MessageBox.Show("Недостаточно прав");
 			}
         }
+
+		private void treeView_BeforeSelect(object sender, TreeViewCancelEventArgs e)
+		{
+
+			if (treeView.SelectedNode != null && treeView.SelectedNode.Name.StartsWith("CN"))
+			{
+				treeView.BeginUpdate();
+				treeView.SelectedNode.NodeFont = new Font(treeView.Font,
+					treeView.SelectedNode.NodeFont.Style & ~FontStyle.Bold);
+				treeView.EndUpdate();
+			}
+		}
+
+		private void treeView_NodeMouseDoubleClick(object sender, TreeNodeMouseClickEventArgs e)
+		{
+			detailBtn.PerformClick();
+		}
 	}
 }
