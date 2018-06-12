@@ -41,7 +41,7 @@ namespace Active_Directory_Management
 
 			nameBox.Text = user.GetProperty("givenName");
 			surnameBox.Text = user.GetProperty("sn");
-			familyNameBox.Text = user.GetProperty("middleName");
+			middlenameBox.Text = user.GetProperty("middleName");
 
 			try
 			{
@@ -222,7 +222,7 @@ namespace Active_Directory_Management
 			user.Properties["givenName"] = nameBox.Text;
 			user.Properties["sn"] = surnameBox.Text;
 			user.Properties["displayName"] = displayName;
-			user.Properties["middleName"] = familyNameBox.Text;
+			user.Properties["middleName"] = middlenameBox.Text;
 			user.Properties["mobile"] = mobileTextBox.Text;
 			user.Properties["l"] = cityCombo.Text;
 			user.Properties["department"] = departmentCombo.Text;
@@ -265,12 +265,18 @@ namespace Active_Directory_Management
 					MessageBoxButtons.OK,
 					MessageBoxIcon.Information);
 				
-				this.Close();
+				
 			}
 			else
 			{
-				MessageBox.Show("Изменения успешно сохранены");
+				MessageBox.Show(
+					"Изменения успешно сохранены",
+					"Изменения сохранены",
+					MessageBoxButtons.OK,
+					MessageBoxIcon.Information);
+
 			}
+			this.Close();
 		}
 
         private void LimitedRadio_CheckedChanged(object sender, EventArgs e)

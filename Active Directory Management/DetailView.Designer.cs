@@ -56,7 +56,7 @@
 			this.surnameLabel = new System.Windows.Forms.Label();
 			this.middleNameLabel = new System.Windows.Forms.Label();
 			this.surnameEnBox = new System.Windows.Forms.TextBox();
-			this.familyNameBox = new System.Windows.Forms.TextBox();
+			this.middlenameBox = new System.Windows.Forms.TextBox();
 			this.nameTranslitLabel = new System.Windows.Forms.Label();
 			this.surnameTranslitLabel = new System.Windows.Forms.Label();
 			this.birthdayLabel = new System.Windows.Forms.Label();
@@ -277,7 +277,7 @@
 			this.groupBox1.Controls.Add(this.surnameLabel);
 			this.groupBox1.Controls.Add(this.middleNameLabel);
 			this.groupBox1.Controls.Add(this.surnameEnBox);
-			this.groupBox1.Controls.Add(this.familyNameBox);
+			this.groupBox1.Controls.Add(this.middlenameBox);
 			this.groupBox1.Controls.Add(this.nameTranslitLabel);
 			this.groupBox1.Controls.Add(this.surnameTranslitLabel);
 			this.groupBox1.Controls.Add(this.birthdayLabel);
@@ -387,10 +387,10 @@
 			// 
 			// familyNameBox
 			// 
-			this.familyNameBox.Location = new System.Drawing.Point(125, 71);
-			this.familyNameBox.Name = "familyNameBox";
-			this.familyNameBox.Size = new System.Drawing.Size(197, 20);
-			this.familyNameBox.TabIndex = 38;
+			this.middlenameBox.Location = new System.Drawing.Point(125, 71);
+			this.middlenameBox.Name = "familyNameBox";
+			this.middlenameBox.Size = new System.Drawing.Size(197, 20);
+			this.middlenameBox.TabIndex = 38;
 			// 
 			// nameTranslitLabel
 			// 
@@ -651,7 +651,7 @@
         private System.Windows.Forms.TextBox nameBox;
         private System.Windows.Forms.TabPage tabPage2;
         private System.Windows.Forms.Label middleNameLabel;
-        private System.Windows.Forms.TextBox familyNameBox;
+        private System.Windows.Forms.TextBox middlenameBox;
         private System.Windows.Forms.Label mobileLabel;
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.Label adressLabel;

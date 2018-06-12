@@ -202,6 +202,7 @@ namespace Active_Directory_Management
         {
             Form detailView = new DetailView(user);
             detailView.ShowDialog(this);
+			FillTree();
         }
 
         private void TreeView_AfterSelect(object sender, TreeViewEventArgs e)
@@ -332,11 +333,12 @@ namespace Active_Directory_Management
 					if (fullDeactivation == DialogResult.Yes)
 					{
 						DisableReasonForm form = new DisableReasonForm();
-						form.reasonTextBox.Text = "уволен";
+						form.reasonTextBox.Text = "Уволен" + (user.GetProperty("extensionAttribute3")[0] == 'F' ? "a" : "");
 						form.ShowDialog(this);
 						if(form.DialogResult == DialogResult.OK)
 						{
-							descr = String.Format("(Временно отключена {0}, {1}, причина: {2}) {3}",
+							descr = String.Format("(Отключен{0} {1}, {2}, причина: {3}) {4}",
+								(user.GetProperty("extensionAttribute3")[0] == 'F' ? "a" : ""),
 								DateTime.Today.ToShortDateString(),
 								Environment.UserName,
 								form.reasonTextBox.Text,
@@ -359,7 +361,8 @@ namespace Active_Directory_Management
 						if (form.DialogResult == DialogResult.OK)
 						{
 
-							descr = String.Format("(Временно отключена {0}, {1}, причина: {2}) {3}",
+							descr = String.Format("(Временно отключен{0} {1}, {2}, причина: {3}) {4}",
+								(user.GetProperty("extensionAttribute3")[0] == 'F' ? "a" : ""),
 								DateTime.Today.ToShortDateString(),
 								Environment.UserName,
 								form.reasonTextBox.Text,
@@ -391,8 +394,9 @@ namespace Active_Directory_Management
 					treeView.SelectedNode.NodeFont = new Font(treeView.Font, FontStyle.Bold);
 				}
 			}
-			catch
+			catch (Exception ex)
 			{
+				Debug.WriteLine(ex.Message);
 				MessageBox.Show("Недостаточно прав");
 			}
         }

@@ -25,8 +25,10 @@ namespace Active_Directory_Management
 		private Dictionary<string, bool> memberOf = new Dictionary<string, bool>();
 		
 		private int uac;
-        public string Dn { get; }
-		public string Name { get; }
+		private string dn;
+		private string name;
+        public string Dn { get => dn; }
+		public string Name { get => name; }
 
 		public User(string name, DirectoryEntry path, XElement parent)
 		{
@@ -80,9 +82,9 @@ namespace Active_Directory_Management
 			
 
 			// Write local parameters
-			Dn = entry.Properties["distinguishedName"].Value.ToString();
+			dn = entry.Properties["distinguishedName"].Value.ToString();
 			uac = 0x200;
-			Name = name;
+			this.name = name;
 
 			// Create new xml node 
 			xmlNode = new XElement("user",
@@ -117,8 +119,8 @@ namespace Active_Directory_Management
 				.Where(t => t.Attribute("dn").Value == userDN)
 				.First();
 
-			Dn = xmlNode.Attribute("dn").Value;
-			Name = xmlNode.Attribute("name").Value;
+			dn = xmlNode.Attribute("dn").Value;
+			name = xmlNode.Attribute("name").Value;
 			uac = int.Parse(xmlNode.Element("userAccountControl").Value);
 
 			entry = new DirectoryEntry("LDAP://" + Dn);
@@ -154,18 +156,6 @@ namespace Active_Directory_Management
 				xmlFile = XDocument.Load(XmlFileLocation);
 			}
 		}
-
-
-		private void UpdateProperties()
-        {
-			
-
-            foreach (XElement elem in xmlNode.Elements())
-            {
-				if(elem.Value != "memberOf" && elem.Value != "userAccountControl")
-					Properties.Add(elem.Name.ToString(), elem.Value.ToString());
-            }
-        }
 		/// <summary>
 		/// Запрашивает или устанавливает значение блокировки аккаунта
 		/// </summary>
@@ -285,24 +275,38 @@ namespace Active_Directory_Management
 				
 			foreach (KeyValuePair<string, string> prop in Properties)
             {
-				string k = prop.Key;
-				string v = prop.Value;
+				string key = prop.Key;
+				string value = prop.Value;
 
-				if (v == string.Empty)
+				
+
+				if (value == string.Empty)
 					continue;
 
-				if (v == null)
+				else if (value == null)
 				{
-					entry.Properties[k].Clear();
-					v = string.Empty;
+					entry.Properties[key].Clear();
+					value = string.Empty;
+				}
+				else if (key == "displayName")
+				{
+					string newName = String.Format("CN={0}", value);
+
+					Debug.WriteLine(newName);
+
+					entry.CommitChanges();
+					entry.Rename(newName);
+
+					entry.Properties["displayName"].Value = value;
+					dn = newName;
+					name = value;
+					key = "name";
 				}
 				else
-					entry.Properties[k].Value = v;
+					entry.Properties[key].Value = value;
 
-				try { xmlNode.Element(k).Value = v; }
-				catch { xmlNode.Add(new XElement(k, v)); }
-
-                
+				try { xmlNode.Element(key).Value = value; }
+				catch { xmlNode.Add(new XElement(key, value)); }
             }
 			Properties.Clear();
 			xmlFile.Save(XmlFileLocation);
@@ -342,7 +346,7 @@ namespace Active_Directory_Management
 			entry.MoveTo(new DirectoryEntry("LDAP://OU=Disabled Accounts,DC=nng,DC=kz"));
 			xmlNode.Remove();
 			xmlFile.Save(XmlFileLocation);
-			
 		}
+
     }
 }
