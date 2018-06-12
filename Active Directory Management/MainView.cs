@@ -14,15 +14,37 @@ using System.Xml.Linq;
 
 namespace Active_Directory_Management
 {
-    public partial class MainView : Form
-    {  
-        private XDocument doc;
-        private User user;
+	public partial class MainView : Form
+	{
+		private XDocument doc;
+		private User user;
+		private string[] cities = new string[]
+		{
+			"Актау",
+			"Уральск",
+			"Алматы",
+			"Минск"
+		};
+		private Dictionary<string, string> usersPath = new Dictionary<string, string>
+		{
+			["Актау"] = Properties.Addresses.AktauUsers,
+			["Уральск"] = Properties.Addresses.UralskUsers,
+			["Алматы"] = Properties.Addresses.AlmatyUsers,
+			["Минск"] = Properties.Addresses.MinskUsers
+		};
+		private Dictionary<string, string> domainPath = new Dictionary<string, string>
+		{
+			["Актау"] = Properties.Addresses.AktauDomain,
+			["Уральск"] = Properties.Addresses.UralskDomain,
+			["Алматы"] = Properties.Addresses.AlmatyDomain,
+			["Минск"] = Properties.Addresses.MinskDomain
+		};
 
-        // Массив атрибутов для выгрузки из AD
-        // Используется в DumpADtoXML()
 
-        private string[] props = new string[]
+		// Массив атрибутов для выгрузки из AD
+		// Используется в DumpADtoXML()
+
+		private string[] props = new string[]
         {
 			"sn", // Фамилия
 			"givenName", // Имя
@@ -44,33 +66,69 @@ namespace Active_Directory_Management
         public MainView()
         {
             InitializeComponent();
+			
+			citySelector.Items.AddRange(cities);
+			citySelector.SelectedIndex = 0;
 
-			doc = DumpToXml();
-			FillTree();
+			RenderTree();
 			
         }
 		
-		private XDocument DumpToXml()
+		private XDocument DumpToXml(string city)
 		{
-			XDocument dump = new XDocument();
+			this.Enabled = false;
+			
 
+			XDocument dump;
+			try
+			{
+				dump = XDocument.Load(Properties.Resources.XmlFile);
+			}
+			catch
+			{
+				dump = new XDocument();
+				dump.Add(new XElement("company"));
+			}
+			XElement cityElem;
+			try
+			{
+				dump.Root.Elements("city")
+					.Where(t => t.Attribute("nameRU").Value == city)
+					.First()
+					.Remove();
+			}
+			catch (Exception ex)
+			{
+				Debug.WriteLine(ex.Message);
+			}
+
+			cityElem = new XElement("city",
+				new XAttribute("name", ""),
+				new XAttribute("nameRU", city),
+				new XAttribute("dn", domainPath[city]));
+			dump.Root.Add(cityElem);
+
+			DirectoryEntry cityEntry = new DirectoryEntry("LDAP://" + usersPath[city]);
+			cityElem.Attribute("name").Value = cityEntry.Parent.Properties["name"].Value.ToString();
 			DirectorySearcher searcher = new DirectorySearcher()
 			{
-				SearchRoot = new DirectoryEntry("LDAP://OU=Users,OU=Aktau,DC=nng,DC=kz"),
+				SearchRoot = cityEntry,
 				SearchScope = SearchScope.OneLevel
 			};
+			cityEntry.Dispose();
+
+			Debug.Write("LDAP://" + usersPath[city]);
 			searcher.PropertiesToLoad.Add("name");
 			searcher.PropertiesToLoad.Add("memberOf");
 			searcher.PropertiesToLoad.Add("userAccountControl");
 			searcher.PropertiesToLoad.AddRange(props);
 
-			
-			dump.Add(new XElement("company"));
-
 			searcher.Filter = "(objectClass=organizationalUnit)";
 			SearchResultCollection departmentsResponse = searcher.FindAll();
 
 			searcher.Filter = "(objectClass=user)";
+			SearchResultCollection usersResponse = searcher.FindAll();
+
 			foreach (SearchResult res in departmentsResponse)
 			{
 				DirectoryEntry dept = res.GetDirectoryEntry();
@@ -81,8 +139,7 @@ namespace Active_Directory_Management
 					new XAttribute("dn", dept.Properties["distinguishedName"].Value));
 
 				searcher.SearchRoot = dept;
-				SearchResultCollection usersResponse = searcher.FindAll();
-				foreach (SearchResult userRes in usersResponse)
+				foreach (SearchResult userRes in searcher.FindAll())
 				{
 					DirectoryEntry user = userRes.GetDirectoryEntry();
 
@@ -101,24 +158,51 @@ namespace Active_Directory_Management
 
 					deptElem.Add(userElem);
 				}
-				dump.Root.Add(deptElem);
+				cityElem.Add(deptElem);
 			}
+			foreach (SearchResult userRes in usersResponse)
+			{
+				DirectoryEntry user = userRes.GetDirectoryEntry();
+
+				XElement userElem = new XElement("user",
+					new XAttribute("name", user.Properties["name"].Value),
+					new XAttribute("dn", user.Properties["distinguishedName"].Value));
+
+
+				foreach (string prop in props)
+					userElem.Add(new XElement(prop, user.Properties[prop].Value));
+
+				XElement memberOf = new XElement("memberOf");
+				foreach (string group in user.Properties["memberOf"])
+					memberOf.Add(new XElement("group", group));
+				userElem.Add(memberOf);
+
+				cityElem.Add(userElem);
+			}
+
 			searcher.Dispose();
 			dump.Save(Properties.Resources.XmlFile);
 			User.XmlFileLocation = Properties.Resources.XmlFile;
+			this.Enabled = true;
 			return dump;
 		}
 		               
-        private void FillTree(string query = "")
+        private void RenderTree(string query = "")
         {
 			query = query.Trim();
+
+			string select = treeView.SelectedNode != null ? treeView.SelectedNode.Text : string.Empty;
 
 			treeView.BeginUpdate();
             treeView.Nodes.Clear();
 
+			XElement root = doc.Root.Elements("city")
+				.Where(t => t.Attribute("nameRU").Value == citySelector.Text)
+				.First();
+
 			if (query == string.Empty)
 			{
-				foreach (XElement dept in doc.Root.Elements("dept"))
+				foreach (XElement dept in root.Elements("dept"))
 				{
 
 					TreeNode deptNode = treeView.Nodes.Add(dept.Attribute("nameRU").Value);
@@ -141,14 +225,39 @@ namespace Active_Directory_Management
 						treeView.Font, user.Enabled ?
 							FontStyle.Regular:
 							FontStyle.Italic);
+
+						if (displayName == select)
+							treeView.SelectedNode = userNode;
 					}
-					
+				}
+				foreach(XElement userElem in root.Elements("user"))
+				{
+					User user = User.Load(userElem.Attribute("dn").Value);
+
+					string displayName = String.Concat(
+						user.GetProperty("sn"),
+						" ",
+						user.GetProperty("givenName"));
+
+					displayName = displayName.Trim();
+
+					if (displayName == string.Empty)
+						displayName = user.Name;
+
+					TreeNode userNode = treeView.Nodes.Add(user.Dn, displayName);
+					userNode.NodeFont = new Font(
+					treeView.Font, user.Enabled ?
+						FontStyle.Regular :
+						FontStyle.Italic);
+
+					if (displayName == select)
+						treeView.SelectedNode = userNode;
 				}
 			}
 			else
 			{
 				query = query.ToLower();
-				var response = doc.Root.Descendants("user")
+				var response = root.Descendants("user")
 					.Where(t => t.Element("givenName").Value.ToLower().StartsWith(query)
 						|| t.Element("sn").Value.ToLower().StartsWith(query)
 						|| t.Attribute("name").Value.ToLower().StartsWith(query)
@@ -172,6 +281,9 @@ namespace Active_Directory_Management
 						treeView.Font, user.Enabled ?
 						FontStyle.Regular :
 						FontStyle.Italic);
+
+					if (displayName == select)
+						treeView.SelectedNode = userNode;
 				}
 			}
 			treeView.Sort();
@@ -182,7 +294,7 @@ namespace Active_Directory_Management
 
         private void SearchBox_TextChanged(object sender, EventArgs e)
         {
-			FillTree(searchBox.Text);
+			RenderTree(searchBox.Text);
         }
 
         // Buttons behaviour
@@ -194,7 +306,7 @@ namespace Active_Directory_Management
 			if (detailView.success == DialogResult.OK)
 			{
 				doc = XDocument.Load(Properties.Resources.XmlFile);
-				FillTree();
+				RenderTree();
 			}
         }
 
@@ -202,7 +314,7 @@ namespace Active_Directory_Management
         {
             Form detailView = new DetailView(user);
             detailView.ShowDialog(this);
-			FillTree();
+			RenderTree();
         }
 
         private void TreeView_AfterSelect(object sender, TreeViewEventArgs e)
@@ -267,31 +379,9 @@ namespace Active_Directory_Management
         private void UpdBtn_Click(object sender, EventArgs e)
         {
             this.Enabled = false;
-			doc = DumpToXml();
-			
+			doc = DumpToXml(citySelector.Text);
+			RenderTree();
 
-			if (treeView.SelectedNode != null)
-			{
-				string sel = treeView.SelectedNode.Name;
-				searchBox.Clear();
-				FillTree();
-
-				foreach (TreeNode node in treeView.Nodes)
-					foreach (TreeNode user in node.Nodes)
-						if (user.Name == sel)
-						{
-							Debug.WriteLine(user.Name);
-							treeView.SelectedNode = user;
-							user.EnsureVisible();
-						}
-			}
-			else
-			{
-				searchBox.Clear();
-				FillTree();
-			}
-				
-			
 			this.Enabled = true;
 
 		}
@@ -416,6 +506,12 @@ namespace Active_Directory_Management
 		private void treeView_NodeMouseDoubleClick(object sender, TreeNodeMouseClickEventArgs e)
 		{
 			detailBtn.PerformClick();
+		}
+
+		private void citySelector_SelectedIndexChanged(object sender, EventArgs e)
+		{
+			doc = DumpToXml(citySelector.Text);
+			RenderTree();
 		}
 	}
 }

@@ -40,7 +40,7 @@
 			// 
 			this.cdCheck.BackColor = System.Drawing.SystemColors.Control;
 			this.cdCheck.FlatStyle = System.Windows.Forms.FlatStyle.System;
-			this.cdCheck.Location = new System.Drawing.Point(0, 0);
+			this.cdCheck.Location = new System.Drawing.Point(88, 38);
 			this.cdCheck.Name = "cdCheck";
 			this.cdCheck.Size = new System.Drawing.Size(168, 28);
 			this.cdCheck.TabIndex = 16;
@@ -49,7 +49,7 @@
 			// 
 			// usbDiskCheck
 			// 
-			this.usbDiskCheck.Location = new System.Drawing.Point(0, 34);
+			this.usbDiskCheck.Location = new System.Drawing.Point(88, 72);
 			this.usbDiskCheck.Name = "usbDiskCheck";
 			this.usbDiskCheck.Size = new System.Drawing.Size(168, 28);
 			this.usbDiskCheck.TabIndex = 17;
@@ -58,7 +58,7 @@
 			// 
 			// usbDeviceCheck
 			// 
-			this.usbDeviceCheck.Location = new System.Drawing.Point(0, 68);
+			this.usbDeviceCheck.Location = new System.Drawing.Point(88, 106);
 			this.usbDeviceCheck.Name = "usbDeviceCheck";
 			this.usbDeviceCheck.Size = new System.Drawing.Size(168, 28);
 			this.usbDeviceCheck.TabIndex = 18;
@@ -68,7 +68,7 @@
 			// cloudCheck
 			// 
 			this.cloudCheck.Enabled = false;
-			this.cloudCheck.Location = new System.Drawing.Point(0, 102);
+			this.cloudCheck.Location = new System.Drawing.Point(88, 140);
 			this.cloudCheck.Name = "cloudCheck";
 			this.cloudCheck.Size = new System.Drawing.Size(168, 28);
 			this.cloudCheck.TabIndex = 19;
@@ -78,7 +78,7 @@
 			// internetLabel
 			// 
 			this.internetLabel.AutoSize = true;
-			this.internetLabel.Location = new System.Drawing.Point(-3, 166);
+			this.internetLabel.Location = new System.Drawing.Point(85, 204);
 			this.internetLabel.Name = "internetLabel";
 			this.internetLabel.Size = new System.Drawing.Size(104, 13);
 			this.internetLabel.TabIndex = 15;
@@ -92,7 +92,7 @@
             "Отсутствует",
             "Ограниченный",
             "Полный"});
-			this.internetCombo.Location = new System.Drawing.Point(107, 163);
+			this.internetCombo.Location = new System.Drawing.Point(195, 201);
 			this.internetCombo.Name = "internetCombo";
 			this.internetCombo.Size = new System.Drawing.Size(121, 21);
 			this.internetCombo.TabIndex = 14;
@@ -108,7 +108,7 @@
 			this.Controls.Add(this.internetLabel);
 			this.Controls.Add(this.internetCombo);
 			this.Name = "GroupSelector";
-			this.Size = new System.Drawing.Size(234, 191);
+			this.Size = new System.Drawing.Size(712, 410);
 			this.ResumeLayout(false);
 			this.PerformLayout();
 

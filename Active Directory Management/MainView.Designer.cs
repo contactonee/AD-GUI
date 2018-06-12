@@ -45,22 +45,25 @@
 			this.disableBtn = new System.Windows.Forms.Button();
 			this.updBtn = new System.Windows.Forms.Button();
 			this.disableReason = new System.Windows.Forms.Label();
+			this.citySelector = new System.Windows.Forms.ComboBox();
+			this.label1 = new System.Windows.Forms.Label();
+			this.label2 = new System.Windows.Forms.Label();
 			this.switchPanel.SuspendLayout();
 			this.SuspendLayout();
 			// 
 			// searchBox
 			// 
-			this.searchBox.Location = new System.Drawing.Point(12, 12);
+			this.searchBox.Location = new System.Drawing.Point(57, 44);
 			this.searchBox.Name = "searchBox";
-			this.searchBox.Size = new System.Drawing.Size(313, 20);
+			this.searchBox.Size = new System.Drawing.Size(349, 20);
 			this.searchBox.TabIndex = 0;
 			this.searchBox.TextChanged += new System.EventHandler(this.SearchBox_TextChanged);
 			// 
 			// createBtn
 			// 
-			this.createBtn.Location = new System.Drawing.Point(853, 10);
+			this.createBtn.Location = new System.Drawing.Point(779, 12);
 			this.createBtn.Name = "createBtn";
-			this.createBtn.Size = new System.Drawing.Size(75, 23);
+			this.createBtn.Size = new System.Drawing.Size(134, 58);
 			this.createBtn.TabIndex = 2;
 			this.createBtn.Text = "Создать";
 			this.createBtn.UseVisualStyleBackColor = true;
@@ -94,7 +97,7 @@
 			// 
 			// saveBtn
 			// 
-			this.saveBtn.Location = new System.Drawing.Point(777, 104);
+			this.saveBtn.Location = new System.Drawing.Point(779, 113);
 			this.saveBtn.Name = "saveBtn";
 			this.saveBtn.Size = new System.Drawing.Size(134, 58);
 			this.saveBtn.TabIndex = 13;
@@ -104,9 +107,9 @@
 			// 
 			// treeView
 			// 
-			this.treeView.Location = new System.Drawing.Point(12, 38);
+			this.treeView.Location = new System.Drawing.Point(12, 70);
 			this.treeView.Name = "treeView";
-			this.treeView.Size = new System.Drawing.Size(394, 407);
+			this.treeView.Size = new System.Drawing.Size(394, 368);
 			this.treeView.TabIndex = 17;
 			this.treeView.BeforeSelect += new System.Windows.Forms.TreeViewCancelEventHandler(this.treeView_BeforeSelect);
 			this.treeView.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.TreeView_AfterSelect);
@@ -219,20 +222,51 @@
 			this.disableReason.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
 			this.disableReason.Visible = false;
 			// 
+			// citySelector
+			// 
+			this.citySelector.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+			this.citySelector.FormattingEnabled = true;
+			this.citySelector.Location = new System.Drawing.Point(57, 12);
+			this.citySelector.Name = "citySelector";
+			this.citySelector.Size = new System.Drawing.Size(268, 21);
+			this.citySelector.TabIndex = 22;
+			this.citySelector.SelectedIndexChanged += new System.EventHandler(this.citySelector_SelectedIndexChanged);
+			// 
+			// label1
+			// 
+			this.label1.AutoSize = true;
+			this.label1.Location = new System.Drawing.Point(12, 47);
+			this.label1.Name = "label1";
+			this.label1.Size = new System.Drawing.Size(39, 13);
+			this.label1.TabIndex = 23;
+			this.label1.Text = "Поиск";
+			// 
+			// label2
+			// 
+			this.label2.AutoSize = true;
+			this.label2.Location = new System.Drawing.Point(14, 15);
+			this.label2.Name = "label2";
+			this.label2.Size = new System.Drawing.Size(37, 13);
+			this.label2.TabIndex = 24;
+			this.label2.Text = "Город";
+			// 
 			// MainView
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.ClientSize = new System.Drawing.Size(940, 450);
+			this.Controls.Add(this.createBtn);
+			this.Controls.Add(this.label2);
+			this.Controls.Add(this.label1);
+			this.Controls.Add(this.citySelector);
 			this.Controls.Add(this.disableReason);
 			this.Controls.Add(this.saveBtn);
 			this.Controls.Add(this.disableBtn);
 			this.Controls.Add(this.switchPanel);
-			this.Controls.Add(this.treeView);
 			this.Controls.Add(this.updBtn);
+			this.Controls.Add(this.treeView);
 			this.Controls.Add(this.lastBox);
 			this.Controls.Add(this.firstBox);
-			this.Controls.Add(this.createBtn);
 			this.Controls.Add(this.searchBox);
 			this.Name = "MainView";
 			this.Text = "Active Directory ";
@@ -262,5 +296,8 @@
 		private System.Windows.Forms.Label internetLabel;
 		private System.Windows.Forms.Label disableReason;
 		private System.Windows.Forms.TreeView treeView;
+		private System.Windows.Forms.ComboBox citySelector;
+		private System.Windows.Forms.Label label1;
+		private System.Windows.Forms.Label label2;
 	}
 }

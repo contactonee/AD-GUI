@@ -99,6 +99,11 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Groups.resx</DependentUpon>
     </Compile>
+    <Compile Include="Properties\Addresses.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Addresses.resx</DependentUpon>
+    </Compile>
     <Compile Include="User.cs" />
     <EmbeddedResource Include="DetailView.resx">
       <DependentUpon>DetailView.cs</DependentUpon>
@@ -118,6 +123,10 @@
     <EmbeddedResource Include="Properties\Groups.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Groups.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Addresses.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Addresses.Designer.cs</LastGenOutput>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

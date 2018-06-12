@@ -32,6 +32,9 @@
 			this.tabControl1 = new System.Windows.Forms.TabControl();
 			this.tabPage1 = new System.Windows.Forms.TabPage();
 			this.groupBox2 = new System.Windows.Forms.GroupBox();
+			this.managerPanel = new System.Windows.Forms.Panel();
+			this.managerLabel = new System.Windows.Forms.Label();
+			this.managerCheck = new System.Windows.Forms.CheckBox();
 			this.posCombo = new System.Windows.Forms.ComboBox();
 			this.internalLabel = new System.Windows.Forms.Label();
 			this.divLabel = new System.Windows.Forms.Label();
@@ -47,9 +50,7 @@
 			this.groupBox1 = new System.Windows.Forms.GroupBox();
 			this.mobileTextBox = new System.Windows.Forms.MaskedTextBox();
 			this.nameEnBox = new System.Windows.Forms.TextBox();
-			this.adressLabel = new System.Windows.Forms.Label();
 			this.nameBox = new System.Windows.Forms.TextBox();
-			this.adressTextBox = new System.Windows.Forms.TextBox();
 			this.nameLabel = new System.Windows.Forms.Label();
 			this.mobileLabel = new System.Windows.Forms.Label();
 			this.surnameBox = new System.Windows.Forms.TextBox();
@@ -73,22 +74,20 @@
 			this.internetLabel = new System.Windows.Forms.Label();
 			this.internetCombo = new System.Windows.Forms.ComboBox();
 			this.cancelBtn = new System.Windows.Forms.Button();
-			this.managerLabel = new System.Windows.Forms.Label();
-			this.managerCheck = new System.Windows.Forms.CheckBox();
-			this.managerPanel = new System.Windows.Forms.Panel();
 			this.genderSelector = new Active_Directory_Management.GenderSelector();
 			this.tabControl1.SuspendLayout();
 			this.tabPage1.SuspendLayout();
 			this.groupBox2.SuspendLayout();
+			this.managerPanel.SuspendLayout();
 			this.groupBox1.SuspendLayout();
 			this.tabPage2.SuspendLayout();
 			this.groupBox3.SuspendLayout();
-			this.managerPanel.SuspendLayout();
 			this.SuspendLayout();
 			// 
 			// saveBtn
 			// 
 			this.saveBtn.Anchor = System.Windows.Forms.AnchorStyles.Top;
+			this.saveBtn.Enabled = false;
 			this.saveBtn.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
 			this.saveBtn.Location = new System.Drawing.Point(248, 391);
 			this.saveBtn.Name = "saveBtn";
@@ -142,6 +141,36 @@
 			this.groupBox2.TabStop = false;
 			this.groupBox2.Text = "Информация о сотруднике";
 			// 
+			// managerPanel
+			// 
+			this.managerPanel.Controls.Add(this.managerLabel);
+			this.managerPanel.Controls.Add(this.managerCheck);
+			this.managerPanel.Location = new System.Drawing.Point(27, 125);
+			this.managerPanel.Name = "managerPanel";
+			this.managerPanel.Size = new System.Drawing.Size(387, 28);
+			this.managerPanel.TabIndex = 48;
+			// 
+			// managerLabel
+			// 
+			this.managerLabel.AutoSize = true;
+			this.managerLabel.Location = new System.Drawing.Point(14, 5);
+			this.managerLabel.Name = "managerLabel";
+			this.managerLabel.Size = new System.Drawing.Size(78, 13);
+			this.managerLabel.TabIndex = 46;
+			this.managerLabel.Text = "Руководитель";
+			// 
+			// managerCheck
+			// 
+			this.managerCheck.AutoSize = true;
+			this.managerCheck.Location = new System.Drawing.Point(98, 4);
+			this.managerCheck.Name = "managerCheck";
+			this.managerCheck.Size = new System.Drawing.Size(99, 17);
+			this.managerCheck.TabIndex = 47;
+			this.managerCheck.Text = "Manager Name";
+			this.managerCheck.UseVisualStyleBackColor = true;
+			this.managerCheck.Visible = false;
+			this.managerCheck.CheckedChanged += new System.EventHandler(this.managerCheck_CheckedChanged);
+			// 
 			// posCombo
 			// 
 			this.posCombo.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.Append;
@@ -152,6 +181,7 @@
 			this.posCombo.Size = new System.Drawing.Size(289, 21);
 			this.posCombo.Sorted = true;
 			this.posCombo.TabIndex = 45;
+			this.posCombo.SelectedIndexChanged += new System.EventHandler(this.posCombo_SelectedIndexChanged);
 			// 
 			// internalLabel
 			// 
@@ -190,6 +220,7 @@
 			this.telCombo.Size = new System.Drawing.Size(123, 21);
 			this.telCombo.Sorted = true;
 			this.telCombo.TabIndex = 40;
+			this.telCombo.SelectedIndexChanged += new System.EventHandler(this.telCombo_SelectedIndexChanged);
 			// 
 			// roomCombo
 			// 
@@ -201,6 +232,7 @@
 			this.roomCombo.Size = new System.Drawing.Size(123, 21);
 			this.roomCombo.Sorted = true;
 			this.roomCombo.TabIndex = 39;
+			this.roomCombo.SelectedIndexChanged += new System.EventHandler(this.roomCombo_SelectedIndexChanged);
 			this.roomCombo.TextChanged += new System.EventHandler(this.RoomCombo_TextChanged);
 			// 
 			// divCombo
@@ -213,6 +245,7 @@
 			this.divCombo.Size = new System.Drawing.Size(289, 21);
 			this.divCombo.Sorted = true;
 			this.divCombo.TabIndex = 38;
+			this.divCombo.SelectedIndexChanged += new System.EventHandler(this.divCombo_SelectedIndexChanged);
 			// 
 			// roomLabel
 			// 
@@ -268,9 +301,7 @@
 			this.groupBox1.Controls.Add(this.genderSelector);
 			this.groupBox1.Controls.Add(this.mobileTextBox);
 			this.groupBox1.Controls.Add(this.nameEnBox);
-			this.groupBox1.Controls.Add(this.adressLabel);
 			this.groupBox1.Controls.Add(this.nameBox);
-			this.groupBox1.Controls.Add(this.adressTextBox);
 			this.groupBox1.Controls.Add(this.nameLabel);
 			this.groupBox1.Controls.Add(this.mobileLabel);
 			this.groupBox1.Controls.Add(this.surnameBox);
@@ -296,6 +327,7 @@
 			this.mobileTextBox.Name = "mobileTextBox";
 			this.mobileTextBox.Size = new System.Drawing.Size(197, 20);
 			this.mobileTextBox.TabIndex = 44;
+			this.mobileTextBox.MaskInputRejected += new System.Windows.Forms.MaskInputRejectedEventHandler(this.mobileTextBox_MaskInputRejected);
 			// 
 			// nameEnBox
 			// 
@@ -306,16 +338,6 @@
 			this.nameEnBox.TabStop = false;
 			this.nameEnBox.TextChanged += new System.EventHandler(this.NameTranslitTextBox_TextChanged);
 			// 
-			// adressLabel
-			// 
-			this.adressLabel.AutoSize = true;
-			this.adressLabel.Enabled = false;
-			this.adressLabel.Location = new System.Drawing.Point(24, 126);
-			this.adressLabel.Name = "adressLabel";
-			this.adressLabel.Size = new System.Drawing.Size(95, 13);
-			this.adressLabel.TabIndex = 43;
-			this.adressLabel.Text = "Домашний адрес";
-			// 
 			// nameBox
 			// 
 			this.nameBox.Location = new System.Drawing.Point(125, 19);
@@ -323,14 +345,6 @@
 			this.nameBox.Size = new System.Drawing.Size(197, 20);
 			this.nameBox.TabIndex = 22;
 			this.nameBox.TextChanged += new System.EventHandler(this.NameTextBox_TextChanged);
-			// 
-			// adressTextBox
-			// 
-			this.adressTextBox.Enabled = false;
-			this.adressTextBox.Location = new System.Drawing.Point(125, 123);
-			this.adressTextBox.Name = "adressTextBox";
-			this.adressTextBox.Size = new System.Drawing.Size(197, 20);
-			this.adressTextBox.TabIndex = 42;
 			// 
 			// nameLabel
 			// 
@@ -385,12 +399,13 @@
 			this.surnameEnBox.TabStop = false;
 			this.surnameEnBox.TextChanged += new System.EventHandler(this.SurnameTranslitTextBox_TextChanged);
 			// 
-			// familyNameBox
+			// middlenameBox
 			// 
 			this.middlenameBox.Location = new System.Drawing.Point(125, 71);
-			this.middlenameBox.Name = "familyNameBox";
+			this.middlenameBox.Name = "middlenameBox";
 			this.middlenameBox.Size = new System.Drawing.Size(197, 20);
 			this.middlenameBox.TabIndex = 38;
+			this.middlenameBox.TextChanged += new System.EventHandler(this.middlenameBox_TextChanged);
 			// 
 			// nameTranslitLabel
 			// 
@@ -458,6 +473,7 @@
 			this.cdCheck.TabIndex = 10;
 			this.cdCheck.Text = "Доступ к CD/DVD";
 			this.cdCheck.UseVisualStyleBackColor = true;
+			this.cdCheck.CheckedChanged += new System.EventHandler(this.cdCheck_CheckedChanged);
 			// 
 			// usbDiskCheck
 			// 
@@ -468,6 +484,7 @@
 			this.usbDiskCheck.TabIndex = 11;
 			this.usbDiskCheck.Text = "Доступ к USB дискам";
 			this.usbDiskCheck.UseVisualStyleBackColor = true;
+			this.usbDiskCheck.CheckedChanged += new System.EventHandler(this.usbDiskCheck_CheckedChanged);
 			// 
 			// usbDeviceCheck
 			// 
@@ -478,6 +495,7 @@
 			this.usbDeviceCheck.TabIndex = 12;
 			this.usbDeviceCheck.Text = "Доступ к USB устройствам";
 			this.usbDeviceCheck.UseVisualStyleBackColor = true;
+			this.usbDeviceCheck.CheckedChanged += new System.EventHandler(this.usbDeviceCheck_CheckedChanged);
 			// 
 			// cloudCheck
 			// 
@@ -489,6 +507,7 @@
 			this.cloudCheck.TabIndex = 13;
 			this.cloudCheck.Text = "Личная папка (Диск K:\\)";
 			this.cloudCheck.UseVisualStyleBackColor = true;
+			this.cloudCheck.CheckedChanged += new System.EventHandler(this.cloudCheck_CheckedChanged);
 			// 
 			// groupBox3
 			// 
@@ -509,6 +528,7 @@
 			this.expirationDatePicker.Name = "expirationDatePicker";
 			this.expirationDatePicker.Size = new System.Drawing.Size(137, 20);
 			this.expirationDatePicker.TabIndex = 9;
+			this.expirationDatePicker.ValueChanged += new System.EventHandler(this.expirationDatePicker_ValueChanged);
 			// 
 			// unlimitedRadio
 			// 
@@ -555,6 +575,7 @@
 			this.internetCombo.Name = "internetCombo";
 			this.internetCombo.Size = new System.Drawing.Size(121, 21);
 			this.internetCombo.TabIndex = 4;
+			this.internetCombo.SelectedIndexChanged += new System.EventHandler(this.internetCombo_SelectedIndexChanged);
 			// 
 			// cancelBtn
 			// 
@@ -566,35 +587,6 @@
 			this.cancelBtn.UseVisualStyleBackColor = true;
 			this.cancelBtn.Click += new System.EventHandler(this.cancelBtn_Click);
 			// 
-			// managerLabel
-			// 
-			this.managerLabel.AutoSize = true;
-			this.managerLabel.Location = new System.Drawing.Point(14, 5);
-			this.managerLabel.Name = "managerLabel";
-			this.managerLabel.Size = new System.Drawing.Size(78, 13);
-			this.managerLabel.TabIndex = 46;
-			this.managerLabel.Text = "Руководитель";
-			// 
-			// managerCheck
-			// 
-			this.managerCheck.AutoSize = true;
-			this.managerCheck.Location = new System.Drawing.Point(98, 4);
-			this.managerCheck.Name = "managerCheck";
-			this.managerCheck.Size = new System.Drawing.Size(99, 17);
-			this.managerCheck.TabIndex = 47;
-			this.managerCheck.Text = "Manager Name";
-			this.managerCheck.UseVisualStyleBackColor = true;
-			this.managerCheck.Visible = false;
-			// 
-			// managerPanel
-			// 
-			this.managerPanel.Controls.Add(this.managerLabel);
-			this.managerPanel.Controls.Add(this.managerCheck);
-			this.managerPanel.Location = new System.Drawing.Point(27, 125);
-			this.managerPanel.Name = "managerPanel";
-			this.managerPanel.Size = new System.Drawing.Size(387, 28);
-			this.managerPanel.TabIndex = 48;
-			// 
 			// genderSelector
 			// 
 			this.genderSelector.Gender = "Male";
@@ -602,6 +594,7 @@
 			this.genderSelector.Name = "genderSelector";
 			this.genderSelector.Size = new System.Drawing.Size(93, 28);
 			this.genderSelector.TabIndex = 45;
+			this.genderSelector.Click += new System.EventHandler(this.genderSelector_Click);
 			// 
 			// DetailView
 			// 
@@ -618,14 +611,14 @@
 			this.tabPage1.ResumeLayout(false);
 			this.groupBox2.ResumeLayout(false);
 			this.groupBox2.PerformLayout();
+			this.managerPanel.ResumeLayout(false);
+			this.managerPanel.PerformLayout();
 			this.groupBox1.ResumeLayout(false);
 			this.groupBox1.PerformLayout();
 			this.tabPage2.ResumeLayout(false);
 			this.tabPage2.PerformLayout();
 			this.groupBox3.ResumeLayout(false);
 			this.groupBox3.PerformLayout();
-			this.managerPanel.ResumeLayout(false);
-			this.managerPanel.PerformLayout();
 			this.ResumeLayout(false);
 
         }
@@ -654,8 +647,6 @@
         private System.Windows.Forms.TextBox middlenameBox;
         private System.Windows.Forms.Label mobileLabel;
         private System.Windows.Forms.GroupBox groupBox1;
-        private System.Windows.Forms.Label adressLabel;
-        private System.Windows.Forms.TextBox adressTextBox;
         private System.Windows.Forms.GroupBox groupBox2;
         private System.Windows.Forms.Label divLabel;
         private System.Windows.Forms.Label positionLabel;

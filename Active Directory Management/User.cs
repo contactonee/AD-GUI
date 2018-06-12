@@ -302,6 +302,18 @@ namespace Active_Directory_Management
 					name = value;
 					key = "name";
 				}
+				else if(key == "department")
+				{
+					entry.CommitChanges();
+
+					string ouDN = xmlFile.Root.Descendants("dept")
+						.Where(t => t.Attribute("nameRU").Value == value)
+						.Select(t => t.Attribute("dn").Value)
+						.First();
+
+					entry.MoveTo(new DirectoryEntry("LDAP://" + ouDN));
+					entry.Properties["displayName"].Value = value;
+				}
 				else
 					entry.Properties[key].Value = value;
 

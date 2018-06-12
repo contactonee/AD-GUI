@@ -15,9 +15,12 @@ using System.Xml.XPath;
 
 namespace Active_Directory_Management
 {
-    public partial class DetailView : Form
+	public partial class DetailView : Form
+
     {
-        private XDocument doc = XDocument.Load(Properties.Resources.XmlFile);
+		private bool changed = false;
+
+		private XDocument doc = XDocument.Load(Properties.Resources.XmlFile);
 		private User user;
 		public DialogResult success = DialogResult.None;
 
@@ -37,7 +40,7 @@ namespace Active_Directory_Management
 			this.user = user;
 			this.Text = user.Name;
 
-			saveBtn.Text = "Сохранить Изменения";
+			saveBtn.Text = "Сохранить изменения";
 
 			nameBox.Text = user.GetProperty("givenName");
 			surnameBox.Text = user.GetProperty("sn");
@@ -99,7 +102,8 @@ namespace Active_Directory_Management
 			else
 				internetCombo.SelectedIndex = 0;
 
-
+			changed = false;
+			saveBtn.Enabled = false;
 			
 		}
 
@@ -281,19 +285,29 @@ namespace Active_Directory_Management
 
         private void LimitedRadio_CheckedChanged(object sender, EventArgs e)
         {
-            expirationDatePicker.Enabled = true;
+			// Mark that some fields were edited
+			Changed();
+
+			expirationDatePicker.Enabled = true;
         }
 
         private void UnlimitedRadio_CheckedChanged(object sender, EventArgs e)
-        { 
-            expirationDatePicker.Enabled = false;
+        {
+			// Mark that some fields were edited
+			Changed();
+
+			expirationDatePicker.Enabled = false;
         }
 
         private void CityCombo_SelectedIndexChanged(object sender, EventArgs e)
         {
-            // departmentCombo List Update
-            // if departments exist, enable departmentLabel and departmentCombo
-            departmentLabel.Enabled = true;
+			// Mark that some fields were edited
+			Changed();
+
+
+			// departmentCombo List Update
+			// if departments exist, enable departmentLabel and departmentCombo
+			departmentLabel.Enabled = true;
             departmentCombo.Enabled = true;
             
             // otherwise disable
@@ -303,6 +317,10 @@ namespace Active_Directory_Management
 
         private void DepartmentCombo_SelectedIndexChanged(object sender, EventArgs e)
         {
+			// Mark that some fields were edited
+			Changed();
+
+
 			//Update divCombo
 			//Update posCombo
 			//Update rooms
@@ -388,6 +406,9 @@ namespace Active_Directory_Management
 
         private void NameTextBox_TextChanged(object sender, EventArgs e)
         {
+			// Mark that some fields were edited
+			Changed();
+
 			if (nameBox.Text.Length > 0
 					&& (nameBox.Text.ToLower().Min() < 'а'
 					|| nameBox.Text.ToLower().Max() > 'я'))
@@ -400,6 +421,9 @@ namespace Active_Directory_Management
         }
         private void SurnameTextBox_TextChanged(object sender, EventArgs e)
         {
+			// Mark that some fields were edited
+			Changed();
+
 			if (surnameBox.Text.Length > 0
 					&& (surnameBox.Text.ToLower().Min() < 'а'
 					|| surnameBox.Text.ToLower().Max() > 'я'))
@@ -413,6 +437,9 @@ namespace Active_Directory_Management
 
 		private void NameTranslitTextBox_TextChanged(object sender, EventArgs e)
 		{
+			// Mark that some fields were edited
+			Changed();
+
 			if (nameEnBox.Text.Length > 0
 					&& (nameEnBox.Text.ToLower().Min() < 'a'
 					|| nameEnBox.Text.ToLower().Max() > 'z'))
@@ -423,6 +450,9 @@ namespace Active_Directory_Management
 
 		private void SurnameTranslitTextBox_TextChanged(object sender, EventArgs e)
 		{
+			// Mark that some fields were edited
+			Changed();
+
 			if (surnameEnBox.Text.Length > 0
 					&& (surnameEnBox.Text.ToLower().Min() < 'a'
 					|| surnameEnBox.Text.ToLower().Max() > 'z'))
@@ -448,20 +478,26 @@ namespace Active_Directory_Management
 
         private void BirthdayDatePicker_ValueChanged(object sender, EventArgs e)
         {
-            birthdayDatePicker.Format = DateTimePickerFormat.Short;
+			// Mark that some fields were edited
+			Changed();
+
+			birthdayDatePicker.Format = DateTimePickerFormat.Short;
         }
 
 		private void cancelBtn_Click(object sender, EventArgs e)
 		{
-			DialogResult dialogResult = MessageBox.Show(
-				"Все несохраненные изменения будут потеряны",
-				"Внимание",
-				MessageBoxButtons.YesNo,
-				MessageBoxIcon.Warning,
-				MessageBoxDefaultButton.Button2);
-			if (dialogResult == DialogResult.Yes)
-			{
+			if (!changed)
 				this.Close();
+			else
+			{
+				DialogResult dialogResult = MessageBox.Show(
+					"Все несохраненные изменения будут потеряны",
+					"Внимание",
+					MessageBoxButtons.YesNo,
+					MessageBoxIcon.Warning,
+					MessageBoxDefaultButton.Button2);
+				if (dialogResult == DialogResult.Yes)
+					this.Close();
 			}
 		}
 		
@@ -472,6 +508,113 @@ namespace Active_Directory_Management
 				saveBtn.PerformClick();
 			if (e.KeyCode == Keys.Escape)
 				cancelBtn.PerformClick();
+		}
+
+		private void Changed()
+		{
+			if (!changed)
+			{
+				changed = true;
+				saveBtn.Enabled = true;
+			}
+		}
+
+		private void middlenameBox_TextChanged(object sender, EventArgs e)
+		{
+			// Mark that some fields were edited
+			Changed();
+
+		}
+
+		private void mobileTextBox_MaskInputRejected(object sender, MaskInputRejectedEventArgs e)
+		{
+			// Mark that some fields were edited
+			Changed();
+
+		}
+
+		private void genderSelector_Click(object sender, EventArgs e)
+		{
+			// Mark that some fields were edited
+			Changed();
+
+		}
+
+		private void divCombo_SelectedIndexChanged(object sender, EventArgs e)
+		{
+			// Mark that some fields were edited
+			Changed();
+
+		}
+
+		private void posCombo_SelectedIndexChanged(object sender, EventArgs e)
+		{
+			// Mark that some fields were edited
+			Changed();
+
+		}
+
+		private void roomCombo_SelectedIndexChanged(object sender, EventArgs e)
+		{
+			// Mark that some fields were edited
+			Changed();
+
+		}
+
+		private void telCombo_SelectedIndexChanged(object sender, EventArgs e)
+		{
+			// Mark that some fields were edited
+			Changed();
+
+		}
+
+		private void managerCheck_CheckedChanged(object sender, EventArgs e)
+		{
+			// Mark that some fields were edited
+			Changed();
+
+		}
+
+		private void cdCheck_CheckedChanged(object sender, EventArgs e)
+		{
+			// Mark that some fields were edited
+			Changed();
+
+		}
+
+		private void usbDiskCheck_CheckedChanged(object sender, EventArgs e)
+		{
+			// Mark that some fields were edited
+			Changed();
+
+		}
+
+		private void usbDeviceCheck_CheckedChanged(object sender, EventArgs e)
+		{
+			// Mark that some fields were edited
+			Changed();
+
+		}
+
+		private void cloudCheck_CheckedChanged(object sender, EventArgs e)
+		{
+			// Mark that some fields were edited
+			Changed();
+
+		}
+
+		private void internetCombo_SelectedIndexChanged(object sender, EventArgs e)
+		{
+			// Mark that some fields were edited
+			Changed();
+
+		}
+
+		private void expirationDatePicker_ValueChanged(object sender, EventArgs e)
+		{
+			// Mark that some fields were edited
+			Changed();
+
 		}
 	}
 }
