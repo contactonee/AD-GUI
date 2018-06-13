@@ -21,18 +21,28 @@ namespace Active_Directory_Management
 		private bool changed = false;
 
 		private XDocument doc = XDocument.Load(Properties.Resources.XmlFile);
+		private XElement city;
 		private User user;
 		public DialogResult success = DialogResult.None;
 
 
-        public DetailView()
+        public DetailView(string city)
         {
-            InitializeComponent();
-            OnLoad();
-        }
-        public DetailView(User user)
-		{
+			this.city = doc.Root.Elements("city")
+				.Where(t => t.Attribute("name").Value == city
+					|| t.Attribute("nameRU").Value == city)
+				.First();
 
+			InitializeComponent();
+            OnLoad();
+
+        }
+        public DetailView(string city, User user)
+		{
+			this.city = doc.Root.Elements("city")
+				.Where(t => t.Attribute("name").Value == city
+					|| t.Attribute("nameRU").Value == city)
+				.First();
 
 			InitializeComponent();
 			OnLoad();
@@ -79,7 +89,7 @@ namespace Active_Directory_Management
 				Debug.WriteLine(e.Message);
 				Debug.WriteLine("Не задан пол в атрибутах");
 			}
-
+			
 			departmentCombo.SelectedIndex = departmentCombo.Items.IndexOf(user.GetProperty("department"));
 			divCombo.Text = user.GetProperty("description");
 			posCombo.Text = user.GetProperty("title");
@@ -109,19 +119,25 @@ namespace Active_Directory_Management
 
         private void OnLoad()
         {
-            cityCombo.Items.Add("Актау");
-            cityCombo.Enabled = false;
-			
             unlimitedRadio.Select();
-            cityCombo.SelectedIndex = 0;
             internetCombo.SelectedIndex = 0;
             expirationDatePicker.Value = DateTime.Today.AddMonths(1);
             mobileTextBox.TextMaskFormat = MaskFormat.ExcludePromptAndLiterals;
 
-            var res = doc.Root.Elements("dept")
-                .Select(t => t.Attribute("nameRU").Value)
-                .ToArray();
-            departmentCombo.Items.AddRange(res);
+			string[] depts = city.Elements("dept")
+				.Select(t => t.Attribute("nameRU").Value)
+				.ToArray();
+			if (depts.Count() > 0)
+			{
+				departmentCombo.Enabled = true;
+				departmentLabel.Enabled = true;
+				departmentCombo.Items.AddRange(depts);
+			}
+			else
+			{
+				departmentCombo.Enabled = false;
+				departmentLabel.Enabled = false;
+			}
         }
 		
 		private string Translit(string text)
@@ -213,7 +229,7 @@ namespace Active_Directory_Management
 
 			if (user == null)
 			{
-				XElement par = doc.Root.Elements("dept")
+				XElement par = city.Elements("dept")
 					.Where(t => t.Attribute("nameRU").Value == departmentCombo.Text)
 					.FirstOrDefault();
 
@@ -228,15 +244,23 @@ namespace Active_Directory_Management
 			user.Properties["displayName"] = displayName;
 			user.Properties["middleName"] = middlenameBox.Text;
 			user.Properties["mobile"] = mobileTextBox.Text;
-			user.Properties["l"] = cityCombo.Text;
+			user.Properties["l"] = city.Attribute("nameRU").Value;
+			user.Properties["st"] = city.Attribute("name").Value;
+			user.Properties["c"] = city.Attribute("name").Value == "Minsk" ? "BY" : "KZ";
 			user.Properties["department"] = departmentCombo.Text;
+			user.Properties["division"] = city.Descendants("dept")
+				.Where(t => t.Attribute("nameRU").Value == departmentCombo.Text)
+				.Select(t => t.Attribute("name").Value)
+				.First();
 			user.Properties["description"] = divCombo.Text;
 			user.Properties["title"] = posCombo.Text;
+			user.Properties["employeeType"] = posEnBox.Text;
 			user.Properties["telephoneNumber"] = telCombo.Text;
 			user.Properties["ipPhone"] = telCombo.Text;
 			user.Properties["physicalDeliveryOfficeName"] = roomCombo.Text;
 			user.Properties["extensionAttribute2"] = birthdayDatePicker.Value.ToString("dd.MM.yyyy");
 			user.Properties["extensionAttribute3"] = genderSelector.Gender.Substring(0, 1);
+			user.Properties["company"] = "АО \"НИПИнефтегаз\"";
 			if (limitedRadio.Checked)
 				user.Properties["accountExpires"] = expirationDatePicker.Value.AddDays(1)
 					.ToFileTime()
@@ -256,8 +280,9 @@ namespace Active_Directory_Management
 				user.SetMembership(Properties.Groups.InternetLimited, internetCombo.SelectedIndex == 1);
 				user.SetMembership(Properties.Groups.InternetFull, internetCombo.SelectedIndex == 2);
 			}
-			catch
+			catch (Exception ex)
 			{
+				Debug.WriteLine(ex.Message);
 				Debug.WriteLine("Невозможно назначить группы, возможно не хватает прав");
 			}
 
@@ -299,39 +324,22 @@ namespace Active_Directory_Management
 			expirationDatePicker.Enabled = false;
         }
 
-        private void CityCombo_SelectedIndexChanged(object sender, EventArgs e)
-        {
-			// Mark that some fields were edited
-			Changed();
-
-
-			// departmentCombo List Update
-			// if departments exist, enable departmentLabel and departmentCombo
-			departmentLabel.Enabled = true;
-            departmentCombo.Enabled = true;
-            
-            // otherwise disable
-        }
-
         
 
         private void DepartmentCombo_SelectedIndexChanged(object sender, EventArgs e)
         {
 			// Mark that some fields were edited
 			Changed();
-
-
-			//Update divCombo
-			//Update posCombo
-			//Update rooms
-			//Update telephones
-
-
-			var users = doc.Root.Elements("dept")
+			
+			UpdateCombos(city.Elements("dept")
 				.Where(t => t.Attribute("nameRU").Value == departmentCombo.Text)
 				.Select(t => t.Elements("user"))
-				.First();
+				.First()
+				.ToArray());
+		}
 
+		private void UpdateCombos(XElement[] users)
+		{
 			User manager = null;
 
 			HashSet<string> diffDivs = new HashSet<string>();
@@ -339,7 +347,7 @@ namespace Active_Directory_Management
 			HashSet<string> diffRooms = new HashSet<string>();
 			HashSet<string> diffTels = new HashSet<string>();
 
-			
+
 			foreach (XElement elem in users)
 			{
 				if (elem.Element("description").Value.Trim() != string.Empty
@@ -355,9 +363,9 @@ namespace Active_Directory_Management
 				if (elem.Element("telephoneNumber").Value.Trim() != string.Empty)
 					diffTels.Add(elem.Element("telephoneNumber").Value);
 
-				if (elem.Element("manager").Value.Trim() != string.Empty && manager == null)					
+				if (elem.Element("manager").Value.Trim() != string.Empty && manager == null)
 					manager = User.Load(elem.Element("manager").Value);
-					
+
 			}
 
 			divCombo.BeginUpdate();
@@ -395,12 +403,10 @@ namespace Active_Directory_Management
 				managerPanel.Enabled = true;
 				managerCheck.Visible = true;
 				managerCheck.Checked = true;
-				
+
 				managerCheck.Text = manager.GetProperty("sn") + " " + manager.GetProperty("givenName");
 				managerCheck.Tag = manager.Dn;
 			}
-
-
 		}
 
 
@@ -463,17 +469,25 @@ namespace Active_Directory_Management
 
         private void RoomCombo_TextChanged(object sender, EventArgs e)
         {
-            var res = doc.Root.Descendants("user")
-                .Where(t => t.Element("physicalDeliveryOfficeName").Value == roomCombo.Text)
-                .Select(t => t.Element("telephoneNumber").Value);
+			telCombo.Items.Clear();
+			try
+			{
+				var res = city.Descendants("user")
+					.Where(t => t.Element("physicalDeliveryOfficeName").Value == roomCombo.Text)
+					.Select(t => t.Element("telephoneNumber").Value);
 
-            HashSet<string> diffTels = new HashSet<string>();
+				HashSet<string> diffTels = new HashSet<string>();
 
-            foreach (string elem in res)
-                diffTels.Add(elem);
+				foreach (string elem in res)
+					diffTels.Add(elem);
 
-            telCombo.Items.Clear();
-            telCombo.Items.AddRange(diffTels.ToArray());
+				telCombo.Items.AddRange(diffTels.ToArray());
+			}
+			catch (Exception ex)
+			{
+				Debug.WriteLine(ex.Message);
+				Debug.WriteLine("Наверное не выбран город");
+			}
         }
 
         private void BirthdayDatePicker_ValueChanged(object sender, EventArgs e)
@@ -544,7 +558,6 @@ namespace Active_Directory_Management
 		{
 			// Mark that some fields were edited
 			Changed();
-
 		}
 
 		private void posCombo_SelectedIndexChanged(object sender, EventArgs e)
@@ -615,6 +628,26 @@ namespace Active_Directory_Management
 			// Mark that some fields were edited
 			Changed();
 
+		}
+
+		private void PosCombo_TextChanged(object sender, EventArgs e)
+		{
+			// Mark that some fields were edited
+			Changed();
+
+			try
+			{
+				posEnBox.Text = doc.Root.Descendants("user")
+					.Where(t => t.Element("title").Value == posCombo.Text
+						&& t.Element("employeeType").Value != "")
+					.Select(t => t.Element("employeeType").Value)
+					.First();
+			}
+			catch
+			{
+				posEnBox.Clear();
+				Debug.WriteLine("Не удалось найти перевод должности", "Warning");
+			}
 		}
 	}
 }

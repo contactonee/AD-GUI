@@ -32,6 +32,7 @@
 			this.tabControl1 = new System.Windows.Forms.TabControl();
 			this.tabPage1 = new System.Windows.Forms.TabPage();
 			this.groupBox2 = new System.Windows.Forms.GroupBox();
+			this.posEnBox = new System.Windows.Forms.TextBox();
 			this.managerPanel = new System.Windows.Forms.Panel();
 			this.managerLabel = new System.Windows.Forms.Label();
 			this.managerCheck = new System.Windows.Forms.CheckBox();
@@ -44,10 +45,9 @@
 			this.divCombo = new System.Windows.Forms.ComboBox();
 			this.roomLabel = new System.Windows.Forms.Label();
 			this.departmentLabel = new System.Windows.Forms.Label();
-			this.cityCombo = new System.Windows.Forms.ComboBox();
 			this.departmentCombo = new System.Windows.Forms.ComboBox();
-			this.cityLabel = new System.Windows.Forms.Label();
 			this.groupBox1 = new System.Windows.Forms.GroupBox();
+			this.genderSelector = new Active_Directory_Management.GenderSelector();
 			this.mobileTextBox = new System.Windows.Forms.MaskedTextBox();
 			this.nameEnBox = new System.Windows.Forms.TextBox();
 			this.nameBox = new System.Windows.Forms.TextBox();
@@ -74,7 +74,6 @@
 			this.internetLabel = new System.Windows.Forms.Label();
 			this.internetCombo = new System.Windows.Forms.ComboBox();
 			this.cancelBtn = new System.Windows.Forms.Button();
-			this.genderSelector = new Active_Directory_Management.GenderSelector();
 			this.tabControl1.SuspendLayout();
 			this.tabPage1.SuspendLayout();
 			this.groupBox2.SuspendLayout();
@@ -121,6 +120,7 @@
 			// 
 			// groupBox2
 			// 
+			this.groupBox2.Controls.Add(this.posEnBox);
 			this.groupBox2.Controls.Add(this.managerPanel);
 			this.groupBox2.Controls.Add(this.posCombo);
 			this.groupBox2.Controls.Add(this.internalLabel);
@@ -131,9 +131,7 @@
 			this.groupBox2.Controls.Add(this.divCombo);
 			this.groupBox2.Controls.Add(this.roomLabel);
 			this.groupBox2.Controls.Add(this.departmentLabel);
-			this.groupBox2.Controls.Add(this.cityCombo);
 			this.groupBox2.Controls.Add(this.departmentCombo);
-			this.groupBox2.Controls.Add(this.cityLabel);
 			this.groupBox2.Location = new System.Drawing.Point(6, 170);
 			this.groupBox2.Name = "groupBox2";
 			this.groupBox2.Size = new System.Drawing.Size(740, 171);
@@ -141,13 +139,20 @@
 			this.groupBox2.TabStop = false;
 			this.groupBox2.Text = "Информация о сотруднике";
 			// 
+			// posEnBox
+			// 
+			this.posEnBox.Location = new System.Drawing.Point(280, 73);
+			this.posEnBox.Name = "posEnBox";
+			this.posEnBox.Size = new System.Drawing.Size(152, 20);
+			this.posEnBox.TabIndex = 49;
+			// 
 			// managerPanel
 			// 
 			this.managerPanel.Controls.Add(this.managerLabel);
 			this.managerPanel.Controls.Add(this.managerCheck);
-			this.managerPanel.Location = new System.Drawing.Point(27, 125);
+			this.managerPanel.Location = new System.Drawing.Point(27, 98);
 			this.managerPanel.Name = "managerPanel";
-			this.managerPanel.Size = new System.Drawing.Size(387, 28);
+			this.managerPanel.Size = new System.Drawing.Size(405, 28);
 			this.managerPanel.TabIndex = 48;
 			// 
 			// managerLabel
@@ -176,17 +181,18 @@
 			this.posCombo.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.Append;
 			this.posCombo.AutoCompleteSource = System.Windows.Forms.AutoCompleteSource.ListItems;
 			this.posCombo.FormattingEnabled = true;
-			this.posCombo.Location = new System.Drawing.Point(125, 100);
+			this.posCombo.Location = new System.Drawing.Point(125, 73);
 			this.posCombo.Name = "posCombo";
-			this.posCombo.Size = new System.Drawing.Size(289, 21);
+			this.posCombo.Size = new System.Drawing.Size(149, 21);
 			this.posCombo.Sorted = true;
 			this.posCombo.TabIndex = 45;
 			this.posCombo.SelectedIndexChanged += new System.EventHandler(this.posCombo_SelectedIndexChanged);
+			this.posCombo.TextChanged += new System.EventHandler(this.PosCombo_TextChanged);
 			// 
 			// internalLabel
 			// 
 			this.internalLabel.AutoSize = true;
-			this.internalLabel.Location = new System.Drawing.Point(446, 49);
+			this.internalLabel.Location = new System.Drawing.Point(478, 49);
 			this.internalLabel.Name = "internalLabel";
 			this.internalLabel.Size = new System.Drawing.Size(101, 13);
 			this.internalLabel.TabIndex = 44;
@@ -195,7 +201,7 @@
 			// divLabel
 			// 
 			this.divLabel.AutoSize = true;
-			this.divLabel.Location = new System.Drawing.Point(81, 76);
+			this.divLabel.Location = new System.Drawing.Point(81, 49);
 			this.divLabel.Name = "divLabel";
 			this.divLabel.Size = new System.Drawing.Size(38, 13);
 			this.divLabel.TabIndex = 43;
@@ -204,7 +210,7 @@
 			// positionLabel
 			// 
 			this.positionLabel.AutoSize = true;
-			this.positionLabel.Location = new System.Drawing.Point(54, 103);
+			this.positionLabel.Location = new System.Drawing.Point(54, 76);
 			this.positionLabel.Name = "positionLabel";
 			this.positionLabel.Size = new System.Drawing.Size(65, 13);
 			this.positionLabel.TabIndex = 42;
@@ -215,7 +221,7 @@
 			this.telCombo.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.SuggestAppend;
 			this.telCombo.AutoCompleteSource = System.Windows.Forms.AutoCompleteSource.ListItems;
 			this.telCombo.FormattingEnabled = true;
-			this.telCombo.Location = new System.Drawing.Point(553, 46);
+			this.telCombo.Location = new System.Drawing.Point(585, 46);
 			this.telCombo.Name = "telCombo";
 			this.telCombo.Size = new System.Drawing.Size(123, 21);
 			this.telCombo.Sorted = true;
@@ -227,7 +233,7 @@
 			this.roomCombo.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.SuggestAppend;
 			this.roomCombo.AutoCompleteSource = System.Windows.Forms.AutoCompleteSource.ListItems;
 			this.roomCombo.FormattingEnabled = true;
-			this.roomCombo.Location = new System.Drawing.Point(553, 19);
+			this.roomCombo.Location = new System.Drawing.Point(585, 19);
 			this.roomCombo.Name = "roomCombo";
 			this.roomCombo.Size = new System.Drawing.Size(123, 21);
 			this.roomCombo.Sorted = true;
@@ -240,9 +246,9 @@
 			this.divCombo.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.Suggest;
 			this.divCombo.AutoCompleteSource = System.Windows.Forms.AutoCompleteSource.ListItems;
 			this.divCombo.FormattingEnabled = true;
-			this.divCombo.Location = new System.Drawing.Point(125, 73);
+			this.divCombo.Location = new System.Drawing.Point(125, 46);
 			this.divCombo.Name = "divCombo";
-			this.divCombo.Size = new System.Drawing.Size(289, 21);
+			this.divCombo.Size = new System.Drawing.Size(307, 21);
 			this.divCombo.Sorted = true;
 			this.divCombo.TabIndex = 38;
 			this.divCombo.SelectedIndexChanged += new System.EventHandler(this.divCombo_SelectedIndexChanged);
@@ -250,7 +256,7 @@
 			// roomLabel
 			// 
 			this.roomLabel.AutoSize = true;
-			this.roomLabel.Location = new System.Drawing.Point(498, 22);
+			this.roomLabel.Location = new System.Drawing.Point(530, 22);
 			this.roomLabel.Name = "roomLabel";
 			this.roomLabel.Size = new System.Drawing.Size(49, 13);
 			this.roomLabel.TabIndex = 37;
@@ -260,41 +266,22 @@
 			// 
 			this.departmentLabel.AutoSize = true;
 			this.departmentLabel.Enabled = false;
-			this.departmentLabel.Location = new System.Drawing.Point(43, 49);
+			this.departmentLabel.Location = new System.Drawing.Point(43, 22);
 			this.departmentLabel.Name = "departmentLabel";
 			this.departmentLabel.Size = new System.Drawing.Size(76, 13);
 			this.departmentLabel.TabIndex = 34;
 			this.departmentLabel.Text = "Департамент";
 			// 
-			// cityCombo
-			// 
-			this.cityCombo.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-			this.cityCombo.FormattingEnabled = true;
-			this.cityCombo.Location = new System.Drawing.Point(125, 19);
-			this.cityCombo.Name = "cityCombo";
-			this.cityCombo.Size = new System.Drawing.Size(289, 21);
-			this.cityCombo.TabIndex = 33;
-			this.cityCombo.SelectedIndexChanged += new System.EventHandler(this.CityCombo_SelectedIndexChanged);
-			// 
 			// departmentCombo
 			// 
 			this.departmentCombo.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
 			this.departmentCombo.FormattingEnabled = true;
-			this.departmentCombo.Location = new System.Drawing.Point(125, 46);
+			this.departmentCombo.Location = new System.Drawing.Point(125, 19);
 			this.departmentCombo.Name = "departmentCombo";
-			this.departmentCombo.Size = new System.Drawing.Size(289, 21);
+			this.departmentCombo.Size = new System.Drawing.Size(307, 21);
 			this.departmentCombo.Sorted = true;
 			this.departmentCombo.TabIndex = 35;
 			this.departmentCombo.SelectedIndexChanged += new System.EventHandler(this.DepartmentCombo_SelectedIndexChanged);
-			// 
-			// cityLabel
-			// 
-			this.cityLabel.AutoSize = true;
-			this.cityLabel.Location = new System.Drawing.Point(71, 22);
-			this.cityLabel.Name = "cityLabel";
-			this.cityLabel.Size = new System.Drawing.Size(48, 13);
-			this.cityLabel.TabIndex = 32;
-			this.cityLabel.Text = "Филиал";
 			// 
 			// groupBox1
 			// 
@@ -319,6 +306,15 @@
 			this.groupBox1.TabIndex = 44;
 			this.groupBox1.TabStop = false;
 			this.groupBox1.Text = "Личные данные";
+			// 
+			// genderSelector
+			// 
+			this.genderSelector.Gender = "Male";
+			this.genderSelector.Location = new System.Drawing.Point(413, 100);
+			this.genderSelector.Name = "genderSelector";
+			this.genderSelector.Size = new System.Drawing.Size(93, 28);
+			this.genderSelector.TabIndex = 45;
+			this.genderSelector.Click += new System.EventHandler(this.genderSelector_Click);
 			// 
 			// mobileTextBox
 			// 
@@ -587,15 +583,6 @@
 			this.cancelBtn.UseVisualStyleBackColor = true;
 			this.cancelBtn.Click += new System.EventHandler(this.cancelBtn_Click);
 			// 
-			// genderSelector
-			// 
-			this.genderSelector.Gender = "Male";
-			this.genderSelector.Location = new System.Drawing.Point(413, 100);
-			this.genderSelector.Name = "genderSelector";
-			this.genderSelector.Size = new System.Drawing.Size(93, 28);
-			this.genderSelector.TabIndex = 45;
-			this.genderSelector.Click += new System.EventHandler(this.genderSelector_Click);
-			// 
 			// DetailView
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -630,8 +617,6 @@
         private System.Windows.Forms.Label roomLabel;
         private System.Windows.Forms.ComboBox departmentCombo;
         private System.Windows.Forms.Label departmentLabel;
-        private System.Windows.Forms.ComboBox cityCombo;
-        private System.Windows.Forms.Label cityLabel;
         private System.Windows.Forms.DateTimePicker birthdayDatePicker;
         private System.Windows.Forms.Label birthdayLabel;
         private System.Windows.Forms.Label surnameTranslitLabel;
@@ -671,6 +656,7 @@
 		private System.Windows.Forms.Label managerLabel;
 		private System.Windows.Forms.CheckBox managerCheck;
 		private System.Windows.Forms.Panel managerPanel;
+		private System.Windows.Forms.TextBox posEnBox;
 	}
 }
 

@@ -18,21 +18,21 @@ namespace Active_Directory_Management
 	{
 		private XDocument doc;
 		private User user;
-		private string[] cities = new string[]
+		static public string[] cities = new string[]
 		{
 			"Актау",
 			"Уральск",
 			"Алматы",
 			"Минск"
 		};
-		private Dictionary<string, string> usersPath = new Dictionary<string, string>
+		static public Dictionary<string, string> usersPath = new Dictionary<string, string>
 		{
 			["Актау"] = Properties.Addresses.AktauUsers,
 			["Уральск"] = Properties.Addresses.UralskUsers,
 			["Алматы"] = Properties.Addresses.AlmatyUsers,
 			["Минск"] = Properties.Addresses.MinskUsers
 		};
-		private Dictionary<string, string> domainPath = new Dictionary<string, string>
+		static public Dictionary<string, string> domainPath = new Dictionary<string, string>
 		{
 			["Актау"] = Properties.Addresses.AktauDomain,
 			["Уральск"] = Properties.Addresses.UralskDomain,
@@ -59,7 +59,13 @@ namespace Active_Directory_Management
 			"manager", // Руководитель
 			"telephoneNumber", // Внутренний телефон
 			"ipPhone", // Внутренний телефон
-			"userAccountControl" // Флаги аккаунта
+			"userAccountControl", // Флаги аккаунта
+			"l", // Город
+			"st", // Город на английском
+			"co", // Страна
+			"postalCode",
+			"employeeType", // Должность на английском
+			"division" // Департамент на английском
         };
 
 
@@ -86,6 +92,7 @@ namespace Active_Directory_Management
 			}
 			catch
 			{
+				Debug.WriteLine("Не нашел документа, создал новый", "Info");
 				dump = new XDocument();
 				dump.Add(new XElement("company"));
 			}
@@ -99,7 +106,7 @@ namespace Active_Directory_Management
 			}
 			catch (Exception ex)
 			{
-				Debug.WriteLine(ex.Message);
+				Debug.WriteLine("Попытка удалить ветвь города, город не найден", "Info");
 			}
 
 			cityElem = new XElement("city",
@@ -117,7 +124,7 @@ namespace Active_Directory_Management
 			};
 			cityEntry.Dispose();
 
-			Debug.Write("LDAP://" + usersPath[city]);
+			
 			searcher.PropertiesToLoad.Add("name");
 			searcher.PropertiesToLoad.Add("memberOf");
 			searcher.PropertiesToLoad.Add("userAccountControl");
@@ -189,8 +196,6 @@ namespace Active_Directory_Management
 		               
         private void RenderTree(string query = "")
         {
-			query = query.Trim();
-
 			string select = treeView.SelectedNode != null ? treeView.SelectedNode.Text : string.Empty;
 
 			treeView.BeginUpdate();
@@ -301,7 +306,7 @@ namespace Active_Directory_Management
 
         private void CreateBtn_Click(object sender, EventArgs e)
         {
-            DetailView detailView = new DetailView();
+            DetailView detailView = new DetailView(citySelector.Text);
             detailView.ShowDialog();
 			if (detailView.success == DialogResult.OK)
 			{
@@ -312,7 +317,7 @@ namespace Active_Directory_Management
 
         private void DetailBtn_Click(object sender, EventArgs e)
         {
-            Form detailView = new DetailView(user);
+            Form detailView = new DetailView(citySelector.Text, user);
             detailView.ShowDialog(this);
 			RenderTree();
         }
@@ -402,6 +407,7 @@ namespace Active_Directory_Management
 			}
 			catch
 			{
+				Debug.WriteLine("Невозможно выставить группы", "Warning");
 				MessageBox.Show("Невозможно сохранить, недостаточно прав");
 			}
 		}
@@ -486,7 +492,7 @@ namespace Active_Directory_Management
 			}
 			catch (Exception ex)
 			{
-				Debug.WriteLine(ex.Message);
+				Debug.WriteLine("Не может выключить учетку, возможно нет прав", "Waning");
 				MessageBox.Show("Недостаточно прав");
 			}
         }
