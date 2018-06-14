@@ -15,26 +15,22 @@ namespace Active_Directory_Management
 		public GenderSelector()
 		{
 			InitializeComponent();
+			maleBtn.Checked = true;
 		}
 		/// <summary>
 		/// Возвращает или задает значение пола (Male/Female)
 		/// </summary>
-		public string Gender
+		public string Value
 		{
 			get
 			{
 				if (maleBtn.Checked)
 					return "Male";
-				else if (femaleBtn.Checked)
-					return "Female";
 				else
-					return null;
+					return "Female";
 			}
 			set
-			{
-				if (value == null || value.Length < 1)
-					throw new Exception("Unacceptable value");
-				
+			{			
 				if (value.ToLower()[0] == 'm')
 					maleBtn.Checked = true;
 				else if (value.ToLower()[0] == 'f')

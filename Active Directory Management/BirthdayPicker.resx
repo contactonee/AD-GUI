@@ -117,10 +117,4 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="PropertiesToLoad" xml:space="preserve">
-    <value>sn,givenName,middleName,extensionAttribute3,mobile,extensionAttribute2,title,description,department,physicalDeliveryOfficeName,manager,telephoneNumber,ipPhone,userAccountControl,l,st,co,postalCode,employeeType,division</value>
-  </data>
-  <data name="XmlFile" xml:space="preserve">
-    <value>users.xml</value>
-  </data>
 </root>

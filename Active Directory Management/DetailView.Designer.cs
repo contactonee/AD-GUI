@@ -47,7 +47,6 @@
 			this.departmentLabel = new System.Windows.Forms.Label();
 			this.departmentCombo = new System.Windows.Forms.ComboBox();
 			this.groupBox1 = new System.Windows.Forms.GroupBox();
-			this.genderSelector = new Active_Directory_Management.GenderSelector();
 			this.mobileTextBox = new System.Windows.Forms.MaskedTextBox();
 			this.nameEnBox = new System.Windows.Forms.TextBox();
 			this.nameBox = new System.Windows.Forms.TextBox();
@@ -61,7 +60,6 @@
 			this.nameTranslitLabel = new System.Windows.Forms.Label();
 			this.surnameTranslitLabel = new System.Windows.Forms.Label();
 			this.birthdayLabel = new System.Windows.Forms.Label();
-			this.birthdayDatePicker = new System.Windows.Forms.DateTimePicker();
 			this.tabPage2 = new System.Windows.Forms.TabPage();
 			this.cdCheck = new System.Windows.Forms.CheckBox();
 			this.usbDiskCheck = new System.Windows.Forms.CheckBox();
@@ -74,6 +72,10 @@
 			this.internetLabel = new System.Windows.Forms.Label();
 			this.internetCombo = new System.Windows.Forms.ComboBox();
 			this.cancelBtn = new System.Windows.Forms.Button();
+			this.birthdayPicker1 = new Active_Directory_Management.BirthdayPicker();
+			this.birthdayPicker = new Active_Directory_Management.BirthdayPicker();
+			this.genderSelector = new Active_Directory_Management.GenderSelector();
+			this.label1 = new System.Windows.Forms.Label();
 			this.tabControl1.SuspendLayout();
 			this.tabPage1.SuspendLayout();
 			this.groupBox2.SuspendLayout();
@@ -285,7 +287,9 @@
 			// 
 			// groupBox1
 			// 
+			this.groupBox1.Controls.Add(this.label1);
 			this.groupBox1.Controls.Add(this.genderSelector);
+			this.groupBox1.Controls.Add(this.birthdayPicker);
 			this.groupBox1.Controls.Add(this.mobileTextBox);
 			this.groupBox1.Controls.Add(this.nameEnBox);
 			this.groupBox1.Controls.Add(this.nameBox);
@@ -299,22 +303,12 @@
 			this.groupBox1.Controls.Add(this.nameTranslitLabel);
 			this.groupBox1.Controls.Add(this.surnameTranslitLabel);
 			this.groupBox1.Controls.Add(this.birthdayLabel);
-			this.groupBox1.Controls.Add(this.birthdayDatePicker);
 			this.groupBox1.Location = new System.Drawing.Point(6, 6);
 			this.groupBox1.Name = "groupBox1";
 			this.groupBox1.Size = new System.Drawing.Size(740, 158);
 			this.groupBox1.TabIndex = 44;
 			this.groupBox1.TabStop = false;
 			this.groupBox1.Text = "Личные данные";
-			// 
-			// genderSelector
-			// 
-			this.genderSelector.Gender = "Male";
-			this.genderSelector.Location = new System.Drawing.Point(413, 100);
-			this.genderSelector.Name = "genderSelector";
-			this.genderSelector.Size = new System.Drawing.Size(93, 28);
-			this.genderSelector.TabIndex = 45;
-			this.genderSelector.Click += new System.EventHandler(this.genderSelector_Click);
 			// 
 			// mobileTextBox
 			// 
@@ -424,24 +418,11 @@
 			// birthdayLabel
 			// 
 			this.birthdayLabel.AutoSize = true;
-			this.birthdayLabel.Location = new System.Drawing.Point(361, 74);
+			this.birthdayLabel.Location = new System.Drawing.Point(361, 89);
 			this.birthdayLabel.Name = "birthdayLabel";
 			this.birthdayLabel.Size = new System.Drawing.Size(86, 13);
 			this.birthdayLabel.TabIndex = 30;
 			this.birthdayLabel.Text = "Дата рождения";
-			// 
-			// birthdayDatePicker
-			// 
-			this.birthdayDatePicker.CustomFormat = " ";
-			this.birthdayDatePicker.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
-			this.birthdayDatePicker.Location = new System.Drawing.Point(453, 71);
-			this.birthdayDatePicker.MaxDate = new System.DateTime(2018, 5, 29, 0, 0, 0, 0);
-			this.birthdayDatePicker.MinDate = new System.DateTime(1850, 1, 1, 0, 0, 0, 0);
-			this.birthdayDatePicker.Name = "birthdayDatePicker";
-			this.birthdayDatePicker.Size = new System.Drawing.Size(94, 20);
-			this.birthdayDatePicker.TabIndex = 31;
-			this.birthdayDatePicker.Value = new System.DateTime(1975, 6, 12, 0, 0, 0, 0);
-			this.birthdayDatePicker.ValueChanged += new System.EventHandler(this.BirthdayDatePicker_ValueChanged);
 			// 
 			// tabPage2
 			// 
@@ -583,6 +564,38 @@
 			this.cancelBtn.UseVisualStyleBackColor = true;
 			this.cancelBtn.Click += new System.EventHandler(this.cancelBtn_Click);
 			// 
+			// birthdayPicker1
+			// 
+			this.birthdayPicker1.Location = new System.Drawing.Point(447, 63);
+			this.birthdayPicker1.Name = "birthdayPicker1";
+			this.birthdayPicker1.Size = new System.Drawing.Size(186, 47);
+			this.birthdayPicker1.TabIndex = 46;
+			this.birthdayPicker1.Value = new System.DateTime(((long)(0)));
+			// 
+			// birthdayPicker
+			// 
+			this.birthdayPicker.Location = new System.Drawing.Point(453, 74);
+			this.birthdayPicker.Name = "birthdayPicker";
+			this.birthdayPicker.Size = new System.Drawing.Size(172, 38);
+			this.birthdayPicker.TabIndex = 46;
+			this.birthdayPicker.Value = new System.DateTime(((long)(0)));
+			// 
+			// genderSelector
+			// 
+			this.genderSelector.Location = new System.Drawing.Point(452, 118);
+			this.genderSelector.Name = "genderSelector";
+			this.genderSelector.Size = new System.Drawing.Size(54, 24);
+			this.genderSelector.TabIndex = 47;
+			// 
+			// label1
+			// 
+			this.label1.AutoSize = true;
+			this.label1.Location = new System.Drawing.Point(420, 123);
+			this.label1.Name = "label1";
+			this.label1.Size = new System.Drawing.Size(27, 13);
+			this.label1.TabIndex = 48;
+			this.label1.Text = "Пол";
+			// 
 			// DetailView
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -617,7 +630,6 @@
         private System.Windows.Forms.Label roomLabel;
         private System.Windows.Forms.ComboBox departmentCombo;
         private System.Windows.Forms.Label departmentLabel;
-        private System.Windows.Forms.DateTimePicker birthdayDatePicker;
         private System.Windows.Forms.Label birthdayLabel;
         private System.Windows.Forms.Label surnameTranslitLabel;
         private System.Windows.Forms.Label nameTranslitLabel;
@@ -652,11 +664,14 @@
         private System.Windows.Forms.CheckBox usbDeviceCheck;
         private System.Windows.Forms.CheckBox cloudCheck;
 		private System.Windows.Forms.Button cancelBtn;
-		private GenderSelector genderSelector;
 		private System.Windows.Forms.Label managerLabel;
 		private System.Windows.Forms.CheckBox managerCheck;
 		private System.Windows.Forms.Panel managerPanel;
 		private System.Windows.Forms.TextBox posEnBox;
+		private BirthdayPicker birthdayPicker1;
+		private BirthdayPicker birthdayPicker;
+		private System.Windows.Forms.Label label1;
+		private GenderSelector genderSelector;
 	}
 }
 

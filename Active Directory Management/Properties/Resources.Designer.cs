@@ -61,6 +61,15 @@ namespace Active_Directory_Management.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to sn,givenName,middleName,extensionAttribute3,mobile,extensionAttribute2,title,description,department,physicalDeliveryOfficeName,manager,telephoneNumber,ipPhone,userAccountControl,l,st,co,postalCode,employeeType,division.
+        /// </summary>
+        internal static string PropertiesToLoad {
+            get {
+                return ResourceManager.GetString("PropertiesToLoad", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to users.xml.
         /// </summary>
         internal static string XmlFile {

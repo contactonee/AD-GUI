@@ -38,11 +38,14 @@ namespace Active_Directory_Management
 
 			// Create entry in Active Directory
 			entry = path.Children.Add("CN=" + name, "user");
-			
+
+			// Temp dn, for searcher
+			dn = path.Properties["distinguishedName"].Value.ToString();
+
 			// Build Searcher 
 			DirectorySearcher searcher = new DirectorySearcher()
 			{
-				SearchRoot = new DirectoryEntry("LDAP://DC=nng,DC=kz"),
+				SearchRoot = new DirectoryEntry("LDAP://" + Dn.Substring(Dn.IndexOf("DC="))),
 				SearchScope = SearchScope.Subtree
 			};
 
@@ -78,8 +81,8 @@ namespace Active_Directory_Management
 			// Manually enable account
 			entry.Properties["userAccountControl"].Value = 0x200;
 			entry.CommitChanges();
-			
-			
+
+
 
 			// Write local parameters
 			dn = entry.Properties["distinguishedName"].Value.ToString();
@@ -343,10 +346,20 @@ namespace Active_Directory_Management
 			entry.Properties["manager"].Clear();
 			entry.CommitChanges();
 				
-			entry.MoveTo(new DirectoryEntry("LDAP://OU=Disabled Accounts,DC=nng,DC=kz"));
+			entry.MoveTo(new DirectoryEntry("LDAP://OU=Disabled Accounts," + Dn.Substring(Dn.IndexOf("DC="))));
 			xmlNode.Remove();
 			xmlFile.Save(XmlFileLocation);
 		}
+		public void MoveTo(string ouDN)
+		{
+			entry.MoveTo(new DirectoryEntry("LDAP://" + ouDN));
 
+			xmlNode.Remove();
+			xmlFile.Root.Descendants()
+				.Where(t => t.Attribute("dn").Value == ouDN)
+				.First()
+				.Add(xmlNode);
+			xmlFile.Save(XmlFileLocation);
+		}
     }
 }

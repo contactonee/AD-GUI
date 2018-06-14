@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Data.SqlClient;
 using System.Diagnostics;
 using System.DirectoryServices;
 using System.Drawing;
@@ -44,29 +45,7 @@ namespace Active_Directory_Management
 		// Массив атрибутов для выгрузки из AD
 		// Используется в DumpADtoXML()
 
-		private string[] props = new string[]
-        {
-			"sn", // Фамилия
-			"givenName", // Имя
-			"middleName", // Отчество
-			"extensionAttribute3", //  Пол
-			"mobile", // Мобильный телефон
-			"extensionAttribute2", // Дата рождения
-			"title", // Должность
-			"description", // Отдел\направление
-			"department", // Департамент
-			"physicalDeliveryOfficeName", // Кабинет
-			"manager", // Руководитель
-			"telephoneNumber", // Внутренний телефон
-			"ipPhone", // Внутренний телефон
-			"userAccountControl", // Флаги аккаунта
-			"l", // Город
-			"st", // Город на английском
-			"co", // Страна
-			"postalCode",
-			"employeeType", // Должность на английском
-			"division" // Департамент на английском
-        };
+		private string[] props = Properties.Resources.PropertiesToLoad.Split(',');
 
 
         public MainView()
@@ -77,8 +56,10 @@ namespace Active_Directory_Management
 			citySelector.SelectedIndex = 0;
 
 			RenderTree();
+
 			
-        }
+
+		}
 		
 		private XDocument DumpToXml(string city)
 		{

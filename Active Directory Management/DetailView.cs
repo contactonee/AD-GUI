@@ -71,18 +71,17 @@ namespace Active_Directory_Management
 
 			try
 			{
-				birthdayDatePicker.Value = DateTime.Parse(user.GetProperty("extensionAttribute2"));
+				birthdayPicker.Value = DateTime.Parse(user.GetProperty("extensionAttribute2"));
 			}
 			catch
 			{
 				Debug.WriteLine("No birthday");
-				birthdayDatePicker.Format = DateTimePickerFormat.Custom;
-				birthdayDatePicker.CustomFormat = " ";
+				birthdayPicker.Clear();
 			}
 
 			try
 			{
-				genderSelector.Gender = user.GetProperty("extensionAttribute3");
+				genderSelector.Value = user.GetProperty("extensionAttribute3");
 			}
 			catch (Exception e)
 			{
@@ -258,8 +257,8 @@ namespace Active_Directory_Management
 			user.Properties["telephoneNumber"] = telCombo.Text;
 			user.Properties["ipPhone"] = telCombo.Text;
 			user.Properties["physicalDeliveryOfficeName"] = roomCombo.Text;
-			user.Properties["extensionAttribute2"] = birthdayDatePicker.Value.ToString("dd.MM.yyyy");
-			user.Properties["extensionAttribute3"] = genderSelector.Gender.Substring(0, 1);
+			user.Properties["extensionAttribute2"] = birthdayPicker.Value.ToString("dd.MM.yyyy");
+			user.Properties["extensionAttribute3"] = genderSelector.Value.Substring(0, 1);
 			user.Properties["company"] = "АО \"НИПИнефтегаз\"";
 			if (limitedRadio.Checked)
 				user.Properties["accountExpires"] = expirationDatePicker.Value.AddDays(1)
@@ -490,14 +489,7 @@ namespace Active_Directory_Management
 			}
         }
 
-        private void BirthdayDatePicker_ValueChanged(object sender, EventArgs e)
-        {
-			// Mark that some fields were edited
-			Changed();
-
-			birthdayDatePicker.Format = DateTimePickerFormat.Short;
-        }
-
+        
 		private void cancelBtn_Click(object sender, EventArgs e)
 		{
 			if (!changed)
