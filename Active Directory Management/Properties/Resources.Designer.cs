@@ -61,6 +61,24 @@ namespace Active_Directory_Management.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to cities.txt.
+        /// </summary>
+        internal static string CitiesFile {
+            get {
+                return ResourceManager.GetString("CitiesFile", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to groups.txt.
+        /// </summary>
+        internal static string GroupsFile {
+            get {
+                return ResourceManager.GetString("GroupsFile", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to sn,givenName,middleName,extensionAttribute3,mobile,extensionAttribute2,title,description,department,physicalDeliveryOfficeName,manager,telephoneNumber,ipPhone,userAccountControl,l,st,co,postalCode,employeeType,division.
         /// </summary>
         internal static string PropertiesToLoad {

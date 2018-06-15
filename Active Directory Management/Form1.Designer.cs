@@ -1,13 +1,13 @@
 ﻿namespace Active_Directory_Management
 {
-	partial class GroupSelector
+	partial class Form1
 	{
-		/// <summary> 
+		/// <summary>
 		/// Required designer variable.
 		/// </summary>
 		private System.ComponentModel.IContainer components = null;
 
-		/// <summary> 
+		/// <summary>
 		/// Clean up any resources being used.
 		/// </summary>
 		/// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
@@ -20,38 +20,39 @@
 			base.Dispose(disposing);
 		}
 
-		#region Component Designer generated code
+		#region Windows Form Designer generated code
 
-		/// <summary> 
-		/// Required method for Designer support - do not modify 
+		/// <summary>
+		/// Required method for Designer support - do not modify
 		/// the contents of this method with the code editor.
 		/// </summary>
 		private void InitializeComponent()
 		{
-			this.groupBox = new System.Windows.Forms.CheckedListBox();
+			this.groupSelector = new Active_Directory_Management.GroupSelector();
 			this.SuspendLayout();
 			// 
-			// groupBox
+			// groupSelector
 			// 
-			this.groupBox.FormattingEnabled = true;
-			this.groupBox.Location = new System.Drawing.Point(26, 32);
-			this.groupBox.Name = "groupBox";
-			this.groupBox.Size = new System.Drawing.Size(218, 229);
-			this.groupBox.TabIndex = 0;
+			this.groupSelector.Groups = null;
+			this.groupSelector.Location = new System.Drawing.Point(12, 12);
+			this.groupSelector.Name = "groupSelector";
+			this.groupSelector.Size = new System.Drawing.Size(224, 238);
+			this.groupSelector.TabIndex = 0;
 			// 
-			// GroupSelector
+			// Form1
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.Controls.Add(this.groupBox);
-			this.Name = "GroupSelector";
-			this.Size = new System.Drawing.Size(495, 362);
+			this.ClientSize = new System.Drawing.Size(800, 450);
+			this.Controls.Add(this.groupSelector);
+			this.Name = "Form1";
+			this.Text = "Form1";
 			this.ResumeLayout(false);
 
 		}
 
 		#endregion
 
-		private System.Windows.Forms.CheckedListBox groupBox;
+		private GroupSelector groupSelector;
 	}
 }
