@@ -33,10 +33,13 @@
 			// 
 			// groupBox
 			// 
+			this.groupBox.CheckOnClick = true;
+			this.groupBox.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.groupBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
 			this.groupBox.FormattingEnabled = true;
-			this.groupBox.Location = new System.Drawing.Point(26, 32);
+			this.groupBox.Location = new System.Drawing.Point(0, 0);
 			this.groupBox.Name = "groupBox";
-			this.groupBox.Size = new System.Drawing.Size(218, 229);
+			this.groupBox.Size = new System.Drawing.Size(250, 264);
 			this.groupBox.TabIndex = 0;
 			// 
 			// GroupSelector
@@ -45,7 +48,7 @@
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.Controls.Add(this.groupBox);
 			this.Name = "GroupSelector";
-			this.Size = new System.Drawing.Size(495, 362);
+			this.Size = new System.Drawing.Size(250, 264);
 			this.ResumeLayout(false);
 
 		}

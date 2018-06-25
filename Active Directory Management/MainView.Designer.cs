@@ -36,12 +36,6 @@
 			this.saveBtn = new System.Windows.Forms.Button();
 			this.treeView = new System.Windows.Forms.TreeView();
 			this.switchPanel = new System.Windows.Forms.Panel();
-			this.cdCheck = new System.Windows.Forms.CheckBox();
-			this.usbDiskCheck = new System.Windows.Forms.CheckBox();
-			this.usbDeviceCheck = new System.Windows.Forms.CheckBox();
-			this.cloudCheck = new System.Windows.Forms.CheckBox();
-			this.internetCombo = new System.Windows.Forms.ComboBox();
-			this.internetLabel = new System.Windows.Forms.Label();
 			this.disableBtn = new System.Windows.Forms.Button();
 			this.updBtn = new System.Windows.Forms.Button();
 			this.disableReason = new System.Windows.Forms.Label();
@@ -61,7 +55,7 @@
 			// 
 			// createBtn
 			// 
-			this.createBtn.Location = new System.Drawing.Point(779, 12);
+			this.createBtn.Location = new System.Drawing.Point(780, 44);
 			this.createBtn.Name = "createBtn";
 			this.createBtn.Size = new System.Drawing.Size(134, 58);
 			this.createBtn.TabIndex = 2;
@@ -71,23 +65,23 @@
 			// 
 			// firstBox
 			// 
-			this.firstBox.Location = new System.Drawing.Point(619, 12);
+			this.firstBox.Location = new System.Drawing.Point(624, 25);
 			this.firstBox.Name = "firstBox";
 			this.firstBox.ReadOnly = true;
-			this.firstBox.Size = new System.Drawing.Size(100, 20);
+			this.firstBox.Size = new System.Drawing.Size(116, 20);
 			this.firstBox.TabIndex = 3;
 			// 
 			// lastBox
 			// 
-			this.lastBox.Location = new System.Drawing.Point(513, 12);
+			this.lastBox.Location = new System.Drawing.Point(489, 25);
 			this.lastBox.Name = "lastBox";
 			this.lastBox.ReadOnly = true;
-			this.lastBox.Size = new System.Drawing.Size(100, 20);
+			this.lastBox.Size = new System.Drawing.Size(116, 20);
 			this.lastBox.TabIndex = 4;
 			// 
 			// detailBtn
 			// 
-			this.detailBtn.Location = new System.Drawing.Point(67, 235);
+			this.detailBtn.Location = new System.Drawing.Point(67, 280);
 			this.detailBtn.Name = "detailBtn";
 			this.detailBtn.Size = new System.Drawing.Size(100, 38);
 			this.detailBtn.TabIndex = 12;
@@ -97,7 +91,7 @@
 			// 
 			// saveBtn
 			// 
-			this.saveBtn.Location = new System.Drawing.Point(779, 113);
+			this.saveBtn.Location = new System.Drawing.Point(780, 145);
 			this.saveBtn.Name = "saveBtn";
 			this.saveBtn.Size = new System.Drawing.Size(134, 58);
 			this.saveBtn.TabIndex = 13;
@@ -109,90 +103,25 @@
 			// 
 			this.treeView.Location = new System.Drawing.Point(12, 70);
 			this.treeView.Name = "treeView";
-			this.treeView.Size = new System.Drawing.Size(394, 368);
+			this.treeView.Size = new System.Drawing.Size(394, 429);
 			this.treeView.TabIndex = 17;
-			this.treeView.BeforeSelect += new System.Windows.Forms.TreeViewCancelEventHandler(this.treeView_BeforeSelect);
+			this.treeView.BeforeSelect += new System.Windows.Forms.TreeViewCancelEventHandler(this.TreeView_BeforeSelect);
 			this.treeView.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.TreeView_AfterSelect);
-			this.treeView.NodeMouseDoubleClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.treeView_NodeMouseDoubleClick);
+			this.treeView.NodeMouseDoubleClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.TreeView_NodeMouseDoubleClick);
 			// 
 			// switchPanel
 			// 
-			this.switchPanel.Controls.Add(this.cdCheck);
-			this.switchPanel.Controls.Add(this.usbDiskCheck);
-			this.switchPanel.Controls.Add(this.usbDeviceCheck);
-			this.switchPanel.Controls.Add(this.cloudCheck);
-			this.switchPanel.Controls.Add(this.internetCombo);
 			this.switchPanel.Controls.Add(this.detailBtn);
-			this.switchPanel.Controls.Add(this.internetLabel);
 			this.switchPanel.Enabled = false;
-			this.switchPanel.Location = new System.Drawing.Point(446, 38);
+			this.switchPanel.Location = new System.Drawing.Point(447, 70);
 			this.switchPanel.Name = "switchPanel";
-			this.switchPanel.Size = new System.Drawing.Size(357, 280);
+			this.switchPanel.Size = new System.Drawing.Size(357, 322);
 			this.switchPanel.TabIndex = 19;
-			// 
-			// cdCheck
-			// 
-			this.cdCheck.Location = new System.Drawing.Point(67, 14);
-			this.cdCheck.Name = "cdCheck";
-			this.cdCheck.Size = new System.Drawing.Size(168, 28);
-			this.cdCheck.TabIndex = 6;
-			this.cdCheck.Text = "Доступ к CD/DVD";
-			this.cdCheck.UseVisualStyleBackColor = true;
-			// 
-			// usbDiskCheck
-			// 
-			this.usbDiskCheck.Location = new System.Drawing.Point(67, 48);
-			this.usbDiskCheck.Name = "usbDiskCheck";
-			this.usbDiskCheck.Size = new System.Drawing.Size(168, 28);
-			this.usbDiskCheck.TabIndex = 7;
-			this.usbDiskCheck.Text = "Доступ к USB дискам";
-			this.usbDiskCheck.UseVisualStyleBackColor = true;
-			// 
-			// usbDeviceCheck
-			// 
-			this.usbDeviceCheck.Location = new System.Drawing.Point(67, 82);
-			this.usbDeviceCheck.Name = "usbDeviceCheck";
-			this.usbDeviceCheck.Size = new System.Drawing.Size(168, 28);
-			this.usbDeviceCheck.TabIndex = 8;
-			this.usbDeviceCheck.Text = "Доступ к USB устройствам";
-			this.usbDeviceCheck.UseVisualStyleBackColor = true;
-			// 
-			// cloudCheck
-			// 
-			this.cloudCheck.Enabled = false;
-			this.cloudCheck.Location = new System.Drawing.Point(67, 116);
-			this.cloudCheck.Name = "cloudCheck";
-			this.cloudCheck.Size = new System.Drawing.Size(168, 28);
-			this.cloudCheck.TabIndex = 9;
-			this.cloudCheck.Text = "Личная папка (Диск K:\\)";
-			this.cloudCheck.UseVisualStyleBackColor = true;
-			// 
-			// internetCombo
-			// 
-			this.internetCombo.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-			this.internetCombo.FormattingEnabled = true;
-			this.internetCombo.Items.AddRange(new object[] {
-            "Отсутствует",
-            "Ограниченный",
-            "Полный"});
-			this.internetCombo.Location = new System.Drawing.Point(174, 167);
-			this.internetCombo.Name = "internetCombo";
-			this.internetCombo.Size = new System.Drawing.Size(121, 21);
-			this.internetCombo.TabIndex = 10;
-			// 
-			// internetLabel
-			// 
-			this.internetLabel.AutoSize = true;
-			this.internetLabel.Location = new System.Drawing.Point(64, 170);
-			this.internetLabel.Name = "internetLabel";
-			this.internetLabel.Size = new System.Drawing.Size(104, 13);
-			this.internetLabel.TabIndex = 11;
-			this.internetLabel.Text = "Доступ в Интернет";
 			// 
 			// disableBtn
 			// 
 			this.disableBtn.Enabled = false;
-			this.disableBtn.Location = new System.Drawing.Point(641, 273);
+			this.disableBtn.Location = new System.Drawing.Point(642, 350);
 			this.disableBtn.Name = "disableBtn";
 			this.disableBtn.Size = new System.Drawing.Size(100, 38);
 			this.disableBtn.TabIndex = 14;
@@ -213,7 +142,7 @@
 			// disableReason
 			// 
 			this.disableReason.AutoSize = true;
-			this.disableReason.Location = new System.Drawing.Point(513, 317);
+			this.disableReason.Location = new System.Drawing.Point(670, 395);
 			this.disableReason.MaximumSize = new System.Drawing.Size(100, 200);
 			this.disableReason.Name = "disableReason";
 			this.disableReason.Size = new System.Drawing.Size(44, 13);
@@ -230,7 +159,7 @@
 			this.citySelector.Name = "citySelector";
 			this.citySelector.Size = new System.Drawing.Size(268, 21);
 			this.citySelector.TabIndex = 22;
-			this.citySelector.SelectedIndexChanged += new System.EventHandler(this.citySelector_SelectedIndexChanged);
+			this.citySelector.SelectedIndexChanged += new System.EventHandler(this.CitySelector_SelectedIndexChanged);
 			// 
 			// label1
 			// 
@@ -254,7 +183,7 @@
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(940, 450);
+			this.ClientSize = new System.Drawing.Size(940, 511);
 			this.Controls.Add(this.createBtn);
 			this.Controls.Add(this.label2);
 			this.Controls.Add(this.label1);
@@ -271,7 +200,6 @@
 			this.Name = "MainView";
 			this.Text = "Active Directory ";
 			this.switchPanel.ResumeLayout(false);
-			this.switchPanel.PerformLayout();
 			this.ResumeLayout(false);
 			this.PerformLayout();
 
@@ -288,12 +216,6 @@
         private System.Windows.Forms.Panel switchPanel;
         private System.Windows.Forms.Button updBtn;
         private System.Windows.Forms.Button disableBtn;
-		private System.Windows.Forms.CheckBox cdCheck;
-		private System.Windows.Forms.CheckBox usbDiskCheck;
-		private System.Windows.Forms.CheckBox usbDeviceCheck;
-		private System.Windows.Forms.CheckBox cloudCheck;
-		private System.Windows.Forms.ComboBox internetCombo;
-		private System.Windows.Forms.Label internetLabel;
 		private System.Windows.Forms.Label disableReason;
 		private System.Windows.Forms.TreeView treeView;
 		private System.Windows.Forms.ComboBox citySelector;

@@ -16,14 +16,16 @@ using System.Xml.XPath;
 namespace Active_Directory_Management
 {
 	public partial class DetailView : Form
-
     {
+
 		private bool changed = false;
 
 		private XDocument doc = XDocument.Load(Properties.Resources.XmlFile);
 		private XElement city;
 		private User user;
 		public DialogResult success = DialogResult.None;
+
+		static string[] groups = System.IO.File.ReadAllLines("groups.csv");
 
 
         public DetailView(string city)
@@ -100,16 +102,10 @@ namespace Active_Directory_Management
 			if ((string)managerCheck.Tag == user.Dn)
 				managerCheck.Enabled = false;
 
-			cdCheck.Checked = user.MemberOf(Properties.Groups.DvdDrives);
-			usbDiskCheck.Checked = user.MemberOf(Properties.Groups.DvdDrives);
-			usbDeviceCheck.Checked = user.MemberOf(Properties.Groups.UsbDevices);
-
-			if (user.MemberOf(Properties.Groups.InternetFull))
-				internetCombo.SelectedIndex = 2;
-			else if (user.MemberOf(Properties.Groups.InternetLimited))
-				internetCombo.SelectedIndex = 1;
-			else
-				internetCombo.SelectedIndex = 0;
+			foreach(Guid group in groupSelector.Groups.Values)
+			{
+				groupSelector.SetValue(group, user.MemberOf(group));
+			}
 
 			changed = false;
 			saveBtn.Enabled = false;
@@ -118,8 +114,28 @@ namespace Active_Directory_Management
 
         private void OnLoad()
         {
-            unlimitedRadio.Select();
-            internetCombo.SelectedIndex = 0;
+			foreach (string line in groups)
+			{
+				string[] words = line.Split(';');
+
+				if ((words[0] == city.Attribute("nameRU").Value
+					|| words[0] == city.Attribute("name").Value))
+				{
+
+					CheckState check;
+					if (words[3] == "All")
+						check = CheckState.Checked;
+					else if (words[3] == "Option")
+						check = CheckState.Unchecked;
+					else
+						continue;
+
+
+					groupSelector.AddGroup(words[1], new Guid(words[2]), check);
+				}
+			}
+
+			unlimitedRadio.Select();
             expirationDatePicker.Value = DateTime.Today.AddMonths(1);
             mobileTextBox.TextMaskFormat = MaskFormat.ExcludePromptAndLiterals;
 
@@ -269,20 +285,22 @@ namespace Active_Directory_Management
 			else
 				user.Properties["manager"] = null;
 
+			
+
 			user.CommitChanges();
 
 			try
 			{
-				user.SetMembership(Properties.Groups.DvdDrives, cdCheck.Checked);
-				user.SetMembership(Properties.Groups.UsbDrives, usbDiskCheck.Checked);
-				user.SetMembership(Properties.Groups.UsbDevices, usbDeviceCheck.Checked);
-				user.SetMembership(Properties.Groups.InternetLimited, internetCombo.SelectedIndex == 1);
-				user.SetMembership(Properties.Groups.InternetFull, internetCombo.SelectedIndex == 2);
+				foreach (KeyValuePair<Guid, bool> pair in groupSelector.SelectedGroups())
+				{
+					Debug.WriteLine(pair.Key);
+					if (pair.Value)
+						user.AddGroup(pair.Key);
+				}
 			}
-			catch (Exception ex)
+			catch
 			{
-				Debug.WriteLine(ex.Message);
-				Debug.WriteLine("Невозможно назначить группы, возможно не хватает прав");
+				Debug.WriteLine("Не может добавить в группы, возможно не хватает прав");
 			}
 
 			if(newUser)
@@ -335,6 +353,21 @@ namespace Active_Directory_Management
 				.Select(t => t.Elements("user"))
 				.First()
 				.ToArray());
+
+
+			foreach (string line in groups)
+			{
+				string[] words = line.Split(';');
+
+				if (words[3].StartsWith("department"))
+				{
+					Guid deptGuid = new Guid(words[3].Substring(words[3].IndexOf('-') + 1));
+					DirectoryEntry entry = new DirectoryEntry("LDAP://<GUID=" + deptGuid + ">");
+
+					if (entry.Properties["description"].Value.ToString() == departmentCombo.Text)
+						groupSelector.AddGroup(words[1], new Guid(words[2]), CheckState.Checked);
+				}
+			}
 		}
 
 		private void UpdateCombos(XElement[] users)
@@ -601,21 +634,21 @@ namespace Active_Directory_Management
 
 		}
 
-		private void cloudCheck_CheckedChanged(object sender, EventArgs e)
+		private void CloudCheck_CheckedChanged(object sender, EventArgs e)
 		{
 			// Mark that some fields were edited
 			Changed();
 
 		}
 
-		private void internetCombo_SelectedIndexChanged(object sender, EventArgs e)
+		private void InternetCombo_SelectedIndexChanged(object sender, EventArgs e)
 		{
 			// Mark that some fields were edited
 			Changed();
 
 		}
 
-		private void expirationDatePicker_ValueChanged(object sender, EventArgs e)
+		private void ExpirationDatePicker_ValueChanged(object sender, EventArgs e)
 		{
 			// Mark that some fields were edited
 			Changed();
@@ -640,6 +673,11 @@ namespace Active_Directory_Management
 				posEnBox.Clear();
 				Debug.WriteLine("Не удалось найти перевод должности", "Warning");
 			}
+		}
+
+		private void GroupSelector_Click(object sender, EventArgs e)
+		{
+			changed = true;
 		}
 	}
 }

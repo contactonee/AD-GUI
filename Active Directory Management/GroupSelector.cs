@@ -14,47 +14,60 @@ namespace Active_Directory_Management
 {
 	public partial class GroupSelector : UserControl
 	{
-		private Dictionary<string, Guid> groups;
-		private Dictionary<Guid, bool> state;
+		public Dictionary<string, Guid> Groups { get; set; } = new Dictionary<string, Guid>();
+				
 
 		public GroupSelector()
 		{
 			InitializeComponent();
 		}
 
-		public Dictionary<string, Guid> Groups
-		{
-			set
-			{
-				foreach(string name in value.Keys)
-				{
-					groupBox.Items.Add(name);
-				}
-			}
-		}
 
 		public Dictionary<Guid,bool> SelectedGroups()
 		{
-			foreach (Guid guid in groups.Values)
+			Dictionary<Guid, bool> state = new Dictionary<Guid, bool>();
+
+			foreach (Guid guid in Groups.Values)
 				state[guid] = false;
 
 			foreach(string checkedGroup in groupBox.CheckedItems)
-				state[groups[checkedGroup]] = true;
+				state[Groups[checkedGroup]] = true;
 
 			return state;
 		}
 
 		public void SetValue(Guid groupGuid, bool checkState)
 		{
+			groupBox.BeginUpdate();
+
 			foreach (string currGroup in groupBox.Items)
 			{
-				if (groups[currGroup] == groupGuid)
+				if (Groups[currGroup] == groupGuid)
 				{
 					groupBox.SetItemChecked(groupBox.Items.IndexOf(currGroup), checkState);
 					break;
 				}
 			}
+			groupBox.EndUpdate();
 		}
 
+		public void AddGroup(string name, Guid guid, CheckState check = CheckState.Unchecked)
+		{
+			Groups.Add(name, guid);
+
+			groupBox.BeginUpdate();
+
+			groupBox.Items.Add(name, check);
+			
+			groupBox.EndUpdate();
+		}
+		public void RemoveGroup(string name)
+		{
+			Groups.Remove(name);
+
+			groupBox.BeginUpdate();
+			groupBox.Items.Remove(name);
+			groupBox.EndUpdate();
+		}
 	}
 }

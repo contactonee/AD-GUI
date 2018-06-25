@@ -47,6 +47,9 @@
 			this.departmentLabel = new System.Windows.Forms.Label();
 			this.departmentCombo = new System.Windows.Forms.ComboBox();
 			this.groupBox1 = new System.Windows.Forms.GroupBox();
+			this.label1 = new System.Windows.Forms.Label();
+			this.genderSelector = new Active_Directory_Management.GenderSelector();
+			this.birthdayPicker = new Active_Directory_Management.BirthdayPicker();
 			this.mobileTextBox = new System.Windows.Forms.MaskedTextBox();
 			this.nameEnBox = new System.Windows.Forms.TextBox();
 			this.nameBox = new System.Windows.Forms.TextBox();
@@ -61,21 +64,14 @@
 			this.surnameTranslitLabel = new System.Windows.Forms.Label();
 			this.birthdayLabel = new System.Windows.Forms.Label();
 			this.tabPage2 = new System.Windows.Forms.TabPage();
-			this.cdCheck = new System.Windows.Forms.CheckBox();
-			this.usbDiskCheck = new System.Windows.Forms.CheckBox();
-			this.usbDeviceCheck = new System.Windows.Forms.CheckBox();
-			this.cloudCheck = new System.Windows.Forms.CheckBox();
+			this.groupsLabel = new System.Windows.Forms.Label();
 			this.groupBox3 = new System.Windows.Forms.GroupBox();
 			this.expirationDatePicker = new System.Windows.Forms.DateTimePicker();
 			this.unlimitedRadio = new System.Windows.Forms.RadioButton();
 			this.limitedRadio = new System.Windows.Forms.RadioButton();
-			this.internetLabel = new System.Windows.Forms.Label();
-			this.internetCombo = new System.Windows.Forms.ComboBox();
 			this.cancelBtn = new System.Windows.Forms.Button();
 			this.birthdayPicker1 = new Active_Directory_Management.BirthdayPicker();
-			this.birthdayPicker = new Active_Directory_Management.BirthdayPicker();
-			this.genderSelector = new Active_Directory_Management.GenderSelector();
-			this.label1 = new System.Windows.Forms.Label();
+			this.groupSelector = new Active_Directory_Management.GroupSelector();
 			this.tabControl1.SuspendLayout();
 			this.tabPage1.SuspendLayout();
 			this.groupBox2.SuspendLayout();
@@ -310,6 +306,31 @@
 			this.groupBox1.TabStop = false;
 			this.groupBox1.Text = "Личные данные";
 			// 
+			// label1
+			// 
+			this.label1.AutoSize = true;
+			this.label1.Location = new System.Drawing.Point(420, 123);
+			this.label1.Name = "label1";
+			this.label1.Size = new System.Drawing.Size(27, 13);
+			this.label1.TabIndex = 48;
+			this.label1.Text = "Пол";
+			// 
+			// genderSelector
+			// 
+			this.genderSelector.Location = new System.Drawing.Point(452, 118);
+			this.genderSelector.Name = "genderSelector";
+			this.genderSelector.Size = new System.Drawing.Size(54, 24);
+			this.genderSelector.TabIndex = 47;
+			this.genderSelector.Value = "Male";
+			// 
+			// birthdayPicker
+			// 
+			this.birthdayPicker.Location = new System.Drawing.Point(453, 74);
+			this.birthdayPicker.Name = "birthdayPicker";
+			this.birthdayPicker.Size = new System.Drawing.Size(172, 38);
+			this.birthdayPicker.TabIndex = 46;
+			this.birthdayPicker.Value = new System.DateTime(((long)(0)));
+			// 
 			// mobileTextBox
 			// 
 			this.mobileTextBox.Location = new System.Drawing.Point(125, 97);
@@ -426,13 +447,9 @@
 			// 
 			// tabPage2
 			// 
-			this.tabPage2.Controls.Add(this.cdCheck);
-			this.tabPage2.Controls.Add(this.usbDiskCheck);
-			this.tabPage2.Controls.Add(this.usbDeviceCheck);
-			this.tabPage2.Controls.Add(this.cloudCheck);
+			this.tabPage2.Controls.Add(this.groupSelector);
+			this.tabPage2.Controls.Add(this.groupsLabel);
 			this.tabPage2.Controls.Add(this.groupBox3);
-			this.tabPage2.Controls.Add(this.internetLabel);
-			this.tabPage2.Controls.Add(this.internetCombo);
 			this.tabPage2.Location = new System.Drawing.Point(4, 22);
 			this.tabPage2.Name = "tabPage2";
 			this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
@@ -441,50 +458,14 @@
 			this.tabPage2.Text = "Опции";
 			this.tabPage2.UseVisualStyleBackColor = true;
 			// 
-			// cdCheck
+			// groupsLabel
 			// 
-			this.cdCheck.Appearance = System.Windows.Forms.Appearance.Button;
-			this.cdCheck.Location = new System.Drawing.Point(26, 21);
-			this.cdCheck.Name = "cdCheck";
-			this.cdCheck.Size = new System.Drawing.Size(168, 28);
-			this.cdCheck.TabIndex = 10;
-			this.cdCheck.Text = "Доступ к CD/DVD";
-			this.cdCheck.UseVisualStyleBackColor = true;
-			this.cdCheck.CheckedChanged += new System.EventHandler(this.cdCheck_CheckedChanged);
-			// 
-			// usbDiskCheck
-			// 
-			this.usbDiskCheck.Appearance = System.Windows.Forms.Appearance.Button;
-			this.usbDiskCheck.Location = new System.Drawing.Point(26, 55);
-			this.usbDiskCheck.Name = "usbDiskCheck";
-			this.usbDiskCheck.Size = new System.Drawing.Size(168, 28);
-			this.usbDiskCheck.TabIndex = 11;
-			this.usbDiskCheck.Text = "Доступ к USB дискам";
-			this.usbDiskCheck.UseVisualStyleBackColor = true;
-			this.usbDiskCheck.CheckedChanged += new System.EventHandler(this.usbDiskCheck_CheckedChanged);
-			// 
-			// usbDeviceCheck
-			// 
-			this.usbDeviceCheck.Appearance = System.Windows.Forms.Appearance.Button;
-			this.usbDeviceCheck.Location = new System.Drawing.Point(26, 89);
-			this.usbDeviceCheck.Name = "usbDeviceCheck";
-			this.usbDeviceCheck.Size = new System.Drawing.Size(168, 28);
-			this.usbDeviceCheck.TabIndex = 12;
-			this.usbDeviceCheck.Text = "Доступ к USB устройствам";
-			this.usbDeviceCheck.UseVisualStyleBackColor = true;
-			this.usbDeviceCheck.CheckedChanged += new System.EventHandler(this.usbDeviceCheck_CheckedChanged);
-			// 
-			// cloudCheck
-			// 
-			this.cloudCheck.Appearance = System.Windows.Forms.Appearance.Button;
-			this.cloudCheck.Enabled = false;
-			this.cloudCheck.Location = new System.Drawing.Point(26, 123);
-			this.cloudCheck.Name = "cloudCheck";
-			this.cloudCheck.Size = new System.Drawing.Size(168, 28);
-			this.cloudCheck.TabIndex = 13;
-			this.cloudCheck.Text = "Личная папка (Диск K:\\)";
-			this.cloudCheck.UseVisualStyleBackColor = true;
-			this.cloudCheck.CheckedChanged += new System.EventHandler(this.cloudCheck_CheckedChanged);
+			this.groupsLabel.AutoSize = true;
+			this.groupsLabel.Location = new System.Drawing.Point(51, 21);
+			this.groupsLabel.Name = "groupsLabel";
+			this.groupsLabel.Size = new System.Drawing.Size(44, 13);
+			this.groupsLabel.TabIndex = 10;
+			this.groupsLabel.Text = "Группы";
 			// 
 			// groupBox3
 			// 
@@ -505,7 +486,7 @@
 			this.expirationDatePicker.Name = "expirationDatePicker";
 			this.expirationDatePicker.Size = new System.Drawing.Size(137, 20);
 			this.expirationDatePicker.TabIndex = 9;
-			this.expirationDatePicker.ValueChanged += new System.EventHandler(this.expirationDatePicker_ValueChanged);
+			this.expirationDatePicker.ValueChanged += new System.EventHandler(this.ExpirationDatePicker_ValueChanged);
 			// 
 			// unlimitedRadio
 			// 
@@ -531,29 +512,6 @@
 			this.limitedRadio.UseVisualStyleBackColor = true;
 			this.limitedRadio.CheckedChanged += new System.EventHandler(this.LimitedRadio_CheckedChanged);
 			// 
-			// internetLabel
-			// 
-			this.internetLabel.AutoSize = true;
-			this.internetLabel.Location = new System.Drawing.Point(23, 192);
-			this.internetLabel.Name = "internetLabel";
-			this.internetLabel.Size = new System.Drawing.Size(104, 13);
-			this.internetLabel.TabIndex = 5;
-			this.internetLabel.Text = "Доступ в Интернет";
-			// 
-			// internetCombo
-			// 
-			this.internetCombo.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-			this.internetCombo.FormattingEnabled = true;
-			this.internetCombo.Items.AddRange(new object[] {
-            "Отсутствует",
-            "Ограниченный",
-            "Полный"});
-			this.internetCombo.Location = new System.Drawing.Point(133, 189);
-			this.internetCombo.Name = "internetCombo";
-			this.internetCombo.Size = new System.Drawing.Size(121, 21);
-			this.internetCombo.TabIndex = 4;
-			this.internetCombo.SelectedIndexChanged += new System.EventHandler(this.internetCombo_SelectedIndexChanged);
-			// 
 			// cancelBtn
 			// 
 			this.cancelBtn.Location = new System.Drawing.Point(412, 391);
@@ -572,29 +530,13 @@
 			this.birthdayPicker1.TabIndex = 46;
 			this.birthdayPicker1.Value = new System.DateTime(((long)(0)));
 			// 
-			// birthdayPicker
+			// groupSelector
 			// 
-			this.birthdayPicker.Location = new System.Drawing.Point(453, 74);
-			this.birthdayPicker.Name = "birthdayPicker";
-			this.birthdayPicker.Size = new System.Drawing.Size(172, 38);
-			this.birthdayPicker.TabIndex = 46;
-			this.birthdayPicker.Value = new System.DateTime(((long)(0)));
-			// 
-			// genderSelector
-			// 
-			this.genderSelector.Location = new System.Drawing.Point(452, 118);
-			this.genderSelector.Name = "genderSelector";
-			this.genderSelector.Size = new System.Drawing.Size(54, 24);
-			this.genderSelector.TabIndex = 47;
-			// 
-			// label1
-			// 
-			this.label1.AutoSize = true;
-			this.label1.Location = new System.Drawing.Point(420, 123);
-			this.label1.Name = "label1";
-			this.label1.Size = new System.Drawing.Size(27, 13);
-			this.label1.TabIndex = 48;
-			this.label1.Text = "Пол";
+			this.groupSelector.Location = new System.Drawing.Point(54, 40);
+			this.groupSelector.Name = "groupSelector";
+			this.groupSelector.Size = new System.Drawing.Size(228, 246);
+			this.groupSelector.TabIndex = 11;
+			this.groupSelector.Click += new System.EventHandler(this.GroupSelector_Click);
 			// 
 			// DetailView
 			// 
@@ -653,16 +595,10 @@
         private System.Windows.Forms.Label internalLabel;
         private System.Windows.Forms.RadioButton limitedRadio;
         private System.Windows.Forms.RadioButton unlimitedRadio;
-        private System.Windows.Forms.Label internetLabel;
-        private System.Windows.Forms.ComboBox internetCombo;
         private System.Windows.Forms.GroupBox groupBox3;
         private System.Windows.Forms.DateTimePicker expirationDatePicker;
         private System.Windows.Forms.MaskedTextBox mobileTextBox;
         private System.Windows.Forms.ComboBox posCombo;
-        private System.Windows.Forms.CheckBox cdCheck;
-        private System.Windows.Forms.CheckBox usbDiskCheck;
-        private System.Windows.Forms.CheckBox usbDeviceCheck;
-        private System.Windows.Forms.CheckBox cloudCheck;
 		private System.Windows.Forms.Button cancelBtn;
 		private System.Windows.Forms.Label managerLabel;
 		private System.Windows.Forms.CheckBox managerCheck;
@@ -672,6 +608,8 @@
 		private BirthdayPicker birthdayPicker;
 		private System.Windows.Forms.Label label1;
 		private GenderSelector genderSelector;
+		private System.Windows.Forms.Label groupsLabel;
+		private GroupSelector groupSelector;
 	}
 }
 

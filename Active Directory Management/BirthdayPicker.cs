@@ -64,7 +64,7 @@ namespace Active_Directory_Management
 				else
 				{
 					dayBox.Text = value.Day.ToString();
-					monthBox.SelectedIndex = monthBox.Items.IndexOf(value.Month);
+					monthBox.SelectedIndex = value.Month - 1;
 					yearBox.Text = value.Year.ToString();
 				}
 			}
