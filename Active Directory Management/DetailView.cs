@@ -128,6 +128,78 @@ namespace Active_Directory_Management
 			{
 				departmentCombo.Enabled = false;
 				departmentLabel.Enabled = false;
+
+
+				User manager = null;
+
+				HashSet<string> diffDivs = new HashSet<string>();
+				HashSet<string> diffPoss = new HashSet<string>();
+				HashSet<string> diffRooms = new HashSet<string>();
+				HashSet<string> diffTels = new HashSet<string>();
+
+
+				foreach (XElement elem in city.Elements().ToArray())
+				{
+					if (elem.Element("description").Value.Trim() != string.Empty
+							&& !elem.Element("description").Value.StartsWith("("))
+						diffDivs.Add(elem.Element("description").Value);
+
+					if (elem.Element("title").Value.Trim() != string.Empty)
+						diffPoss.Add(elem.Element("title").Value);
+
+					if (elem.Element("physicalDeliveryOfficeName").Value.Trim() != string.Empty)
+						diffRooms.Add(elem.Element("physicalDeliveryOfficeName").Value);
+
+					if (elem.Element("telephoneNumber").Value.Trim() != string.Empty)
+						diffTels.Add(elem.Element("telephoneNumber").Value);
+
+					if (elem.Element("manager").Value.Trim() != string.Empty && manager == null)
+						manager = User.Load(elem.Element("manager").Value);
+
+				}
+
+				divCombo.BeginUpdate();
+				divCombo.Items.Clear();
+				divCombo.ResetText();
+				divCombo.Items.AddRange(diffDivs.ToArray());
+				divCombo.EndUpdate();
+
+				posCombo.BeginUpdate();
+				posCombo.Items.Clear();
+				posCombo.ResetText();
+				posCombo.Items.AddRange(diffPoss.ToArray());
+				posCombo.EndUpdate();
+
+				posEnBox.Clear();
+
+				roomCombo.BeginUpdate();
+				roomCombo.Items.Clear();
+				roomCombo.ResetText();
+				roomCombo.Items.AddRange(diffRooms.ToArray());
+				roomCombo.EndUpdate();
+
+				telCombo.BeginUpdate();
+				telCombo.Items.Clear();
+				telCombo.ResetText();
+				telCombo.Items.AddRange(diffTels.ToArray());
+				telCombo.EndUpdate();
+
+				if (manager == null)
+				{
+					managerPanel.Enabled = false;
+					managerCheck.Visible = false;
+					managerCheck.Checked = false;
+				}
+				else
+				{
+					managerPanel.Enabled = true;
+					managerCheck.Visible = true;
+					managerCheck.Checked = true;
+
+					managerCheck.Text = manager.GetProperty("sn") + " " + manager.GetProperty("givenName");
+					managerCheck.Tag = manager.Dn;
+				}
+
 			}
         }
 		
@@ -336,15 +408,10 @@ namespace Active_Directory_Management
 			XElement deptElem = city.Elements("dept")
 				.Where(t => t.Attribute("nameRU").Value == departmentCombo.Text)
 				.First();
-
-			UpdateCombos(deptElem.Elements("user").ToArray());
+			
 
 			groupSelector.RenderList(city.Attribute("nameRU").Value, new Guid(deptElem.Attribute("guid").Value));
 
-		}
-
-		private void UpdateCombos(XElement[] users)
-		{
 			User manager = null;
 
 			HashSet<string> diffDivs = new HashSet<string>();
@@ -353,7 +420,7 @@ namespace Active_Directory_Management
 			HashSet<string> diffTels = new HashSet<string>();
 
 
-			foreach (XElement elem in users)
+			foreach (XElement elem in deptElem.Elements("user").ToArray())
 			{
 				if (elem.Element("description").Value.Trim() != string.Empty
 						&& !elem.Element("description").Value.StartsWith("("))
@@ -385,6 +452,8 @@ namespace Active_Directory_Management
 			posCombo.Items.AddRange(diffPoss.ToArray());
 			posCombo.EndUpdate();
 
+			posEnBox.Clear();
+
 			roomCombo.BeginUpdate();
 			roomCombo.Items.Clear();
 			roomCombo.ResetText();
@@ -412,6 +481,7 @@ namespace Active_Directory_Management
 				managerCheck.Text = manager.GetProperty("sn") + " " + manager.GetProperty("givenName");
 				managerCheck.Tag = manager.Dn;
 			}
+
 		}
 
 
@@ -556,6 +626,66 @@ namespace Active_Directory_Management
 		{
 			// Mark that some fields were edited
 			Changed();
+
+			User manager = null;
+			
+			HashSet<string> diffPoss = new HashSet<string>();
+			HashSet<string> diffRooms = new HashSet<string>();
+			HashSet<string> diffTels = new HashSet<string>();
+
+
+			foreach (XElement elem in city.Descendants("user")
+				.Where(t => t.Element("description").Value == divCombo.Text)
+				.ToArray())
+			{
+				if (elem.Element("title").Value.Trim() != string.Empty)
+					diffPoss.Add(elem.Element("title").Value);
+
+				if (elem.Element("physicalDeliveryOfficeName").Value.Trim() != string.Empty)
+					diffRooms.Add(elem.Element("physicalDeliveryOfficeName").Value);
+
+				if (elem.Element("telephoneNumber").Value.Trim() != string.Empty)
+					diffTels.Add(elem.Element("telephoneNumber").Value);
+
+				if (elem.Element("manager").Value.Trim() != string.Empty && manager == null)
+					manager = User.Load(elem.Element("manager").Value);
+
+			}
+			posCombo.BeginUpdate();
+			posCombo.Items.Clear();
+			posCombo.ResetText();
+			posCombo.Items.AddRange(diffPoss.ToArray());
+			posCombo.EndUpdate();
+
+			posEnBox.Clear();
+
+			roomCombo.BeginUpdate();
+			roomCombo.Items.Clear();
+			roomCombo.ResetText();
+			roomCombo.Items.AddRange(diffRooms.ToArray());
+			roomCombo.EndUpdate();
+
+			telCombo.BeginUpdate();
+			telCombo.Items.Clear();
+			telCombo.ResetText();
+			telCombo.Items.AddRange(diffTels.ToArray());
+			telCombo.EndUpdate();
+
+			if (manager == null)
+			{
+				managerPanel.Enabled = false;
+				managerCheck.Visible = false;
+				managerCheck.Checked = false;
+			}
+			else
+			{
+				managerPanel.Enabled = true;
+				managerCheck.Visible = true;
+				managerCheck.Checked = true;
+
+				managerCheck.Text = manager.GetProperty("sn") + " " + manager.GetProperty("givenName");
+				managerCheck.Tag = manager.Dn;
+			}
 		}
 
 		private void posCombo_SelectedIndexChanged(object sender, EventArgs e)

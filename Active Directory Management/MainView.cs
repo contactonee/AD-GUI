@@ -329,13 +329,7 @@ namespace Active_Directory_Management
 		private void TreeView_BeforeSelect(object sender, TreeViewCancelEventArgs e)
 		{
 
-			if (treeView.SelectedNode != null && treeView.SelectedNode.Tag != null)
-			{
-				treeView.BeginUpdate();
-				treeView.SelectedNode.NodeFont = new Font(treeView.Font,
-					treeView.SelectedNode.NodeFont.Style & ~FontStyle.Bold);
-				treeView.EndUpdate();
-			}
+			
 		}
 
 		private void TreeView_AfterSelect(object sender, TreeViewEventArgs e)
@@ -343,8 +337,16 @@ namespace Active_Directory_Management
             if (treeView.SelectedNode.Tag != null)
             {
 				treeView.BeginUpdate();
+
+				if (treeView.Tag != null && ((TreeNode)treeView.Tag).Tag != null)
+					((TreeNode)treeView.Tag).NodeFont = new Font(treeView.Font,
+						treeView.SelectedNode.NodeFont.Style & ~FontStyle.Bold);
+
+				treeView.Tag = treeView.SelectedNode;
+
 				treeView.SelectedNode.NodeFont = new Font(treeView.Font,
 					treeView.SelectedNode.NodeFont.Style | FontStyle.Bold);
+
 				treeView.EndUpdate();
 
 				selectedUser = User.Load((Guid)treeView.SelectedNode.Tag);
