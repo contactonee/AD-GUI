@@ -17,7 +17,7 @@ namespace Active_Directory_Management
 {
 	public partial class MainView : Form
 	{
-		private XDocument xmlDoc;
+		public static XDocument xmlDoc;
 		private User selectedUser;
 		
 		static public Dictionary<string, string> cityOuPath;
@@ -74,7 +74,7 @@ namespace Active_Directory_Management
 
 			try
 			{
-				dump = XDocument.Load(Properties.Resources.XmlFile);
+				dump = new XDocument(xmlDoc);
 			}
 			catch
 			{
@@ -212,7 +212,6 @@ namespace Active_Directory_Management
 			}
 
 			dump.Save(Properties.Resources.XmlFile);
-			User.XmlFileLocation = Properties.Resources.XmlFile;
 			this.Enabled = true;
 			return dump;
 		}

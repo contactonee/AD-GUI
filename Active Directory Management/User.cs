@@ -13,9 +13,7 @@ namespace Active_Directory_Management
 	{
 		private XElement xmlNode;
 		private DirectoryEntry entry;
-		static private XDocument xmlFile = XDocument.Load(Active_Directory_Management.Properties.Resources.XmlFile);
-
-		static private string xmlFileLocation = Active_Directory_Management.Properties.Resources.XmlFile;
+		static private XDocument xmlFile = MainView.xmlDoc;
 
 
 		public Dictionary<string, string> Properties { get; } = new Dictionary<string, string>();
@@ -146,19 +144,6 @@ namespace Active_Directory_Management
 			guid = userGuid;
 		}
 
-		static public string XmlFileLocation
-		{
-			get
-			{
-				return xmlFileLocation;
-			}
-			set
-			{
-				xmlFileLocation = value;
-				xmlFile = XDocument.Load(XmlFileLocation);
-			}
-		}
-
 		/// <summary>
 		/// Запрашивает или устанавливает значение блокировки аккаунта
 		/// </summary>
@@ -191,7 +176,7 @@ namespace Active_Directory_Management
 				xmlNode.Element("userAccountControl").Value = uac.ToString();
 
 				// Save changes
-				xmlFile.Save(xmlFileLocation);
+				xmlFile.Save(Active_Directory_Management.Properties.Resources.XmlFile);
 				entry.CommitChanges();
             }
         }
@@ -229,7 +214,7 @@ namespace Active_Directory_Management
 
 				// Update property in XML file
 				xmlNode.Element("memberOf").Add(new XElement("group", groupDN));
-				xmlFile.Save(xmlFileLocation);
+				xmlFile.Save(Active_Directory_Management.Properties.Resources.XmlFile);
 
 				// Update Active Directory
 				groupEntry.Properties["member"].Add(Dn);
@@ -260,7 +245,7 @@ namespace Active_Directory_Management
 				xmlNode.Element("memberOf").Elements()
 					.Where(t => t.Value == groupDN)
 					.Remove();
-				xmlFile.Save(xmlFileLocation);
+				xmlFile.Save(Active_Directory_Management.Properties.Resources.XmlFile);
 
                 // Update Active Directory
 				groupEntry.Properties["member"].Remove(Dn);
@@ -318,9 +303,10 @@ namespace Active_Directory_Management
 					entry.Rename(newName);
 
 					entry.Properties["displayName"].Value = value;
-					dn = newName;
+					dn = newName + dn.Substring(dn.IndexOf(",OU"));
 					name = value;
-					key = "name";
+					xmlNode.Attribute("name").Value = name;
+					xmlNode.Attribute("dn").Value = dn;
 				}
 				else
 					entry.Properties[key].Value = value;
@@ -329,7 +315,7 @@ namespace Active_Directory_Management
 				catch { xmlNode.Add(new XElement(key, value)); }
             }
 			Properties.Clear();
-			xmlFile.Save(XmlFileLocation);
+			xmlFile.Save(Active_Directory_Management.Properties.Resources.XmlFile);
 			entry.CommitChanges();
 		}
 		
@@ -365,7 +351,7 @@ namespace Active_Directory_Management
 				
 			entry.MoveTo(new DirectoryEntry("LDAP://OU=Disabled Accounts," + Dn.Substring(Dn.IndexOf("DC="))));
 			xmlNode.Remove();
-			xmlFile.Save(XmlFileLocation);
+			xmlFile.Save(Active_Directory_Management.Properties.Resources.XmlFile);
 		}
 		public void MoveTo(string ouDN)
 		{
@@ -382,7 +368,7 @@ namespace Active_Directory_Management
 				.Where(t => t.Attribute("dn").Value == ouDN)
 				.First()
 				.Add(xmlNode);
-			xmlFile.Save(XmlFileLocation);
+			xmlFile.Save(Active_Directory_Management.Properties.Resources.XmlFile);
 		}
     }
 }
