@@ -15,7 +15,8 @@ namespace Active_Directory_Management
 	public partial class GroupSelector : UserControl
 	{
 		public Dictionary<string, Guid> Groups { get; set; } = new Dictionary<string, Guid>();
-				
+		public string[] File { get; set; }
+
 
 		public GroupSelector()
 		{
@@ -36,6 +37,38 @@ namespace Active_Directory_Management
 			return state;
 		}
 
+		public void RenderList(string cityRU, Guid department)
+		{
+			groupBox.BeginUpdate();
+
+			groupBox.Items.Clear();
+			Groups.Clear();
+			foreach (string line in File)
+			{
+				string[] words = line.Split(';');
+				string groupCity = words[0];
+				string name = words[1];
+				string guid = words[2];
+				string type = words[3];
+
+				if(groupCity == cityRU)
+				{
+					Groups.Add(words[1], new Guid(words[2]));
+					if (type == "All")
+						groupBox.Items.Add(name, CheckState.Checked);
+					if (type == "Option")
+						groupBox.Items.Add(name, CheckState.Unchecked);
+					if (department != Guid.Empty && type.StartsWith("department"))
+					{
+						type = type.Substring(type.IndexOf('-') + 1);
+						if (new Guid(type) == department)
+							groupBox.Items.Add(name, CheckState.Checked);
+					}
+				}
+			}
+			groupBox.EndUpdate();
+		}
+
 		public void SetValue(Guid groupGuid, bool checkState)
 		{
 			groupBox.BeginUpdate();
@@ -48,25 +81,6 @@ namespace Active_Directory_Management
 					break;
 				}
 			}
-			groupBox.EndUpdate();
-		}
-
-		public void AddGroup(string name, Guid guid, CheckState check = CheckState.Unchecked)
-		{
-			Groups.Add(name, guid);
-
-			groupBox.BeginUpdate();
-
-			groupBox.Items.Add(name, check);
-			
-			groupBox.EndUpdate();
-		}
-		public void RemoveGroup(string name)
-		{
-			Groups.Remove(name);
-
-			groupBox.BeginUpdate();
-			groupBox.Items.Remove(name);
 			groupBox.EndUpdate();
 		}
 	}

@@ -40,6 +40,7 @@
 			this.groupBox.Location = new System.Drawing.Point(0, 0);
 			this.groupBox.Name = "groupBox";
 			this.groupBox.Size = new System.Drawing.Size(250, 264);
+			this.groupBox.Sorted = true;
 			this.groupBox.TabIndex = 0;
 			// 
 			// GroupSelector

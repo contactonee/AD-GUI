@@ -31,6 +31,7 @@ namespace Active_Directory_Management
         public MainView()
         {
             InitializeComponent();
+			
 
 			// Подгрузка списка городов
 			cityOuPath = new Dictionary<string, string>();
@@ -41,9 +42,22 @@ namespace Active_Directory_Management
 
 				cityOuPath.Add(name,dn);
 			}
-			
+
+			try
+			{
+				xmlDoc = XDocument.Load(Properties.Resources.XmlFile);
+			}
+			catch
+			{
+				Debug.WriteLine("Нет файла");
+				xmlDoc = DumpToXml(cityOuPath.Keys.First());
+			}
+
 			// Заполнение выпадающего списка городов
 			citySelector.Items.AddRange(cityOuPath.Keys.ToArray());
+
+
+
 			citySelector.SelectedIndex = 0;
 		}
 
@@ -87,13 +101,29 @@ namespace Active_Directory_Management
 
 			cityElem = new XElement("city",
 				new XAttribute("name", ""),
-				new XAttribute("nameRU", cityRU));
+				new XAttribute("nameRU", cityRU),
+				new XAttribute("country", ""),
+				new XAttribute("postalCode", ""),
+				new XAttribute("addr", ""));
 
 			dump.Root.Add(cityElem);
 
 			using (DirectoryEntry cityEntry = new DirectoryEntry("LDAP://OU=Users," + cityOuPath[cityRU]))
 			{
+
 				cityElem.Attribute("name").Value = cityEntry.Parent.Properties["name"].Value.ToString();
+
+				try
+				{
+					cityElem.Attribute("postalCode").Value = cityEntry.Parent.Properties["postalCode"].Value.ToString();
+					cityElem.Attribute("addr").Value = cityEntry.Parent.Properties["street"].Value.ToString();
+					cityElem.Attribute("country").Value = cityEntry.Parent.Properties["c"].Value.ToString();
+				}
+				catch
+				{
+					Debug.WriteLine("Нет адресных данных города, пропуск");
+				}
+				
 
 				using (DirectorySearcher searcher = new DirectorySearcher())
 				{
@@ -190,29 +220,25 @@ namespace Active_Directory_Management
 		/// <summary>
 		/// Отрисовка дерева организации из XML-файла
 		/// </summary>
-		/// <param name="cityRU">Название города на русском</param>
+		/// <param name="city">Название города на русском</param>
 		/// <param name="query">Искомый пользователь</param>
-		private void RenderTree(string cityRU, string query = "")
+		private void RenderTree(XElement city, string query = "")
         {
 			treeView.BeginUpdate();
             treeView.Nodes.Clear();
 
-			XElement root = xmlDoc.Root.Elements("city")
-				.Where(t => t.Attribute("nameRU").Value == cityRU)
-				.First();
-
 			if (query == string.Empty)
 			{
-				foreach (XElement deptElem in root.Elements("dept"))
+				foreach (XElement deptElem in city.Elements("dept"))
 					FillNode(treeView.Nodes.Add(deptElem.Attribute("nameRU").Value),
 						deptElem.Elements("user").ToArray());
 
-				FillNode(treeView, root.Elements("user").ToArray());
+				FillNode(treeView, city.Elements("user").ToArray());
 			}
 			else
 			{
 				query = query.ToLower();
-				var response = root.Descendants("user")
+				var response = city.Descendants("user")
 					.Where(t => t.Element("givenName").Value.ToLower().StartsWith(query)
 						|| t.Element("sn").Value.ToLower().StartsWith(query)
 						|| t.Attribute("name").Value.ToLower().StartsWith(query)
@@ -266,26 +292,38 @@ namespace Active_Directory_Management
 
         private void SearchBox_TextChanged(object sender, EventArgs e)
         {
-			RenderTree(citySelector.Text, searchBox.Text);
+			RenderTree(xmlDoc.Root.Elements("city")
+					.Where(t => t.Attribute("nameRU").Value == citySelector.Text)
+					.First(), searchBox.Text);
         }
 
 
         // Buttons behaviour
         private void CreateBtn_Click(object sender, EventArgs e)
         {
-            DetailView detailView = new DetailView(citySelector.Text);
+            DetailView detailView = new DetailView(xmlDoc.Root.Elements("city")
+					.Where(t => t.Attribute("nameRU").Value == citySelector.Text)
+					.First());
             detailView.ShowDialog();
 			
 			xmlDoc = XDocument.Load(Properties.Resources.XmlFile);
 			selectedUser = null;
-			RenderTree(citySelector.Text);
+			RenderTree(xmlDoc.Root.Elements("city")
+					.Where(t => t.Attribute("nameRU").Value == citySelector.Text)
+					.First());
         }
 
         private void DetailBtn_Click(object sender, EventArgs e)
         {
-            Form detailView = new DetailView(citySelector.Text, selectedUser);
+            Form detailView = new DetailView(xmlDoc.Root.Elements("city")
+					.Where(t => t.Attribute("nameRU").Value == citySelector.Text)
+					.First(), selectedUser);
             detailView.ShowDialog(this);
-			RenderTree(citySelector.Text);
+
+			RenderTree(xmlDoc.Root.Elements("city")
+					.Where(t => t.Attribute("nameRU").Value == citySelector.Text)
+					.First());
+			
         }
 
 		private void TreeView_BeforeSelect(object sender, TreeViewCancelEventArgs e)
@@ -350,7 +388,9 @@ namespace Active_Directory_Management
         {
             this.Enabled = false;
 			xmlDoc = DumpToXml(citySelector.Text);
-			RenderTree(citySelector.Text);
+			RenderTree(xmlDoc.Root.Elements("city")
+					.Where(t => t.Attribute("nameRU").Value == citySelector.Text)
+					.First());
 
 			this.Enabled = true;
 		}
@@ -395,7 +435,9 @@ namespace Active_Directory_Management
 							selectedUser.Remove();
 
 							selectedUser = null;
-							RenderTree(citySelector.Text);
+							RenderTree(xmlDoc.Root.Elements("city")
+					.Where(t => t.Attribute("nameRU").Value == citySelector.Text)
+					.First());
 							
 						}
 					}
@@ -459,14 +501,17 @@ namespace Active_Directory_Management
 		{
 			try
 			{
-				xmlDoc = XDocument.Load(Properties.Resources.XmlFile);
-				RenderTree(citySelector.Text);
+				RenderTree(xmlDoc.Root.Elements("city")
+					.Where(t => t.Attribute("nameRU").Value == citySelector.Text)
+					.First());
 			}
 			catch
 			{
 				Debug.WriteLine("Не может отрисовать дерево, возможно нет данных в XML");
 				xmlDoc = DumpToXml(citySelector.Text);
-				RenderTree(citySelector.Text);
+				RenderTree(xmlDoc.Root.Elements("city")
+					.Where(t => t.Attribute("nameRU").Value == citySelector.Text)
+					.First());
 			}
 		}
 	}

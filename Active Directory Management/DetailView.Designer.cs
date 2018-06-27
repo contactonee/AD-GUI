@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(DetailView));
 			this.saveBtn = new System.Windows.Forms.Button();
 			this.tabControl1 = new System.Windows.Forms.TabControl();
 			this.tabPage1 = new System.Windows.Forms.TabPage();
@@ -64,6 +65,7 @@
 			this.surnameTranslitLabel = new System.Windows.Forms.Label();
 			this.birthdayLabel = new System.Windows.Forms.Label();
 			this.tabPage2 = new System.Windows.Forms.TabPage();
+			this.groupSelector = new Active_Directory_Management.GroupSelector();
 			this.groupsLabel = new System.Windows.Forms.Label();
 			this.groupBox3 = new System.Windows.Forms.GroupBox();
 			this.expirationDatePicker = new System.Windows.Forms.DateTimePicker();
@@ -71,7 +73,6 @@
 			this.limitedRadio = new System.Windows.Forms.RadioButton();
 			this.cancelBtn = new System.Windows.Forms.Button();
 			this.birthdayPicker1 = new Active_Directory_Management.BirthdayPicker();
-			this.groupSelector = new Active_Directory_Management.GroupSelector();
 			this.tabControl1.SuspendLayout();
 			this.tabPage1.SuspendLayout();
 			this.groupBox2.SuspendLayout();
@@ -458,6 +459,15 @@
 			this.tabPage2.Text = "Опции";
 			this.tabPage2.UseVisualStyleBackColor = true;
 			// 
+			// groupSelector
+			// 
+			this.groupSelector.Groups = ((System.Collections.Generic.Dictionary<string, System.Guid>)(resources.GetObject("groupSelector.Groups")));
+			this.groupSelector.Location = new System.Drawing.Point(54, 40);
+			this.groupSelector.Name = "groupSelector";
+			this.groupSelector.Size = new System.Drawing.Size(228, 246);
+			this.groupSelector.TabIndex = 11;
+			this.groupSelector.Click += new System.EventHandler(this.GroupSelector_Click);
+			// 
 			// groupsLabel
 			// 
 			this.groupsLabel.AutoSize = true;
@@ -529,14 +539,6 @@
 			this.birthdayPicker1.Size = new System.Drawing.Size(186, 47);
 			this.birthdayPicker1.TabIndex = 46;
 			this.birthdayPicker1.Value = new System.DateTime(((long)(0)));
-			// 
-			// groupSelector
-			// 
-			this.groupSelector.Location = new System.Drawing.Point(54, 40);
-			this.groupSelector.Name = "groupSelector";
-			this.groupSelector.Size = new System.Drawing.Size(228, 246);
-			this.groupSelector.TabIndex = 11;
-			this.groupSelector.Click += new System.EventHandler(this.GroupSelector_Click);
 			// 
 			// DetailView
 			// 

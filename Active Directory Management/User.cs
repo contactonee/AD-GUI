@@ -131,9 +131,7 @@ namespace Active_Directory_Management
 			dn = xmlNode.Attribute("dn").Value;
 			name = xmlNode.Attribute("name").Value;
 			uac = int.Parse(xmlNode.Element("userAccountControl").Value);
-
-			entry = new DirectoryEntry("LDAP://" + Dn);
-			guid = entry.Guid;
+			guid = new Guid(xmlNode.Attribute("guid").Value);
 		}
 
 		private User(Guid userGuid)
@@ -145,9 +143,7 @@ namespace Active_Directory_Management
 			dn = xmlNode.Attribute("dn").Value;
 			name = xmlNode.Attribute("name").Value;
 			uac = int.Parse(xmlNode.Element("userAccountControl").Value);
-
-			entry = new DirectoryEntry("LDAP://" + Dn);
-			guid = entry.Guid;
+			guid = userGuid;
 		}
 
 		static public string XmlFileLocation
@@ -174,6 +170,12 @@ namespace Active_Directory_Management
             }
             set
             {
+				if(entry == null)
+				{
+					entry = new DirectoryEntry("LDAP://" + Dn);
+					guid = entry.Guid;
+				}
+
 				int newUserAccountControl;
 
 				if (value == true)
@@ -197,12 +199,12 @@ namespace Active_Directory_Management
 		/// <summary>
 		/// Возвращает информацию состоит ли пользователь в группе
 		/// </summary>
-		/// <param name="groupGuid">Distinguished Name группы </param>
+		/// <param name="groupDN">Distinguished Name группы </param>
 		/// <returns>Членство в группе</returns>
-		public bool MemberOf(Guid groupGuid)
+		public bool MemberOf(string groupDN)
         {
 			return xmlNode.Element("memberOf").Elements()
-				.Where(t => t.Value == groupGuid.ToString())
+				.Where(t => t.Value == groupDN.ToString())
 				.ToArray()
 				.Length > 0;
 		}
@@ -211,16 +213,22 @@ namespace Active_Directory_Management
         /// <summary>
 		/// Добавление пользователя в группу
 		/// </summary>
-		/// <param name="groupGuid">Distinguished Name группы куда добаляется пользователь</param>
-        public void AddGroup(Guid groupGuid)
+		/// <param name="groupDN">Distinguished Name группы куда добаляется пользователь</param>
+        public void AddGroup(string groupDN)
         {
-            if (!MemberOf(groupGuid))
+            if (!MemberOf(groupDN))
             {
-                DirectoryEntry groupEntry =
-					new DirectoryEntry(string.Format("LDAP://<GUID={0}>", groupGuid));
+				if (entry == null)
+				{
+					entry = new DirectoryEntry("LDAP://" + Dn);
+					guid = entry.Guid;
+				}
+
+				DirectoryEntry groupEntry =
+					new DirectoryEntry("LDAP://" + groupDN);
 
 				// Update property in XML file
-				xmlNode.Element("memberOf").Add(new XElement("group", groupGuid.ToString()));
+				xmlNode.Element("memberOf").Add(new XElement("group", groupDN));
 				xmlFile.Save(xmlFileLocation);
 
 				// Update Active Directory
@@ -234,17 +242,23 @@ namespace Active_Directory_Management
 		/// <summary>
 		/// Удаление пользователя из группы
 		/// </summary>
-		/// <param name="groupGuid">Distinguished Name группы откуда удаляется пользователь</param>
-		public void RemoveGroup(Guid groupGuid)
+		/// <param name="groupDN">Distinguished Name группы откуда удаляется пользователь</param>
+		public void RemoveGroup(string groupDN)
         {
-            if (MemberOf(groupGuid))
+            if (MemberOf(groupDN))
             {
-                DirectoryEntry groupEntry =
-					new DirectoryEntry(string.Format("LDAP://<GUID={0}>", groupGuid));
+				if (entry == null)
+				{
+					entry = new DirectoryEntry("LDAP://" + Dn);
+					guid = entry.Guid;
+				}
+
+				DirectoryEntry groupEntry =
+					new DirectoryEntry("LDAP://" + groupDN);
 
 				// Update property in XML file
 				xmlNode.Element("memberOf").Elements()
-					.Where(t => t.Value == groupGuid.ToString())
+					.Where(t => t.Value == groupDN)
 					.Remove();
 				xmlFile.Save(xmlFileLocation);
 
@@ -259,14 +273,14 @@ namespace Active_Directory_Management
 		/// <summary>
 		/// Устанавливает членство пользователя в группе
 		/// </summary>
-		/// <param name="groupGuid">Distinguished Name группы</param>
+		/// <param name="groupDN">Distinguished Name группы</param>
 		/// <param name="state">Флаг "Членство в группе"</param>
-		public void SetMembership(Guid groupGuid, bool state)
+		public void SetMembership(string groupDN, bool state)
         {
 			if (state == true)
-				AddGroup(groupGuid);
+				AddGroup(groupDN);
             else
-                RemoveGroup(groupGuid);
+                RemoveGroup(groupDN);
         }
 
 		/// <summary>
@@ -274,7 +288,11 @@ namespace Active_Directory_Management
 		/// </summary>
         public void CommitChanges()
         {
-				
+			if (entry == null)
+			{
+				entry = new DirectoryEntry("LDAP://" + Dn);
+				guid = entry.Guid;
+			}
 			foreach (KeyValuePair<string, string> prop in Properties)
             {
 				string key = prop.Key;
@@ -314,13 +332,7 @@ namespace Active_Directory_Management
 			xmlFile.Save(XmlFileLocation);
 			entry.CommitChanges();
 		}
-
-		public void DropPassword()
-		{
-			entry.Invoke("SetPassword", new object[] { "12345678Ab" });
-			entry.Properties["pwdLastSet"].Value = 0;
-			entry.CommitChanges();
-		}
+		
 
 		/// <summary>
 		/// Возвращает значение атрибута пользователя
@@ -338,9 +350,15 @@ namespace Active_Directory_Management
 		/// </summary>
 		public void Remove()
 		{
-			foreach(string group in xmlNode.Element("memberOf").Elements()
+			if (entry == null)
+			{
+				entry = new DirectoryEntry("LDAP://" + Dn);
+				guid = entry.Guid;
+			}
+
+			foreach (string group in xmlNode.Element("memberOf").Elements()
 					.Select(t => t.Value))
-				RemoveGroup(new Guid(group));
+				RemoveGroup(group);
 
 			entry.Properties["manager"].Clear();
 			entry.CommitChanges();
@@ -351,6 +369,12 @@ namespace Active_Directory_Management
 		}
 		public void MoveTo(string ouDN)
 		{
+			if (entry == null)
+			{
+				entry = new DirectoryEntry("LDAP://" + Dn);
+				guid = entry.Guid;
+			}
+
 			entry.MoveTo(new DirectoryEntry("LDAP://" + ouDN));
 
 			xmlNode.Remove();

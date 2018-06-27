@@ -19,8 +19,7 @@ namespace Active_Directory_Management
     {
 
 		private bool changed = false;
-
-		private XDocument doc = XDocument.Load(Properties.Resources.XmlFile);
+		
 		private XElement city;
 		private User user;
 		public DialogResult success = DialogResult.None;
@@ -28,23 +27,17 @@ namespace Active_Directory_Management
 		static string[] groups = System.IO.File.ReadAllLines("groups.csv");
 
 
-        public DetailView(string city)
+        public DetailView(XElement city)
         {
-			this.city = doc.Root.Elements("city")
-				.Where(t => t.Attribute("name").Value == city
-					|| t.Attribute("nameRU").Value == city)
-				.First();
+			this.city = city;
 
 			InitializeComponent();
             OnLoad();
 
         }
-        public DetailView(string city, User user)
+        public DetailView(XElement city, User user)
 		{
-			this.city = doc.Root.Elements("city")
-				.Where(t => t.Attribute("name").Value == city
-					|| t.Attribute("nameRU").Value == city)
-				.First();
+			this.city = city;
 
 			InitializeComponent();
 			OnLoad();
@@ -104,7 +97,8 @@ namespace Active_Directory_Management
 
 			foreach(Guid group in groupSelector.Groups.Values)
 			{
-				groupSelector.SetValue(group, user.MemberOf(group));
+				DirectoryEntry entry = new DirectoryEntry(string.Format("LDAP://<GUID={0}>", group.ToString()));
+				groupSelector.SetValue(group, user.MemberOf(entry.Properties["distinguishedName"].Value.ToString()));
 			}
 
 			changed = false;
@@ -114,26 +108,8 @@ namespace Active_Directory_Management
 
         private void OnLoad()
         {
-			foreach (string line in groups)
-			{
-				string[] words = line.Split(';');
-
-				if ((words[0] == city.Attribute("nameRU").Value
-					|| words[0] == city.Attribute("name").Value))
-				{
-
-					CheckState check;
-					if (words[3] == "All")
-						check = CheckState.Checked;
-					else if (words[3] == "Option")
-						check = CheckState.Unchecked;
-					else
-						continue;
-
-
-					groupSelector.AddGroup(words[1], new Guid(words[2]), check);
-				}
-			}
+			groupSelector.File = groups;
+			groupSelector.RenderList(city.Attribute("nameRU").Value, Guid.Empty);
 
 			unlimitedRadio.Select();
             expirationDatePicker.Value = DateTime.Today.AddMonths(1);
@@ -259,14 +235,13 @@ namespace Active_Directory_Management
 			user.Properties["displayName"] = displayName;
 			user.Properties["middleName"] = middlenameBox.Text;
 			user.Properties["mobile"] = mobileTextBox.Text;
-			user.Properties["l"] = city.Attribute("nameRU").Value;
-			user.Properties["st"] = city.Attribute("name").Value;
-			user.Properties["c"] = city.Attribute("name").Value == "Minsk" ? "BY" : "KZ";
+			
 			user.Properties["department"] = departmentCombo.Text;
 			user.Properties["division"] = city.Descendants("dept")
 				.Where(t => t.Attribute("nameRU").Value == departmentCombo.Text)
 				.Select(t => t.Attribute("name").Value)
 				.First();
+
 			user.Properties["description"] = divCombo.Text;
 			user.Properties["title"] = posCombo.Text;
 			user.Properties["employeeType"] = posEnBox.Text;
@@ -275,7 +250,13 @@ namespace Active_Directory_Management
 			user.Properties["physicalDeliveryOfficeName"] = roomCombo.Text;
 			user.Properties["extensionAttribute2"] = birthdayPicker.Value.ToString("dd.MM.yyyy");
 			user.Properties["extensionAttribute3"] = genderSelector.Value.Substring(0, 1);
+
 			user.Properties["company"] = "АО \"НИПИнефтегаз\"";
+			user.Properties["l"] = city.Attribute("nameRU").Value;
+			user.Properties["st"] = city.Attribute("name").Value;
+			user.Properties["c"] = city.Attribute("country").Value;
+			user.Properties["postalCode"] = city.Attribute("postalCode").Value;
+
 			if (limitedRadio.Checked)
 				user.Properties["accountExpires"] = expirationDatePicker.Value.AddDays(1)
 					.ToFileTime()
@@ -295,7 +276,11 @@ namespace Active_Directory_Management
 				{
 					Debug.WriteLine(pair.Key);
 					if (pair.Value)
-						user.AddGroup(pair.Key);
+					{
+						DirectoryEntry entry = new DirectoryEntry(string.Format("LDAP://<GUID={0}>", pair.Key));
+						user.AddGroup(entry.Properties["distinguishedName"].Value.ToString());
+
+					}
 				}
 			}
 			catch
@@ -347,27 +332,15 @@ namespace Active_Directory_Management
         {
 			// Mark that some fields were edited
 			Changed();
-			
-			UpdateCombos(city.Elements("dept")
+
+			XElement deptElem = city.Elements("dept")
 				.Where(t => t.Attribute("nameRU").Value == departmentCombo.Text)
-				.Select(t => t.Elements("user"))
-				.First()
-				.ToArray());
+				.First();
 
+			UpdateCombos(deptElem.Elements("user").ToArray());
 
-			foreach (string line in groups)
-			{
-				string[] words = line.Split(';');
+			groupSelector.RenderList(city.Attribute("nameRU").Value, new Guid(deptElem.Attribute("guid").Value));
 
-				if (words[3].StartsWith("department"))
-				{
-					Guid deptGuid = new Guid(words[3].Substring(words[3].IndexOf('-') + 1));
-					DirectoryEntry entry = new DirectoryEntry("LDAP://<GUID=" + deptGuid + ">");
-
-					if (entry.Properties["description"].Value.ToString() == departmentCombo.Text)
-						groupSelector.AddGroup(words[1], new Guid(words[2]), CheckState.Checked);
-				}
-			}
 		}
 
 		private void UpdateCombos(XElement[] users)
@@ -662,7 +635,7 @@ namespace Active_Directory_Management
 
 			try
 			{
-				posEnBox.Text = doc.Root.Descendants("user")
+				posEnBox.Text = city.Descendants("user")
 					.Where(t => t.Element("title").Value == posCombo.Text
 						&& t.Element("employeeType").Value != "")
 					.Select(t => t.Element("employeeType").Value)
