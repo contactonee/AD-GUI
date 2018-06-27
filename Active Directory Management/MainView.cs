@@ -46,10 +46,13 @@ namespace Active_Directory_Management
 			try
 			{
 				xmlDoc = XDocument.Load(Properties.Resources.XmlFile);
+				DateTime lastUpd = DateTime.Parse(xmlDoc.Root.Attribute("lastUpdated").Value);
+				if (DateTime.Now.Subtract(lastUpd).TotalSeconds > 30)
+					throw new Exception("Too old file! (Last Update >30 seconds ago)");
 			}
-			catch
+			catch (Exception ex)
 			{
-				Debug.WriteLine("Нет файла");
+				Debug.WriteLine(ex.Message);
 				xmlDoc = DumpToXml(cityOuPath.Keys.First());
 			}
 
@@ -209,6 +212,17 @@ namespace Active_Directory_Management
 						}
 					}
 				}
+			}
+
+			// Когда было произведено последнее обновление
+			try
+			{
+				dump.Root.Attribute("lastUpdated").Value = DateTime.Now.ToString();
+			}
+			catch
+			{
+				Debug.WriteLine("Нет атрибута для даты, создаем новый");
+				dump.Root.Add(new XAttribute("lastUpdated", DateTime.Now.ToString()));
 			}
 
 			dump.Save(Properties.Resources.XmlFile);

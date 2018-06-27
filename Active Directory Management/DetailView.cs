@@ -94,7 +94,7 @@ namespace Active_Directory_Management
 				managerCheck.Checked = false;
 			if ((string)managerCheck.Tag == user.Dn)
 				managerCheck.Enabled = false;
-
+			
 			foreach(Guid group in groupSelector.Groups.Values)
 			{
 				DirectoryEntry entry = new DirectoryEntry(string.Format("LDAP://<GUID={0}>", group.ToString()));
