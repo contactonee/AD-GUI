@@ -93,6 +93,7 @@ namespace Active_Directory_Management
 			xmlNode = new XElement("user",
 				new XAttribute("name", Name),
 				new XAttribute("dn", Dn),
+				new XAttribute("guid", guid.ToString()),
 				new XElement("userAccountControl", uac),
 				new XElement("memberOf"));
 

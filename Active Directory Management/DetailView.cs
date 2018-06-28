@@ -287,6 +287,7 @@ namespace Active_Directory_Management
 
         private void CreateUser()
         {
+			this.Cursor = Cursors.AppStarting;
 			string displayName = surnameEnBox.Text + " " + nameEnBox.Text;
 			bool newUser = false;
 
@@ -379,6 +380,7 @@ namespace Active_Directory_Management
 					MessageBoxIcon.Information);
 
 			}
+			this.Cursor = Cursors.Default;
 			this.Close();
 		}
 
@@ -490,56 +492,35 @@ namespace Active_Directory_Management
 			// Mark that some fields were edited
 			Changed();
 
-			if (nameBox.Text.Length > 0
-					&& (nameBox.Text.ToLower().Min() < 'а'
-					|| nameBox.Text.ToLower().Max() > 'я'))
-				nameBox.ForeColor = Color.Red;
-			else
+			if (CheckCyrillic(nameBox.Text))
 			{
 				nameBox.ForeColor = Color.Black;
 				nameEnBox.Text = Translit(nameBox.Text);
 			}
-        }
+			else
+				nameBox.ForeColor = Color.Red;
+
+		}
         private void SurnameTextBox_TextChanged(object sender, EventArgs e)
         {
 			// Mark that some fields were edited
 			Changed();
 
-			if (surnameBox.Text.Length > 0
-					&& (surnameBox.Text.ToLower().Min() < 'а'
-					|| surnameBox.Text.ToLower().Max() > 'я'))
-				surnameBox.ForeColor = Color.Red;
-			else
+			if (CheckCyrillic(surnameBox.Text))
 			{
 				surnameBox.ForeColor = Color.Black;
 				surnameEnBox.Text = Translit(surnameBox.Text);
 			}
+			else
+				surnameBox.ForeColor = Color.Red;
 		}
 
-		private void NameTranslitTextBox_TextChanged(object sender, EventArgs e)
+		private void LatinTextBox_TextChanged(object sender, EventArgs e)
 		{
-			// Mark that some fields were edited
-			Changed();
-
-			if (nameEnBox.Text.Length > 0
-					&& (nameEnBox.Text.ToLower().Min() < 'a'
-					|| nameEnBox.Text.ToLower().Max() > 'z'))
-				nameEnBox.ForeColor = Color.Red;
+			if (CheckLatin(((TextBox)sender).Text))
+				((TextBox)sender).ForeColor = Color.Black;
 			else
-				nameEnBox.ForeColor = Color.Black;
-		}
-
-		private void SurnameTranslitTextBox_TextChanged(object sender, EventArgs e)
-		{
-			// Mark that some fields were edited
-			Changed();
-
-			if (surnameEnBox.Text.Length > 0
-					&& (surnameEnBox.Text.ToLower().Min() < 'a'
-					|| surnameEnBox.Text.ToLower().Max() > 'z'))
-				surnameEnBox.ForeColor = Color.Red;
-			else
-				surnameEnBox.ForeColor = Color.Black;
+				((TextBox)sender).ForeColor = Color.Red;
 		}
 
         private void RoomCombo_TextChanged(object sender, EventArgs e)
@@ -605,7 +586,6 @@ namespace Active_Directory_Management
 		{
 			// Mark that some fields were edited
 			Changed();
-
 		}
 
 		private void mobileTextBox_MaskInputRejected(object sender, MaskInputRejectedEventArgs e)
@@ -781,6 +761,44 @@ namespace Active_Directory_Management
 		private void GroupSelector_Click(object sender, EventArgs e)
 		{
 			changed = true;
+		}
+
+		private bool CheckCyrillic(string text)
+		{
+			text = text.ToLower();
+			if (text == string.Empty)
+				return true;
+			if (text.Min() < 'а' || (text.Max() > 'я' && text.Max() != 'ё'))
+				return false;
+			else
+				return true;
+		}
+		private bool CheckLatin(string text)
+		{
+			text = text.ToLower();
+			if (text == string.Empty)
+				return true;
+			if (text.Min() < 'a' || text.Max() > 'z')
+				return false;
+			else
+				return true;
+		}
+
+		private void LatinTextBoxes_Validating(object sender, CancelEventArgs e)
+		{
+			if (!CheckLatin(((TextBox)sender).Text))
+				e.Cancel = true;
+		}
+		private void CyrillicTextBoxes_Validating(object sender, CancelEventArgs e)
+		{
+			if (!CheckCyrillic(((TextBox)sender).Text))
+				e.Cancel = true;
+		}
+
+		private void birthdayPicker_Validating(object sender, CancelEventArgs e)
+		{
+			if (((BirthdayPicker)sender).Value == DateTime.MinValue)
+				e.Cancel = true;
 		}
 	}
 }

@@ -33,7 +33,6 @@
 			this.firstBox = new System.Windows.Forms.TextBox();
 			this.lastBox = new System.Windows.Forms.TextBox();
 			this.detailBtn = new System.Windows.Forms.Button();
-			this.saveBtn = new System.Windows.Forms.Button();
 			this.treeView = new System.Windows.Forms.TreeView();
 			this.switchPanel = new System.Windows.Forms.Panel();
 			this.disableBtn = new System.Windows.Forms.Button();
@@ -89,23 +88,13 @@
 			this.detailBtn.UseVisualStyleBackColor = true;
 			this.detailBtn.Click += new System.EventHandler(this.DetailBtn_Click);
 			// 
-			// saveBtn
-			// 
-			this.saveBtn.Location = new System.Drawing.Point(780, 145);
-			this.saveBtn.Name = "saveBtn";
-			this.saveBtn.Size = new System.Drawing.Size(134, 58);
-			this.saveBtn.TabIndex = 13;
-			this.saveBtn.Text = "Сохранить";
-			this.saveBtn.UseVisualStyleBackColor = true;
-			this.saveBtn.Click += new System.EventHandler(this.SaveBtn_Click);
-			// 
 			// treeView
 			// 
 			this.treeView.Location = new System.Drawing.Point(12, 70);
 			this.treeView.Name = "treeView";
+			this.treeView.ShowRootLines = false;
 			this.treeView.Size = new System.Drawing.Size(394, 429);
 			this.treeView.TabIndex = 17;
-			this.treeView.BeforeSelect += new System.Windows.Forms.TreeViewCancelEventHandler(this.TreeView_BeforeSelect);
 			this.treeView.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.TreeView_AfterSelect);
 			this.treeView.NodeMouseDoubleClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.TreeView_NodeMouseDoubleClick);
 			// 
@@ -189,7 +178,6 @@
 			this.Controls.Add(this.label1);
 			this.Controls.Add(this.citySelector);
 			this.Controls.Add(this.disableReason);
-			this.Controls.Add(this.saveBtn);
 			this.Controls.Add(this.disableBtn);
 			this.Controls.Add(this.switchPanel);
 			this.Controls.Add(this.updBtn);
@@ -199,6 +187,7 @@
 			this.Controls.Add(this.searchBox);
 			this.Name = "MainView";
 			this.Text = "Active Directory ";
+			this.Shown += new System.EventHandler(this.MainView_Load);
 			this.switchPanel.ResumeLayout(false);
 			this.ResumeLayout(false);
 			this.PerformLayout();
@@ -212,7 +201,6 @@
         private System.Windows.Forms.TextBox firstBox;
         private System.Windows.Forms.TextBox lastBox;
         private System.Windows.Forms.Button detailBtn;
-        private System.Windows.Forms.Button saveBtn;
         private System.Windows.Forms.Panel switchPanel;
         private System.Windows.Forms.Button updBtn;
         private System.Windows.Forms.Button disableBtn;

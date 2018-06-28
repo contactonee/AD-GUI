@@ -43,6 +43,12 @@ namespace Active_Directory_Management
 				cityOuPath.Add(name,dn);
 			}
 
+			// Заполнение выпадающего списка городов
+			citySelector.Items.AddRange(cityOuPath.Keys.ToArray());
+			
+		}
+		private void MainView_Load(object sender, EventArgs e)
+		{
 			try
 			{
 				xmlDoc = XDocument.Load(Properties.Resources.XmlFile);
@@ -55,12 +61,6 @@ namespace Active_Directory_Management
 				Debug.WriteLine(ex.Message);
 				xmlDoc = DumpToXml(cityOuPath.Keys.First());
 			}
-
-			// Заполнение выпадающего списка городов
-			citySelector.Items.AddRange(cityOuPath.Keys.ToArray());
-
-
-
 			citySelector.SelectedIndex = 0;
 		}
 
@@ -71,7 +71,9 @@ namespace Active_Directory_Management
 		/// <returns>Ссылка на XDocument</returns>
 		private XDocument DumpToXml(string cityRU)
 		{
+			this.Cursor = Cursors.WaitCursor;
 			this.Enabled = false;
+			
 
 			XDocument dump;
 
@@ -226,6 +228,8 @@ namespace Active_Directory_Management
 			}
 
 			dump.Save(Properties.Resources.XmlFile);
+
+			this.Cursor = Cursors.Default;
 			this.Enabled = true;
 			return dump;
 		}
@@ -339,25 +343,21 @@ namespace Active_Directory_Management
 			
         }
 
-		private void TreeView_BeforeSelect(object sender, TreeViewCancelEventArgs e)
-		{
-
-			
-		}
-
 		private void TreeView_AfterSelect(object sender, TreeViewEventArgs e)
         {
-            if (treeView.SelectedNode.Tag != null)
+			treeView.BeginUpdate();
+			if (treeView.Tag != null && ((TreeNode)treeView.Tag).Tag != null)
+				((TreeNode)treeView.Tag).NodeFont = new Font(treeView.Font,
+					((TreeNode)treeView.Tag).NodeFont.Style & ~FontStyle.Bold);
+			treeView.EndUpdate();
+
+			if (treeView.SelectedNode.Tag != null)
             {
 				treeView.BeginUpdate();
 
-				if (treeView.Tag != null && ((TreeNode)treeView.Tag).Tag != null)
-					((TreeNode)treeView.Tag).NodeFont = new Font(treeView.Font,
-						treeView.SelectedNode.NodeFont.Style & ~FontStyle.Bold);
-
 				treeView.Tag = treeView.SelectedNode;
 
-				treeView.SelectedNode.NodeFont = new Font(treeView.Font,
+				treeView.SelectedNode.NodeFont = new Font(treeView.Font.FontFamily, (float)9.2,
 					treeView.SelectedNode.NodeFont.Style | FontStyle.Bold);
 
 				treeView.EndUpdate();
@@ -529,5 +529,7 @@ namespace Active_Directory_Management
 					.First());
 			}
 		}
+
+		
 	}
 }

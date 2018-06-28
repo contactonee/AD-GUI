@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<company lastUpdated="27.06.2018 15:32:29">
+<company lastUpdated="28.06.2018 10:43:47">
   <city name="Almaty" nameRU="Алматы">
     <user name="Aitimova Assel" dn="CN=Aitimova Assel,OU=Users,OU=Almaty,DC=ala,DC=nng,DC=kz" guid="2210bdbc-1f3e-4585-bda2-2d2425a4fb88">
       <sn>Айтимова</sn>
@@ -11299,7 +11299,7 @@
         <extensionAttribute3>F</extensionAttribute3>
         <mobile />
         <extensionAttribute2>24.01.1957</extensionAttribute2>
-        <title>Руководитель метрол. службы</title>
+        <title>Руководитель метрологической службы</title>
         <description />
         <department>Департамент по системам менеджмента</department>
         <physicalDeliveryOfficeName>123</physicalDeliveryOfficeName>

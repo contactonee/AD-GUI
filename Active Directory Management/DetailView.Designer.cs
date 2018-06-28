@@ -49,8 +49,6 @@
 			this.departmentCombo = new System.Windows.Forms.ComboBox();
 			this.groupBox1 = new System.Windows.Forms.GroupBox();
 			this.label1 = new System.Windows.Forms.Label();
-			this.genderSelector = new Active_Directory_Management.GenderSelector();
-			this.birthdayPicker = new Active_Directory_Management.BirthdayPicker();
 			this.mobileTextBox = new System.Windows.Forms.MaskedTextBox();
 			this.nameEnBox = new System.Windows.Forms.TextBox();
 			this.nameBox = new System.Windows.Forms.TextBox();
@@ -65,13 +63,15 @@
 			this.surnameTranslitLabel = new System.Windows.Forms.Label();
 			this.birthdayLabel = new System.Windows.Forms.Label();
 			this.tabPage2 = new System.Windows.Forms.TabPage();
-			this.groupSelector = new Active_Directory_Management.GroupSelector();
 			this.groupsLabel = new System.Windows.Forms.Label();
 			this.groupBox3 = new System.Windows.Forms.GroupBox();
 			this.expirationDatePicker = new System.Windows.Forms.DateTimePicker();
 			this.unlimitedRadio = new System.Windows.Forms.RadioButton();
 			this.limitedRadio = new System.Windows.Forms.RadioButton();
 			this.cancelBtn = new System.Windows.Forms.Button();
+			this.genderSelector = new Active_Directory_Management.GenderSelector();
+			this.birthdayPicker = new Active_Directory_Management.BirthdayPicker();
+			this.groupSelector = new Active_Directory_Management.GroupSelector();
 			this.birthdayPicker1 = new Active_Directory_Management.BirthdayPicker();
 			this.tabControl1.SuspendLayout();
 			this.tabPage1.SuspendLayout();
@@ -316,22 +316,6 @@
 			this.label1.TabIndex = 48;
 			this.label1.Text = "Пол";
 			// 
-			// genderSelector
-			// 
-			this.genderSelector.Location = new System.Drawing.Point(452, 118);
-			this.genderSelector.Name = "genderSelector";
-			this.genderSelector.Size = new System.Drawing.Size(54, 24);
-			this.genderSelector.TabIndex = 47;
-			this.genderSelector.Value = "Male";
-			// 
-			// birthdayPicker
-			// 
-			this.birthdayPicker.Location = new System.Drawing.Point(453, 74);
-			this.birthdayPicker.Name = "birthdayPicker";
-			this.birthdayPicker.Size = new System.Drawing.Size(172, 38);
-			this.birthdayPicker.TabIndex = 46;
-			this.birthdayPicker.Value = new System.DateTime(((long)(0)));
-			// 
 			// mobileTextBox
 			// 
 			this.mobileTextBox.Location = new System.Drawing.Point(125, 97);
@@ -348,7 +332,8 @@
 			this.nameEnBox.Size = new System.Drawing.Size(197, 20);
 			this.nameEnBox.TabIndex = 26;
 			this.nameEnBox.TabStop = false;
-			this.nameEnBox.TextChanged += new System.EventHandler(this.NameTranslitTextBox_TextChanged);
+			this.nameEnBox.TextChanged += new System.EventHandler(this.LatinTextBox_TextChanged);
+			this.nameEnBox.Validating += new System.ComponentModel.CancelEventHandler(this.LatinTextBoxes_Validating);
 			// 
 			// nameBox
 			// 
@@ -357,6 +342,7 @@
 			this.nameBox.Size = new System.Drawing.Size(197, 20);
 			this.nameBox.TabIndex = 22;
 			this.nameBox.TextChanged += new System.EventHandler(this.NameTextBox_TextChanged);
+			this.nameBox.Validating += new System.ComponentModel.CancelEventHandler(this.CyrillicTextBoxes_Validating);
 			// 
 			// nameLabel
 			// 
@@ -383,6 +369,7 @@
 			this.surnameBox.Size = new System.Drawing.Size(197, 20);
 			this.surnameBox.TabIndex = 24;
 			this.surnameBox.TextChanged += new System.EventHandler(this.SurnameTextBox_TextChanged);
+			this.surnameBox.Validating += new System.ComponentModel.CancelEventHandler(this.CyrillicTextBoxes_Validating);
 			// 
 			// surnameLabel
 			// 
@@ -409,7 +396,8 @@
 			this.surnameEnBox.Size = new System.Drawing.Size(197, 20);
 			this.surnameEnBox.TabIndex = 27;
 			this.surnameEnBox.TabStop = false;
-			this.surnameEnBox.TextChanged += new System.EventHandler(this.SurnameTranslitTextBox_TextChanged);
+			this.surnameEnBox.TextChanged += new System.EventHandler(this.LatinTextBox_TextChanged);
+			this.surnameEnBox.Validating += new System.ComponentModel.CancelEventHandler(this.LatinTextBoxes_Validating);
 			// 
 			// middlenameBox
 			// 
@@ -418,6 +406,7 @@
 			this.middlenameBox.Size = new System.Drawing.Size(197, 20);
 			this.middlenameBox.TabIndex = 38;
 			this.middlenameBox.TextChanged += new System.EventHandler(this.middlenameBox_TextChanged);
+			this.middlenameBox.Validating += new System.ComponentModel.CancelEventHandler(this.CyrillicTextBoxes_Validating);
 			// 
 			// nameTranslitLabel
 			// 
@@ -458,15 +447,6 @@
 			this.tabPage2.TabIndex = 1;
 			this.tabPage2.Text = "Опции";
 			this.tabPage2.UseVisualStyleBackColor = true;
-			// 
-			// groupSelector
-			// 
-			this.groupSelector.Groups = ((System.Collections.Generic.Dictionary<string, System.Guid>)(resources.GetObject("groupSelector.Groups")));
-			this.groupSelector.Location = new System.Drawing.Point(54, 40);
-			this.groupSelector.Name = "groupSelector";
-			this.groupSelector.Size = new System.Drawing.Size(228, 246);
-			this.groupSelector.TabIndex = 11;
-			this.groupSelector.Click += new System.EventHandler(this.GroupSelector_Click);
 			// 
 			// groupsLabel
 			// 
@@ -524,6 +504,7 @@
 			// 
 			// cancelBtn
 			// 
+			this.cancelBtn.CausesValidation = false;
 			this.cancelBtn.Location = new System.Drawing.Point(412, 391);
 			this.cancelBtn.Name = "cancelBtn";
 			this.cancelBtn.Size = new System.Drawing.Size(131, 42);
@@ -531,6 +512,33 @@
 			this.cancelBtn.Text = "Отмена";
 			this.cancelBtn.UseVisualStyleBackColor = true;
 			this.cancelBtn.Click += new System.EventHandler(this.cancelBtn_Click);
+			// 
+			// genderSelector
+			// 
+			this.genderSelector.Location = new System.Drawing.Point(452, 118);
+			this.genderSelector.Name = "genderSelector";
+			this.genderSelector.Size = new System.Drawing.Size(54, 24);
+			this.genderSelector.TabIndex = 47;
+			this.genderSelector.Value = "Male";
+			// 
+			// birthdayPicker
+			// 
+			this.birthdayPicker.Location = new System.Drawing.Point(453, 74);
+			this.birthdayPicker.Name = "birthdayPicker";
+			this.birthdayPicker.Size = new System.Drawing.Size(172, 38);
+			this.birthdayPicker.TabIndex = 46;
+			this.birthdayPicker.Value = new System.DateTime(((long)(0)));
+			this.birthdayPicker.Validating += new System.ComponentModel.CancelEventHandler(this.birthdayPicker_Validating);
+			// 
+			// groupSelector
+			// 
+			this.groupSelector.File = null;
+			this.groupSelector.Groups = ((System.Collections.Generic.Dictionary<string, System.Guid>)(resources.GetObject("groupSelector.Groups")));
+			this.groupSelector.Location = new System.Drawing.Point(54, 40);
+			this.groupSelector.Name = "groupSelector";
+			this.groupSelector.Size = new System.Drawing.Size(228, 246);
+			this.groupSelector.TabIndex = 11;
+			this.groupSelector.Click += new System.EventHandler(this.GroupSelector_Click);
 			// 
 			// birthdayPicker1
 			// 
