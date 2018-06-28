@@ -117,34 +117,16 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="cdGroup" xml:space="preserve">
-    <value>CN=ESET DVD Drives Allowed,OU=Groups,OU=Aktau,DC=nng,DC=kz</value>
+  <data name="CitiesFile" xml:space="preserve">
+    <value>cities.txt</value>
   </data>
-  <data name="cloudGroup" xml:space="preserve">
-    <value />
+  <data name="GroupsFile" xml:space="preserve">
+    <value>groups.txt</value>
   </data>
-  <data name="devAddr" xml:space="preserve">
-    <value>LDAP://OU=Users,OU=Aktau,DC=nng,DC=kz</value>
+  <data name="PropertiesToLoad" xml:space="preserve">
+    <value>sn,givenName,middleName,extensionAttribute3,mobile,extensionAttribute2,title,description,department,physicalDeliveryOfficeName,manager,telephoneNumber,ipPhone,userAccountControl,l,st,co,postalCode,employeeType,division</value>
   </data>
-  <data name="domain" xml:space="preserve">
-    <value>DC=nng,DC=kz</value>
-  </data>
-  <data name="internetFullAccessGroup" xml:space="preserve">
-    <value>CN=FullAccess,OU=InternetAccess,OU=Groups,DC=nng,DC=kz</value>
-  </data>
-  <data name="internetLimitedAccessGroup" xml:space="preserve">
-    <value>CN=LimitedAccess,OU=InternetAccess,OU=Groups,DC=nng,DC=kz</value>
-  </data>
-  <data name="uradevAddr" xml:space="preserve">
-    <value>LDAP://OU=Users,OU=Uralsk,DC=ura,DC=nng,DC=kz</value>
-  </data>
-  <data name="usbDeviceGroup" xml:space="preserve">
-    <value>CN=ESET USB Mobile Devices Allowed,OU=Groups,OU=Aktau,DC=nng,DC=kz</value>
-  </data>
-  <data name="usbDiskGroup" xml:space="preserve">
-    <value>CN=ESET USB Drives Allowed,OU=Groups,OU=Aktau,DC=nng,DC=kz</value>
-  </data>
-  <data name="usersXML" xml:space="preserve">
+  <data name="XmlFile" xml:space="preserve">
     <value>users.xml</value>
   </data>
 </root>

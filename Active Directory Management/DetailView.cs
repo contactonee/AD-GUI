@@ -15,240 +15,269 @@ using System.Xml.XPath;
 
 namespace Active_Directory_Management
 {
-    public partial class DetailView : Form
+	public partial class DetailView : Form
     {
-        private DirectoryEntry ldapConnection = new DirectoryEntry(Properties.Resources.devAddr);
-        private XDocument doc = XDocument.Load("users.xml");
-        private DirectoryEntry userEntry;
+
+		private bool changed = false;
+		
+		private XElement city;
+		private User user;
+		public DialogResult success = DialogResult.None;
+
+		static string[] groups = System.IO.File.ReadAllLines("groups.csv");
 
 
-        public DetailView()
+        public DetailView(XElement city)
         {
-            InitializeComponent();
-            OnLoad();
-        }
-        public DetailView(XElement user)
-        {
-            InitializeComponent();
-            OnLoad();
-            LoadUser(user);
+			this.city = city;
 
-            
+			InitializeComponent();
+            OnLoad();
+
         }
+        public DetailView(XElement city, User user)
+		{
+			this.city = city;
+
+			InitializeComponent();
+			OnLoad();
+
+			this.user = user;
+			this.Text = user.Name;
+
+			saveBtn.Text = "Сохранить изменения";
+
+			nameBox.Text = user.GetProperty("givenName");
+			surnameBox.Text = user.GetProperty("sn");
+			middlenameBox.Text = user.GetProperty("middleName");
+
+			try
+			{
+				surnameEnBox.Text = user.Name.Split(' ')[0];
+				nameEnBox.Text = user.Name.Split(' ')[1];
+			}
+			catch
+			{
+				Debug.WriteLine("No lastname");
+				nameEnBox.Text = user.Name;
+				surnameEnBox.Text = string.Empty;
+			}
+			mobileTextBox.Text = user.GetProperty("mobile");
+
+			try
+			{
+				birthdayPicker.Value = DateTime.Parse(user.GetProperty("extensionAttribute2"));
+			}
+			catch
+			{
+				Debug.WriteLine("No birthday");
+				birthdayPicker.Clear();
+			}
+
+			try
+			{
+				genderSelector.Value = user.GetProperty("extensionAttribute3");
+			}
+			catch (Exception e)
+			{
+				Debug.WriteLine(e.Message);
+				Debug.WriteLine("Не задан пол в атрибутах");
+			}
+			
+			departmentCombo.SelectedIndex = departmentCombo.Items.IndexOf(user.GetProperty("department"));
+			divCombo.Text = user.GetProperty("description");
+			posCombo.Text = user.GetProperty("title");
+			roomCombo.Text = user.GetProperty("physicalDeliveryOfficeName");
+			telCombo.Text = user.GetProperty("telephoneNumber");
+
+			if (user.GetProperty("manager") == string.Empty)
+				managerCheck.Checked = false;
+			if ((string)managerCheck.Tag == user.Dn)
+				managerCheck.Enabled = false;
+			
+			foreach(Guid group in groupSelector.Groups.Values)
+			{
+				DirectoryEntry entry = new DirectoryEntry(string.Format("LDAP://<GUID={0}>", group.ToString()));
+				groupSelector.SetValue(group, user.MemberOf(entry.Properties["distinguishedName"].Value.ToString()));
+			}
+
+			changed = false;
+			saveBtn.Enabled = false;
+			
+		}
 
         private void OnLoad()
         {
-            cityCombo.Items.Add("Актау");
-            cityCombo.Enabled = false;
+			groupSelector.File = groups;
+			groupSelector.RenderList(city.Attribute("nameRU").Value, Guid.Empty);
 
-
-            unlimitedRadio.Select();
-            cityCombo.SelectedIndex = 0;
-            internetCombo.SelectedIndex = 0;
+			unlimitedRadio.Select();
             expirationDatePicker.Value = DateTime.Today.AddMonths(1);
             mobileTextBox.TextMaskFormat = MaskFormat.ExcludePromptAndLiterals;
 
-            var res = doc.Root.Elements("dept")
-                .Select(t => t.Attribute("russName").Value)
-                .ToArray();
-            departmentCombo.Items.AddRange(res);                                                                                       
-
-        }
-
-        private void LoadUser(XElement user)
-        {
-            // Set directory entry value
-            userEntry = new DirectoryEntry("LDAP://" + user.Attribute("dn").Value);
-
-            // Rename window heading
-            this.Text = user.Element("sn").Value + " " + user.Element("givenName").Value;
-
-            // Rename submit button
-            create.Text = "Сохранить изменения";
-
-            // Fill name fields
-            nameTextBox.Text = user.Element("givenName").Value;
-            surnameTextBox.Text = user.Element("sn").Value;
-            middleNameTextBox.Text = user.Element("middleName").Value;
-
-
-            // Перезапись после автотранслита для точного соответствия с базой
-            try
-            {
-                surnameTranslitTextBox.Text = user.Attribute("name").Value.Split(' ')[0];
-                nameTranslitTextBox.Text = user.Attribute("name").Value.Split(' ')[1];
-            }
-            catch
-            {
-                nameTranslitTextBox.Text = user.Attribute("name").Value.Split(' ')[0];
-                surnameTranslitTextBox.Clear();
-            }
-
-            // Mobile number
-            mobileTextBox.Text = user.Element("mobile").Value;
-
-            // Try to set birthday, if not specified, set empty field
-            try
-            {
-                birthdayDatePicker.Value = DateTime.Parse(user.Element("extensionAttribute2").Value);
-            }
-            catch
-            {
-                birthdayDatePicker.Format = DateTimePickerFormat.Custom;
-                birthdayDatePicker.CustomFormat = " ";
-            }
-
-            // Select department
-            if(user.Parent.Name == "dept")
-            {
-                departmentCombo.SelectedIndex = departmentCombo.Items.IndexOf(user.Parent.Attribute("russName").Value);
-            }
-            else
-            {
-                departmentCombo.SelectedIndex = departmentCombo.Items.IndexOf(user.Parent.Parent.Attribute("russName").Value);
-                subdepartmentCombo.SelectedIndex = subdepartmentCombo.Items.IndexOf(user.Parent.Attribute("name").Value);
-            }
-
-            // Lock department combos
-            departmentCombo.Enabled = false;
-            subdepartmentCombo.Enabled = false;
-
-            
-
-            // Fill editable fields regarding position in company
-            divCombo.Text = user.Element("description").Value;
-            posCombo.Text = user.Element("title").Value;
-            roomCombo.Text = user.Element("physicaldeliveryofficename").Value;
-            telCombo.Text = user.Element("telephoneNumber").Value;
-
-            // Second tab (options)
-
-            // Check membership in groups and tick checkboxes
-            cdCheck.Checked = user.Element("memberOf").Value.Contains(Properties.Resources.cdGroup);
-            usbDiskCheck.Checked = user.Element("memberOf").Value.Contains(Properties.Resources.usbDiskGroup);
-            usbDeviceCheck.Checked = user.Element("memberOf").Value.Contains(Properties.Resources.usbDeviceGroup);
-
-            // Determine the level of internet access and set combobox
-            if (user.Element("memberOf").Value.Contains(Properties.Resources.internetFullAccessGroup))
-                internetCombo.SelectedIndex = 2;
-            else
-            {
-                if (user.Element("memberOf").Value.Contains(Properties.Resources.internetLimitedAccessGroup))
-                    internetCombo.SelectedIndex = 1;
-                else
-                    internetCombo.SelectedIndex = 0;
-            }
-
-        }
-
-        private bool CheckChar(string input)
-        {
-            foreach(char ch in input)
-                if((ch < 'А' || ch > 'я') && ch != 'ё' && ch != 'Ё')
-                    return false;
-            return true;
-        }
-
-		
-
-        private void MakeTranslit(TextBox sender, TextBox translit)
-        {
-            string input = sender.Text;
-			if (sender.ForeColor == Color.Black)
+			string[] depts = city.Elements("dept")
+				.Select(t => t.Attribute("nameRU").Value)
+				.ToArray();
+			if (depts.Count() > 0)
 			{
-				Dictionary<char, string> dict = new Dictionary<char, string>
+				departmentCombo.Enabled = true;
+				departmentLabel.Enabled = true;
+				departmentCombo.Items.AddRange(depts);
+			}
+			else
+			{
+				departmentCombo.Enabled = false;
+				departmentLabel.Enabled = false;
+
+
+				User manager = null;
+
+				HashSet<string> diffDivs = new HashSet<string>();
+				HashSet<string> diffPoss = new HashSet<string>();
+				HashSet<string> diffRooms = new HashSet<string>();
+				HashSet<string> diffTels = new HashSet<string>();
+
+
+				foreach (XElement elem in city.Elements().ToArray())
 				{
-					['Й'] = "Y",
-					['Ц'] = "C",
-					['У'] = "U",
-					['К'] = "K",
-					['Е'] = "Ye",
-					['Н'] = "N",
-					['Г'] = "G",
-					['Ш'] = "Sh",
-					['Щ'] = "Shh",
-					['З'] = "Z",
-					['Х'] = "Kh",
-					['Ф'] = "F",
-					['Ы'] = "I",
-					['В'] = "V",
-					['А'] = "A",
-					['П'] = "P",
-					['Р'] = "R",
-					['О'] = "O",
-					['Л'] = "L",
-					['Д'] = "D",
-					['Ж'] = "Zh",
-					['Э'] = "E",
-					['Я'] = "Ya",
-					['Ч'] = "Ch",
-					['С'] = "S",
-					['М'] = "M",
-					['И'] = "I",
-					['Т'] = "T",
-					['Б'] = "B",
-					['Ю'] = "Yu", // Yuriyev
-					['Ё'] = "Yo", // Yozhikov
+					if (elem.Element("description").Value.Trim() != string.Empty
+							&& !elem.Element("description").Value.StartsWith("("))
+						diffDivs.Add(elem.Element("description").Value);
 
-					['й'] = "y",
-					['ц'] = "c",
-					['у'] = "u",
-					['к'] = "k",
-					['е'] = "e",
-					['н'] = "n",
-					['г'] = "g",
-					['ш'] = "sh",
-					['щ'] = "shh",
-					['з'] = "z",
-					['х'] = "kh",
-					['ф'] = "f",
-					['ы'] = "i",
-					['в'] = "v",
-					['а'] = "a",
-					['п'] = "p",
-					['р'] = "r",
-					['о'] = "o",
-					['л'] = "l",
-					['д'] = "d",
-					['ж'] = "zh",
-					['э'] = "e",
-					['я'] = "ya",
-					['ч'] = "ch",
-					['с'] = "s",
-					['м'] = "m",
-					['и'] = "i",
-					['т'] = "t",
-					['ь'] = "i",
-					['б'] = "b",
-					['ю'] = "yu",
-					['ё'] = "yo"
-				};
+					if (elem.Element("title").Value.Trim() != string.Empty)
+						diffPoss.Add(elem.Element("title").Value);
 
+					if (elem.Element("physicalDeliveryOfficeName").Value.Trim() != string.Empty)
+						diffRooms.Add(elem.Element("physicalDeliveryOfficeName").Value);
 
-				string result = "";
-				foreach (char ch in input)
-					result += dict[ch];
+					if (elem.Element("telephoneNumber").Value.Trim() != string.Empty)
+						diffTels.Add(elem.Element("telephoneNumber").Value);
 
-				translit.Text = result;
+					if (elem.Element("manager").Value.Trim() != string.Empty && manager == null)
+						manager = User.Load(elem.Element("manager").Value);
+
+				}
+
+				divCombo.BeginUpdate();
+				divCombo.Items.Clear();
+				divCombo.ResetText();
+				divCombo.Items.AddRange(diffDivs.ToArray());
+				divCombo.EndUpdate();
+
+				posCombo.BeginUpdate();
+				posCombo.Items.Clear();
+				posCombo.ResetText();
+				posCombo.Items.AddRange(diffPoss.ToArray());
+				posCombo.EndUpdate();
+
+				posEnBox.Clear();
+
+				roomCombo.BeginUpdate();
+				roomCombo.Items.Clear();
+				roomCombo.ResetText();
+				roomCombo.Items.AddRange(diffRooms.ToArray());
+				roomCombo.EndUpdate();
+
+				telCombo.BeginUpdate();
+				telCombo.Items.Clear();
+				telCombo.ResetText();
+				telCombo.Items.AddRange(diffTels.ToArray());
+				telCombo.EndUpdate();
+
+				if (manager == null)
+				{
+					managerPanel.Enabled = false;
+					managerCheck.Visible = false;
+					managerCheck.Checked = false;
+				}
+				else
+				{
+					managerPanel.Enabled = true;
+					managerCheck.Visible = true;
+					managerCheck.Checked = true;
+
+					managerCheck.Text = manager.GetProperty("sn") + " " + manager.GetProperty("givenName");
+					managerCheck.Tag = manager.Dn;
+				}
+
 			}
         }
-        
-        private void AddGroup(DirectoryEntry user, string groupDN)
+		
+		private string Translit(string text)
         {
-            DirectoryEntry group = new DirectoryEntry("LDAP://" + groupDN);
-            group.Properties["member"].Add((string)user.Properties["distinguishedName"].Value);
-            group.CommitChanges();
-            group.Close();
-            user.Close();
-        }
+            Dictionary<char, string> dict = new Dictionary<char, string>
+            {
+                ['Й'] = "Y",
+                ['Ц'] = "C",
+                ['У'] = "U",
+                ['К'] = "K",
+                ['Е'] = "Ye",
+                ['Н'] = "N",
+                ['Г'] = "G",
+                ['Ш'] = "Sh",
+                ['Щ'] = "Shh",
+                ['З'] = "Z",
+                ['Х'] = "Kh",
+                ['Ф'] = "F",
+                ['Ы'] = "I",
+                ['В'] = "V",
+                ['А'] = "A",
+                ['П'] = "P",
+                ['Р'] = "R",
+                ['О'] = "O",
+                ['Л'] = "L",
+                ['Д'] = "D",
+                ['Ж'] = "Zh",
+                ['Э'] = "E",
+                ['Я'] = "Ya",
+                ['Ч'] = "Ch",
+                ['С'] = "S",
+                ['М'] = "M",
+                ['И'] = "I",
+                ['Т'] = "T",
+                ['Б'] = "B",
+                ['Ю'] = "Yu", // Yuriyev
+                ['Ё'] = "Yo", // Yozhikov
 
-        private void RemoveGroup(DirectoryEntry user, string groupDN)
-        {
-            DirectoryEntry group = new DirectoryEntry("LDAP://" + groupDN);
-            group.Properties["member"].Remove((string)user.Properties["distinguishedName"].Value);
-            group.CommitChanges();
-            group.Close();
-            user.Close();
+                ['й'] = "y",
+                ['ц'] = "c",
+                ['у'] = "u",
+                ['к'] = "k",
+                ['е'] = "e",
+                ['н'] = "n",
+                ['г'] = "g",
+                ['ш'] = "sh",
+                ['щ'] = "shh",
+                ['з'] = "z",
+                ['х'] = "kh",
+                ['ф'] = "f",
+                ['ы'] = "i",
+                ['в'] = "v",
+                ['а'] = "a",
+                ['п'] = "p",
+                ['р'] = "r",
+                ['о'] = "o",
+                ['л'] = "l",
+                ['д'] = "d",
+                ['ж'] = "zh",
+                ['э'] = "e",
+                ['я'] = "ya",
+                ['ч'] = "ch",
+                ['с'] = "s",
+                ['м'] = "m",
+                ['и'] = "i",
+                ['т'] = "t",
+                ['ь'] = "i",
+                ['б'] = "b",
+                ['ю'] = "yu",
+                ['ё'] = "yo"
+            };
+
+            string result = "";
+            foreach (char ch in text)
+                result += dict[ch];
+
+			return result;
         }
 
         private void CreateButton(object sender, EventArgs e)
@@ -258,338 +287,518 @@ namespace Active_Directory_Management
 
         private void CreateUser()
         {
-            bool isNewUser = false;
+			this.Cursor = Cursors.AppStarting;
+			string displayName = surnameEnBox.Text + " " + nameEnBox.Text;
+			bool newUser = false;
 
-            // If creating new user, create their entry first
-            if (userEntry == null)
-            {
-                isNewUser = true;
+			if (user == null)
+			{
+				XElement par = city.Elements("dept")
+					.Where(t => t.Attribute("nameRU").Value == departmentCombo.Text)
+					.FirstOrDefault();
 
-                // Проверка занятости имени
-                DirectorySearcher searcher = new DirectorySearcher("LDAP://DC=nng,DC=kz");
-                string samAccountName = surnameTranslitTextBox.Text.Substring(0, Math.Min(surnameTranslitTextBox.Text.Length, 4)).ToLower() + nameTranslitTextBox.Text.Substring(0, 1).ToLower();
-                int cnt = 1;
-                searcher.Filter = "samAccountName=" + samAccountName + cnt.ToString();
-                while (searcher.FindOne() != null)
-                {
-                    cnt++;
-                    searcher.Filter = "samAccountName=" + samAccountName + cnt.ToString();
-                }
+				DirectoryEntry ou = new DirectoryEntry("LDAP://" + par.Attribute("dn").Value);
 
-                samAccountName += cnt.ToString();
-                // Свободное имя найдено, создание аккаунта
+				user = new User(displayName, ou, par);
+				newUser = true;
+			}
 
-                // Get path for organizational unit, where user will be created
-                string ou_dn;
-                if (subdepartmentCombo.SelectedIndex > 0)
-                {
-                    ou_dn = doc.Root.Descendants("subdept")
-                        .Where(t => t.Attribute("name").Value == subdepartmentCombo.Text)
-                        .Select(t => t.Attribute("dn").Value)
-                        .First();
-                }
-                else
-                {
-                    ou_dn = doc.Root.Elements()
-                        .Where(t => t.Attribute("russName").Value == departmentCombo.Text)
-                        .Select(t => t.Attribute("dn").Value)
-                        .First();
-                }
-                DirectoryEntry ou = new DirectoryEntry("LDAP://" + ou_dn);
-                userEntry = ou.Children.Add("cn=" + surnameTranslitTextBox.Text + " " + nameTranslitTextBox.Text, "user");
-                ou.Dispose();
-                ou_dn = null;
+			user.Properties["givenName"] = nameBox.Text;
+			user.Properties["sn"] = surnameBox.Text;
+			user.Properties["displayName"] = displayName;
+			user.Properties["middleName"] = middlenameBox.Text;
+			user.Properties["mobile"] = mobileTextBox.Text;
+			
+			user.Properties["department"] = departmentCombo.Text;
+			user.Properties["division"] = city.Descendants("dept")
+				.Where(t => t.Attribute("nameRU").Value == departmentCombo.Text)
+				.Select(t => t.Attribute("name").Value)
+				.First();
 
-                userEntry.Properties["samAccountName"].Value = samAccountName;
-                userEntry.Properties["userPrincipalName"].Value = samAccountName + "@nng.kz";
+			user.Properties["description"] = divCombo.Text;
+			user.Properties["title"] = posCombo.Text;
+			user.Properties["employeeType"] = posEnBox.Text;
+			user.Properties["telephoneNumber"] = telCombo.Text;
+			user.Properties["ipPhone"] = telCombo.Text;
+			user.Properties["physicalDeliveryOfficeName"] = roomCombo.Text;
+			user.Properties["extensionAttribute2"] = birthdayPicker.Value.ToString("dd.MM.yyyy");
+			user.Properties["extensionAttribute3"] = genderSelector.Value.Substring(0, 1);
 
-                userEntry.Properties["givenName"].Value = nameTextBox.Text;
-                userEntry.Properties["sn"].Value = surnameTextBox.Text;
-                userEntry.Properties["displayName"].Value = surnameTranslitTextBox.Text + " " + nameTranslitTextBox.Text;
-                userEntry.Properties["middleName"].Value = middleNameTextBox.Text;
-                userEntry.Properties["mobile"].Value = mobileTextBox.Text;
-                userEntry.Properties["l"].Value = cityCombo.Text;
-                userEntry.Properties["department"].Value = departmentCombo.Text;
-                userEntry.Properties["description"].Value = divCombo.Text;
-                userEntry.Properties["title"].Value = posCombo.Text;
+			user.Properties["company"] = "АО \"НИПИнефтегаз\"";
+			user.Properties["l"] = city.Attribute("nameRU").Value;
+			user.Properties["st"] = city.Attribute("name").Value;
+			user.Properties["c"] = city.Attribute("country").Value;
+			user.Properties["postalCode"] = city.Attribute("postalCode").Value;
 
-                userEntry.CommitChanges();
+			if (limitedRadio.Checked)
+				user.Properties["accountExpires"] = expirationDatePicker.Value.AddDays(1)
+					.ToFileTime()
+					.ToString();
+			if (managerCheck.Checked)
+				user.Properties["manager"] = (string)managerCheck.Tag;
+			else
+				user.Properties["manager"] = null;
 
+			
 
+			user.CommitChanges();
 
-                // Set password
-                userEntry.Invoke("SetPassword", new object[] { "1234567Bv" });
-                userEntry.Properties["pwdLastSet"].Value = 0;
-                userEntry.CommitChanges();
-                // End set password
+			try
+			{
+				foreach (KeyValuePair<Guid, bool> pair in groupSelector.SelectedGroups())
+				{
+					Debug.WriteLine(pair.Key);
+					if (pair.Value)
+					{
+						DirectoryEntry entry = new DirectoryEntry(string.Format("LDAP://<GUID={0}>", pair.Key));
+						user.AddGroup(entry.Properties["distinguishedName"].Value.ToString());
 
-                // Enable user
-                userEntry.Properties["userAccountControl"].Value = 0x200;
-                userEntry.CommitChanges();
-                // End enable user
+					}
+				}
+			}
+			catch
+			{
+				Debug.WriteLine("Не может добавить в группы, возможно не хватает прав");
+			}
 
-            }
-
-            // Set personal information
-
-            userEntry.Properties["givenName"].Value = nameTextBox.Text;
-            userEntry.Properties["sn"].Value = surnameTextBox.Text;
-            userEntry.Properties["displayName"].Value = surnameTranslitTextBox.Text + " " + nameTranslitTextBox.Text;
-            userEntry.Properties["middleName"].Value = middleNameTextBox.Text;
-            userEntry.Properties["mobile"].Value = mobileTextBox.Text;
-            userEntry.Properties["l"].Value = cityCombo.Text;
-            userEntry.Properties["department"].Value = departmentCombo.Text;
-            userEntry.Properties["description"].Value = divCombo.Text;
-            userEntry.Properties["title"].Value = posCombo.Text;
-
-            userEntry.CommitChanges();
-
-            if (cityCombo.SelectedIndex < 4)
-                userEntry.Properties["c"].Value = "KZ";
-            else if (cityCombo.SelectedIndex == 4)
-                userEntry.Properties["c"].Value = "BY";
-            else
-                userEntry.Properties["c"].Value = "RU";
-
-            userEntry.Properties["telephoneNumber"].Value = telCombo.Text;
-            userEntry.Properties["physicaldeliveryofficename"].Value = roomCombo.Text;
-            userEntry.Properties["extensionAttribute2"].Value = birthdayDatePicker.Value.ToString("dd.MM.yyyy");
-            try
-            {
-                userEntry.CommitChanges();
-            }
-            catch
-            {
-                MessageBox.Show("Ошибка, проверьте правильность введенных данных");
-                return;
-            }
-            // End set personal information
-
-
-            // Add to groups
-            // HACK Temporarily disabled groups management - no access to modify membership
-            if (cdCheck.Checked)
-                AddGroup(userEntry, Properties.Resources.cdGroup);
-            else
-                RemoveGroup(userEntry, Properties.Resources.cdGroup);
-
-
-            if (usbDiskCheck.Checked)
-                AddGroup(userEntry, Properties.Resources.usbDiskGroup);
-            else
-                RemoveGroup(userEntry, Properties.Resources.usbDeviceGroup);
-
-
-            if (usbDeviceCheck.Checked)
-                AddGroup(userEntry, Properties.Resources.usbDeviceGroup);
-            else
-                RemoveGroup(userEntry, Properties.Resources.usbDeviceGroup);
-
-
-            if (internetCombo.SelectedIndex == 1)
-                AddGroup(userEntry, Properties.Resources.internetLimitedAccessGroup);
-            else
-                RemoveGroup(userEntry, Properties.Resources.internetLimitedAccessGroup);
-
-
-            if (internetCombo.SelectedIndex == 2)
-                AddGroup(userEntry, Properties.Resources.internetFullAccessGroup);
-            else
-                RemoveGroup(userEntry, Properties.Resources.internetFullAccessGroup);
-
-
-            if (limitedRadio.Checked)
-            {
-                userEntry.Properties["accountExpires"].Value = expirationDatePicker.Value.AddDays(1).ToFileTime().ToString();
-                userEntry.CommitChanges();
-            }
+			if(newUser)
+			{
+				success = MessageBox.Show(
+					"Пользователь успешно создан",
+					"Пользователь создан",
+					MessageBoxButtons.OK,
+					MessageBoxIcon.Information);
+				
+				
+			}
 			else
 			{
-				userEntry.Properties["accountExpires"].Value = new DateTime(5000, 1, 1);
-			}
-            // End add to groups
+				MessageBox.Show(
+					"Изменения успешно сохранены",
+					"Изменения сохранены",
+					MessageBoxButtons.OK,
+					MessageBoxIcon.Information);
 
-            if (isNewUser)
-                MessageBox.Show("Пользователь был успешно создан!");
-            else
-                MessageBox.Show("Изменения были успешно сохранены!");
-            this.Close();
-        }
+			}
+			this.Cursor = Cursors.Default;
+			this.Close();
+		}
 
         private void LimitedRadio_CheckedChanged(object sender, EventArgs e)
         {
-            expirationDatePicker.Enabled = true;
+			// Mark that some fields were edited
+			Changed();
+
+			expirationDatePicker.Enabled = true;
         }
 
         private void UnlimitedRadio_CheckedChanged(object sender, EventArgs e)
-        { 
-            expirationDatePicker.Enabled = false;
-        }
-
-        private void CityCombo_SelectedIndexChanged(object sender, EventArgs e)
         {
-            // departmentCombo List Update
-            // if departments exist, enable departmentLabel and departmentCombo
-            departmentLabel.Enabled = true;
-            departmentCombo.Enabled = true;
-            
-            // otherwise disable
+			// Mark that some fields were edited
+			Changed();
+
+			expirationDatePicker.Enabled = false;
         }
 
         
 
         private void DepartmentCombo_SelectedIndexChanged(object sender, EventArgs e)
         {
-            //Update divCombo
-            //Update posCombo
-            //Update rooms
-            //Update telephones
+			// Mark that some fields were edited
+			Changed();
+
+			XElement deptElem = city.Elements("dept")
+				.Where(t => t.Attribute("nameRU").Value == departmentCombo.Text)
+				.First();
+			
+
+			groupSelector.RenderList(city.Attribute("nameRU").Value, new Guid(deptElem.Attribute("guid").Value));
+
+			User manager = null;
+
+			HashSet<string> diffDivs = new HashSet<string>();
+			HashSet<string> diffPoss = new HashSet<string>();
+			HashSet<string> diffRooms = new HashSet<string>();
+			HashSet<string> diffTels = new HashSet<string>();
 
 
-            XElement deptElem = doc.Root.Elements("dept")
-                .Where(t => t.Attribute("russName").Value == departmentCombo.Text)
-                .First();
+			foreach (XElement elem in deptElem.Elements("user").ToArray())
+			{
+				if (elem.Element("description").Value.Trim() != string.Empty
+						&& !elem.Element("description").Value.StartsWith("("))
+					diffDivs.Add(elem.Element("description").Value);
 
-            
+				if (elem.Element("title").Value.Trim() != string.Empty)
+					diffPoss.Add(elem.Element("title").Value);
 
-            subdepartmentCombo.BeginUpdate();
-            subdepartmentCombo.Items.Clear();
-            subdepartmentCombo.Items.Add("-");
-            subdepartmentCombo.SelectedIndex = 0;
+				if (elem.Element("physicalDeliveryOfficeName").Value.Trim() != string.Empty)
+					diffRooms.Add(elem.Element("physicalDeliveryOfficeName").Value);
 
-            foreach (XElement elem in deptElem.Elements("subdept"))
-                subdepartmentCombo.Items.Add(elem.Attribute("name").Value);
-            
-            subdepartmentCombo.EndUpdate();
+				if (elem.Element("telephoneNumber").Value.Trim() != string.Empty)
+					diffTels.Add(elem.Element("telephoneNumber").Value);
 
-            UpdateCombos(deptElem.Descendants("user").ToArray());
-            
+				if (elem.Element("manager").Value.Trim() != string.Empty && manager == null)
+					manager = User.Load(elem.Element("manager").Value);
 
-        }
+			}
 
-        private void UpdateCombos(XElement[] users)
-        {
-            // Common code after department or subdepartment change
+			divCombo.BeginUpdate();
+			divCombo.Items.Clear();
+			divCombo.ResetText();
+			divCombo.Items.AddRange(diffDivs.ToArray());
+			divCombo.EndUpdate();
 
-            HashSet<string> diffDivs = new HashSet<string>();
-            HashSet<string> diffPoss = new HashSet<string>();
-            HashSet<string> diffRooms = new HashSet<string>();
-            HashSet<string> diffTels = new HashSet<string>();
+			posCombo.BeginUpdate();
+			posCombo.Items.Clear();
+			posCombo.ResetText();
+			posCombo.Items.AddRange(diffPoss.ToArray());
+			posCombo.EndUpdate();
 
-            foreach (XElement elem in users)
-            {
-                if (elem.Element("description").Value.Trim() != string.Empty
-                        && !elem.Element("description").Value.StartsWith("("))
-                    diffDivs.Add(elem.Element("description").Value);
+			posEnBox.Clear();
 
-                if (elem.Element("title").Value.Trim() != string.Empty
-                        && !elem.Element("title").Value.StartsWith("("))
-                    diffPoss.Add(elem.Element("title").Value);
+			roomCombo.BeginUpdate();
+			roomCombo.Items.Clear();
+			roomCombo.ResetText();
+			roomCombo.Items.AddRange(diffRooms.ToArray());
+			roomCombo.EndUpdate();
 
-                if (elem.Element("physicaldeliveryofficename").Value.Trim() != string.Empty
-                        && !elem.Element("physicaldeliveryofficename").Value.StartsWith("("))
-                    diffRooms.Add(elem.Element("physicaldeliveryofficename").Value);
+			telCombo.BeginUpdate();
+			telCombo.Items.Clear();
+			telCombo.ResetText();
+			telCombo.Items.AddRange(diffTels.ToArray());
+			telCombo.EndUpdate();
 
-                if (elem.Element("telephoneNumber").Value.Trim() != string.Empty
-                        && !elem.Element("telephoneNumber").Value.StartsWith("("))
-                    diffTels.Add(elem.Element("telephoneNumber").Value);
-            }
+			if (manager == null)
+			{
+				managerPanel.Enabled = false;
+				managerCheck.Visible = false;
+				managerCheck.Checked = false;
+			}
+			else
+			{
+				managerPanel.Enabled = true;
+				managerCheck.Visible = true;
+				managerCheck.Checked = true;
 
-            divCombo.Items.Clear();
-            posCombo.Items.Clear();
-            roomCombo.Items.Clear();
-            telCombo.Items.Clear();
+				managerCheck.Text = manager.GetProperty("sn") + " " + manager.GetProperty("givenName");
+				managerCheck.Tag = manager.Dn;
+			}
 
-            divCombo.Items.AddRange(diffDivs.ToArray());
-            posCombo.Items.AddRange(diffPoss.ToArray());
-            roomCombo.Items.AddRange(diffRooms.ToArray());
-            telCombo.Items.AddRange(diffTels.ToArray());
-
-        }
+		}
 
 
         private void NameTextBox_TextChanged(object sender, EventArgs e)
         {
-			if (nameTextBox.Text.ToLower().Min() < 'а' || nameTextBox.Text.ToLower().Max() > 'я')
-				nameTextBox.ForeColor = Color.Red;
-			else
-				nameTextBox.ForeColor = Color.Black;
+			// Mark that some fields were edited
+			Changed();
 
-            MakeTranslit(nameTextBox, nameTranslitTextBox);            
-        }
+			if (CheckCyrillic(nameBox.Text))
+			{
+				nameBox.ForeColor = Color.Black;
+				nameEnBox.Text = Translit(nameBox.Text);
+			}
+			else
+				nameBox.ForeColor = Color.Red;
+
+		}
         private void SurnameTextBox_TextChanged(object sender, EventArgs e)
         {
-			if (surnameTextBox.Text.ToLower().Min() < 'а' || surnameTextBox.Text.ToLower().Max() > 'я')
-				surnameTextBox.ForeColor = Color.Red;
+			// Mark that some fields were edited
+			Changed();
+
+			if (CheckCyrillic(surnameBox.Text))
+			{
+				surnameBox.ForeColor = Color.Black;
+				surnameEnBox.Text = Translit(surnameBox.Text);
+			}
 			else
-				surnameTextBox.ForeColor = Color.Black;
+				surnameBox.ForeColor = Color.Red;
+		}
 
-			MakeTranslit(surnameTextBox, surnameTranslitTextBox); 
-        }
-
-        private void DivCombo_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            
-            
-
-        }
+		private void LatinTextBox_TextChanged(object sender, EventArgs e)
+		{
+			if (CheckLatin(((TextBox)sender).Text))
+				((TextBox)sender).ForeColor = Color.Black;
+			else
+				((TextBox)sender).ForeColor = Color.Red;
+		}
 
         private void RoomCombo_TextChanged(object sender, EventArgs e)
         {
-            var res = doc.Root.Descendants("user")
-                .Where(t => t.Element("physicaldeliveryofficename").Value == roomCombo.Text)
-                .Select(t => t.Element("telephoneNumber").Value);
+			telCombo.Items.Clear();
+			try
+			{
+				var res = city.Descendants("user")
+					.Where(t => t.Element("physicalDeliveryOfficeName").Value == roomCombo.Text)
+					.Select(t => t.Element("telephoneNumber").Value);
 
-            HashSet<string> diffTels = new HashSet<string>();
+				HashSet<string> diffTels = new HashSet<string>();
 
-            foreach (string elem in res)
-                diffTels.Add(elem);
+				foreach (string elem in res)
+					diffTels.Add(elem);
 
-            telCombo.Items.Clear();
-            telCombo.Items.AddRange(diffTels.ToArray());
+				telCombo.Items.AddRange(diffTels.ToArray());
+			}
+			catch (Exception ex)
+			{
+				Debug.WriteLine(ex.Message);
+				Debug.WriteLine("Наверное не выбран город");
+			}
         }
 
-        private void BirthdayDatePicker_ValueChanged(object sender, EventArgs e)
-        {
-            birthdayDatePicker.Format = DateTimePickerFormat.Short;
-        }
-
-        private void SubdepartmentCombo_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            if (subdepartmentCombo.SelectedIndex > 0)
-            {
-                
-                UpdateCombos(doc.Root.Descendants("subdept")
-                    .Where(t => t.Attribute("name").Value == subdepartmentCombo.Text)
-                    .Select(t => t.Descendants("user"))
-                    .First()
-                    .ToArray());
-            }
-            else
-            {
-                UpdateCombos(doc.Root.Elements("dept")
-                    .Where(t => t.Attribute("russName").Value == departmentCombo.Text)
-                    .Select(t => t.Descendants("user"))
-                    .First()
-                    .ToArray());
-            }
-            
-        }
-
-		private void nameTranslitTextBox_TextChanged(object sender, EventArgs e)
+        
+		private void cancelBtn_Click(object sender, EventArgs e)
 		{
-			if (nameTranslitTextBox.Text.ToLower().Min() < 'a' || nameTranslitTextBox.Text.ToLower().Max() > 'z')
-				nameTranslitTextBox.ForeColor = Color.Red;
+			if (!changed)
+				this.Close();
 			else
-				nameTranslitTextBox.ForeColor = Color.Black;
+			{
+				DialogResult dialogResult = MessageBox.Show(
+					"Все несохраненные изменения будут потеряны",
+					"Внимание",
+					MessageBoxButtons.YesNo,
+					MessageBoxIcon.Warning,
+					MessageBoxDefaultButton.Button2);
+				if (dialogResult == DialogResult.Yes)
+					this.Close();
+			}
+		}
+		
+
+		private void DetailView_KeyUp(object sender, KeyEventArgs e)
+		{
+			if (e.KeyCode == Keys.Enter)
+				saveBtn.PerformClick();
+			if (e.KeyCode == Keys.Escape)
+				cancelBtn.PerformClick();
 		}
 
-		private void surnameTranslitTextBox_TextChanged(object sender, EventArgs e)
+		private void Changed()
 		{
-			if (surnameTranslitTextBox.Text.ToLower().Min() < 'a' || surnameTranslitTextBox.Text.ToLower().Max() > 'z')
-				surnameTranslitTextBox.ForeColor = Color.Red;
+			if (!changed)
+			{
+				changed = true;
+				saveBtn.Enabled = true;
+			}
+		}
+
+		private void middlenameBox_TextChanged(object sender, EventArgs e)
+		{
+			// Mark that some fields were edited
+			Changed();
+		}
+
+		private void mobileTextBox_MaskInputRejected(object sender, MaskInputRejectedEventArgs e)
+		{
+			// Mark that some fields were edited
+			Changed();
+
+		}
+
+		private void genderSelector_Click(object sender, EventArgs e)
+		{
+			// Mark that some fields were edited
+			Changed();
+
+		}
+
+		private void divCombo_SelectedIndexChanged(object sender, EventArgs e)
+		{
+			// Mark that some fields were edited
+			Changed();
+
+			User manager = null;
+			
+			HashSet<string> diffPoss = new HashSet<string>();
+			HashSet<string> diffRooms = new HashSet<string>();
+			HashSet<string> diffTels = new HashSet<string>();
+
+
+			foreach (XElement elem in city.Descendants("user")
+				.Where(t => t.Element("description").Value == divCombo.Text)
+				.ToArray())
+			{
+				if (elem.Element("title").Value.Trim() != string.Empty)
+					diffPoss.Add(elem.Element("title").Value);
+
+				if (elem.Element("physicalDeliveryOfficeName").Value.Trim() != string.Empty)
+					diffRooms.Add(elem.Element("physicalDeliveryOfficeName").Value);
+
+				if (elem.Element("telephoneNumber").Value.Trim() != string.Empty)
+					diffTels.Add(elem.Element("telephoneNumber").Value);
+
+				if (elem.Element("manager").Value.Trim() != string.Empty && manager == null)
+					manager = User.Load(elem.Element("manager").Value);
+
+			}
+			posCombo.BeginUpdate();
+			posCombo.Items.Clear();
+			posCombo.ResetText();
+			posCombo.Items.AddRange(diffPoss.ToArray());
+			posCombo.EndUpdate();
+
+			posEnBox.Clear();
+
+			roomCombo.BeginUpdate();
+			roomCombo.Items.Clear();
+			roomCombo.ResetText();
+			roomCombo.Items.AddRange(diffRooms.ToArray());
+			roomCombo.EndUpdate();
+
+			telCombo.BeginUpdate();
+			telCombo.Items.Clear();
+			telCombo.ResetText();
+			telCombo.Items.AddRange(diffTels.ToArray());
+			telCombo.EndUpdate();
+
+			if (manager == null)
+			{
+				managerPanel.Enabled = false;
+				managerCheck.Visible = false;
+				managerCheck.Checked = false;
+			}
 			else
-				surnameTranslitTextBox.ForeColor = Color.Black;
+			{
+				managerPanel.Enabled = true;
+				managerCheck.Visible = true;
+				managerCheck.Checked = true;
+
+				managerCheck.Text = manager.GetProperty("sn") + " " + manager.GetProperty("givenName");
+				managerCheck.Tag = manager.Dn;
+			}
+		}
+
+		private void posCombo_SelectedIndexChanged(object sender, EventArgs e)
+		{
+			// Mark that some fields were edited
+			Changed();
+
+		}
+
+		private void roomCombo_SelectedIndexChanged(object sender, EventArgs e)
+		{
+			// Mark that some fields were edited
+			Changed();
+
+		}
+
+		private void telCombo_SelectedIndexChanged(object sender, EventArgs e)
+		{
+			// Mark that some fields were edited
+			Changed();
+
+		}
+
+		private void managerCheck_CheckedChanged(object sender, EventArgs e)
+		{
+			// Mark that some fields were edited
+			Changed();
+
+		}
+
+		private void cdCheck_CheckedChanged(object sender, EventArgs e)
+		{
+			// Mark that some fields were edited
+			Changed();
+
+		}
+
+		private void usbDiskCheck_CheckedChanged(object sender, EventArgs e)
+		{
+			// Mark that some fields were edited
+			Changed();
+
+		}
+
+		private void usbDeviceCheck_CheckedChanged(object sender, EventArgs e)
+		{
+			// Mark that some fields were edited
+			Changed();
+
+		}
+
+		private void CloudCheck_CheckedChanged(object sender, EventArgs e)
+		{
+			// Mark that some fields were edited
+			Changed();
+
+		}
+
+		private void InternetCombo_SelectedIndexChanged(object sender, EventArgs e)
+		{
+			// Mark that some fields were edited
+			Changed();
+
+		}
+
+		private void ExpirationDatePicker_ValueChanged(object sender, EventArgs e)
+		{
+			// Mark that some fields were edited
+			Changed();
+
+		}
+
+		private void PosCombo_TextChanged(object sender, EventArgs e)
+		{
+			// Mark that some fields were edited
+			Changed();
+
+			try
+			{
+				posEnBox.Text = city.Descendants("user")
+					.Where(t => t.Element("title").Value == posCombo.Text
+						&& t.Element("employeeType").Value != "")
+					.Select(t => t.Element("employeeType").Value)
+					.First();
+			}
+			catch
+			{
+				posEnBox.Clear();
+				Debug.WriteLine("Не удалось найти перевод должности", "Warning");
+			}
+		}
+
+		private void GroupSelector_Click(object sender, EventArgs e)
+		{
+			changed = true;
+		}
+
+		private bool CheckCyrillic(string text)
+		{
+			text = text.ToLower();
+			if (text == string.Empty)
+				return true;
+			if (text.Min() < 'а' || (text.Max() > 'я' && text.Max() != 'ё'))
+				return false;
+			else
+				return true;
+		}
+		private bool CheckLatin(string text)
+		{
+			text = text.ToLower();
+			if (text == string.Empty)
+				return true;
+			if (text.Min() < 'a' || text.Max() > 'z')
+				return false;
+			else
+				return true;
+		}
+
+		private void LatinTextBoxes_Validating(object sender, CancelEventArgs e)
+		{
+			if (!CheckLatin(((TextBox)sender).Text))
+				e.Cancel = true;
+		}
+		private void CyrillicTextBoxes_Validating(object sender, CancelEventArgs e)
+		{
+			if (!CheckCyrillic(((TextBox)sender).Text))
+				e.Cancel = true;
+		}
+
+		private void birthdayPicker_Validating(object sender, CancelEventArgs e)
+		{
+			if (((BirthdayPicker)sender).Value == DateTime.MinValue)
+				e.Cancel = true;
 		}
 	}
 }

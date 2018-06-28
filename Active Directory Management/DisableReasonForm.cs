@@ -16,5 +16,11 @@ namespace Active_Directory_Management
         {
             InitializeComponent();
         }
-    }
+
+		private void reasonTextBox_KeyUp(object sender, KeyEventArgs e)
+		{
+			if (e.KeyCode == Keys.Enter)
+				button1.PerformClick();
+		}
+	}
 }

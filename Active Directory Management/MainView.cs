@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Data.SqlClient;
 using System.Diagnostics;
 using System.DirectoryServices;
 using System.Drawing;
@@ -14,436 +15,521 @@ using System.Xml.Linq;
 
 namespace Active_Directory_Management
 {
-    public partial class MainView : Form
-    {
-        private XDocument doc;
-        private XElement SelectedUser;
-        private DirectoryEntry SelectedEntry;
+	public partial class MainView : Form
+	{
+		public static XDocument xmlDoc;
+		private User selectedUser;
+		
+		static public Dictionary<string, string> cityOuPath;
 
-        // Массив атрибутов для выгрузки из AD
-        // Используется в DumpADtoXML()
 
-        private string[] props = new string[]
-        {
-            "description",
-            "title",
-            "physicaldeliveryofficename",
-            "telephoneNumber",
-            "givenName",
-            "sn",
-            "department",
-            "memberOf",
-            "middleName",
-            "mobile",
-            "samaccountname",
-            "extensionAttribute2",
-            "userAccountControl",
-            "name"
-        };
+		// Массив атрибутов для выгрузки из AD
+		// Используется в DumpADtoXML()
+		private string[] fields = Properties.Resources.PropertiesToLoad.Split(',');
 
 
         public MainView()
         {
             InitializeComponent();
+			
 
-			treeView.Sort();
+			// Подгрузка списка городов
+			cityOuPath = new Dictionary<string, string>();
+			foreach (string line in System.IO.File.ReadAllLines("cities.csv"))
+			{
+				string name = line.Split(';')[0];
+				string dn = line.Split(';')[1];
 
-			DumpADtoXML();
-			doc = XDocument.Load("users.xml");
-			FillTree();
+				cityOuPath.Add(name,dn);
+			}
 
-        }
+			// Заполнение выпадающего списка городов
+			citySelector.Items.AddRange(cityOuPath.Keys.ToArray());
+			
+		}
+		private void MainView_Load(object sender, EventArgs e)
+		{
+			try
+			{
+				xmlDoc = XDocument.Load(Properties.Resources.XmlFile);
+				DateTime lastUpd = DateTime.Parse(xmlDoc.Root.Attribute("lastUpdated").Value);
+				if (DateTime.Now.Subtract(lastUpd).TotalSeconds > 30)
+					throw new Exception("Too old file! (Last Update >30 seconds ago)");
+			}
+			catch (Exception ex)
+			{
+				Debug.WriteLine(ex.Message);
+				xmlDoc = DumpToXml(cityOuPath.Keys.First());
+			}
+			citySelector.SelectedIndex = 0;
+		}
+
+		/// <summary>
+		/// Выгрузка записей из Active Directory в XML-файл по городу
+		/// </summary>
+		/// <param name="cityRU">Название города на русском</param>
+		/// <returns>Ссылка на XDocument</returns>
+		private XDocument DumpToXml(string cityRU)
+		{
+			this.Cursor = Cursors.WaitCursor;
+			this.Enabled = false;
+			
+
+			XDocument dump;
+
+			try
+			{
+				dump = new XDocument(xmlDoc);
+			}
+			catch
+			{
+				Debug.WriteLine("Не нашел документа, создал новый", "Info");
+				dump = new XDocument();
+
+				// Добавление корня
+				dump.Add(new XElement("company"));
+			}
+
+			XElement cityElem;
+			try
+			{
+				// Поиск узла города и его удаление
+				dump.Root.Elements("city")
+					.Where(t => t.Attribute("nameRU").Value == cityRU)
+					.First()
+					.Remove();
+			}
+			catch
+			{
+				Debug.WriteLine("Попытка удалить ветвь города, город не найден", "Info");
+			}
+
+			cityElem = new XElement("city",
+				new XAttribute("name", ""),
+				new XAttribute("nameRU", cityRU),
+				new XAttribute("country", ""),
+				new XAttribute("postalCode", ""),
+				new XAttribute("addr", ""));
+
+			dump.Root.Add(cityElem);
+
+			using (DirectoryEntry cityEntry = new DirectoryEntry("LDAP://OU=Users," + cityOuPath[cityRU]))
+			{
+
+				cityElem.Attribute("name").Value = cityEntry.Parent.Properties["name"].Value.ToString();
+
+				try
+				{
+					cityElem.Attribute("postalCode").Value = cityEntry.Parent.Properties["postalCode"].Value.ToString();
+					cityElem.Attribute("addr").Value = cityEntry.Parent.Properties["street"].Value.ToString();
+					cityElem.Attribute("country").Value = cityEntry.Parent.Properties["c"].Value.ToString();
+				}
+				catch
+				{
+					Debug.WriteLine("Нет адресных данных города, пропуск");
+				}
+				
+
+				using (DirectorySearcher searcher = new DirectorySearcher())
+				{
+					searcher.SearchRoot = cityEntry;
+					searcher.SearchScope = SearchScope.OneLevel;
+
+					// Manually add service properties
+					searcher.PropertiesToLoad.Add("name");
+					searcher.PropertiesToLoad.Add("memberOf");
+					searcher.PropertiesToLoad.Add("userAccountControl");
+
+					searcher.PropertiesToLoad.AddRange(fields);
+
+					searcher.Filter = "(objectClass=organizationalUnit)";
+					using (SearchResultCollection departmentsResponse = searcher.FindAll())
+					{
+						foreach (SearchResult res in departmentsResponse)
+						{
+							using (DirectoryEntry dept = res.GetDirectoryEntry())
+							{
+
+								XElement deptElem = new XElement("dept",
+									new XAttribute("name", dept.Properties["name"].Value),
+									new XAttribute("nameRU", dept.Properties["description"].Value),
+									new XAttribute("dn", dept.Properties["distinguishedName"].Value),
+									new XAttribute("guid", dept.Guid.ToString()));
+
+								searcher.SearchRoot = dept;
+								searcher.Filter = "(objectClass=user)";
+								foreach (SearchResult userRes in searcher.FindAll())
+								{
+									using (DirectoryEntry user = userRes.GetDirectoryEntry())
+									{
+
+										XElement userElem = new XElement("user",
+											new XAttribute("name", user.Properties["name"].Value),
+											new XAttribute("dn", user.Properties["distinguishedName"].Value),
+											new XAttribute("guid", user.Guid.ToString()));
 
 
-        //TODO Сделать нормальный метод вытягивания данных с AD
-        private void AppendUsers(SearchResultCollection response, XElement parent)
+										foreach (string prop in fields)
+											userElem.Add(new XElement(prop, user.Properties[prop].Value));
+
+										XElement memberOf = new XElement("memberOf");
+										foreach (string groupDN in user.Properties["memberOf"])
+											memberOf.Add(new XElement("group", groupDN));
+										userElem.Add(memberOf);
+
+										deptElem.Add(userElem);
+									}
+								}
+								cityElem.Add(deptElem);
+							}
+						}
+					}
+
+					searcher.SearchRoot = cityEntry;
+					searcher.Filter = "(objectClass=user)";
+					using (SearchResultCollection usersResponse = searcher.FindAll())
+					{
+						foreach (SearchResult userRes in usersResponse)
+						{
+							using (DirectoryEntry user = userRes.GetDirectoryEntry())
+							{
+
+								XElement userElem = new XElement("user",
+									new XAttribute("name", user.Properties["name"].Value),
+									new XAttribute("dn", user.Properties["distinguishedName"].Value),
+									new XAttribute("guid", user.Guid.ToString()));
+
+
+								foreach (string prop in fields)
+									userElem.Add(new XElement(prop, user.Properties[prop].Value));
+
+								XElement memberOf = new XElement("memberOf");
+								foreach (string groupDN in user.Properties["memberOf"])
+									memberOf.Add(new XElement("group", groupDN));
+								userElem.Add(memberOf);
+
+
+								cityElem.Add(userElem);
+							}
+						}
+					}
+				}
+			}
+
+			// Когда было произведено последнее обновление
+			try
+			{
+				dump.Root.Attribute("lastUpdated").Value = DateTime.Now.ToString();
+			}
+			catch
+			{
+				Debug.WriteLine("Нет атрибута для даты, создаем новый");
+				dump.Root.Add(new XAttribute("lastUpdated", DateTime.Now.ToString()));
+			}
+
+			dump.Save(Properties.Resources.XmlFile);
+
+			this.Cursor = Cursors.Default;
+			this.Enabled = true;
+			return dump;
+		}
+
+		/// <summary>
+		/// Отрисовка дерева организации из XML-файла
+		/// </summary>
+		/// <param name="city">Название города на русском</param>
+		/// <param name="query">Искомый пользователь</param>
+		private void RenderTree(XElement city, string query = "")
         {
-            foreach(SearchResult res in response)
-            {
-                DirectoryEntry entry = res.GetDirectoryEntry();
-                XElement elem = new XElement("user",
-                    new XAttribute("name", entry.Properties["name"]));
-                
-                foreach(string prop in props)
-                    elem.Add(new XElement(prop), entry.Properties[prop]);
-
-                parent.Add(elem);
-
-                entry.Dispose();
-                
-            }
-        }
-
-        
-
-        private void DumpADtoXML()
-        {
-            // Настройка поисковика по записям
-            // Поиск департаментов 
-            DirectorySearcher searcher = new DirectorySearcher(
-                new DirectoryEntry(Properties.Resources.devAddr))
-                {
-                    SearchScope = SearchScope.OneLevel
-                };
-
-            searcher.PropertiesToLoad.Add("name");
-            searcher.PropertiesToLoad.AddRange(props);
-
-            // Создание нового документа XML и создание в нем корня company
-            XDocument xmlfile = new XDocument();
-            xmlfile.Add(new XElement("company"));
-
-            searcher.Filter = "(objectClass=organizationalUnit)";
-            var departmentSearchResult = searcher.FindAll();
-
-            // Переход на уровень глубже по департаментам
-            foreach (SearchResult departmentRes in departmentSearchResult)
-            {
-
-                // Поиск субдепартаментов
-                DirectoryEntry deptEntry = departmentRes.GetDirectoryEntry();
-
-                
-
-                string deptName = deptEntry.Properties["name"].Value.ToString();
-                XElement deptNode = new XElement("dept",
-                    new XAttribute("name", deptName),
-                    new XAttribute("russName", ""),
-                    new XAttribute("dn", deptEntry.Properties["distinguishedName"].Value.ToString()));
-
-                searcher.SearchRoot = deptEntry;
-                searcher.Filter = "(objectClass=organizationalUnit)";
-                var divResults = searcher.FindAll();
-                
-                // Поиск людей в субдепартаментах
-                foreach(SearchResult divRes in divResults)
-                {
-                    DirectoryEntry divEntry = divRes.GetDirectoryEntry();
-
-                    string divName = divEntry.Properties["name"].Value.ToString();
-                    XElement divNode = new XElement("subdept",
-                        new XAttribute("name", divName),
-                        new XAttribute("dn", divEntry.Properties["distinguishedName"].Value.ToString()));
-
-
-                    searcher.Filter = "(objectClass=user)";
-                    searcher.SearchRoot = divEntry;
-                    var userResults = searcher.FindAll();
-
-                    foreach (SearchResult userRes in userResults)
-                    {
-                        DirectoryEntry userEntry = userRes.GetDirectoryEntry();
-
-                        XElement userNode = new XElement("user",
-                            new XAttribute("name", userEntry.Properties["name"].Value),
-                            new XAttribute("dn", userEntry.Properties["distinguishedName"].Value));
-
-                        foreach(string prop in props)
-                            userNode.Add(new XElement(prop, userEntry.Properties[prop]));
-
-                        if (deptNode.Attribute("russName").Value == string.Empty)
-                            deptNode.Attribute("russName").SetValue(userNode.Element("department").Value);
-                        
-
-                        divNode.Add(userNode);
-                    }
-                    deptNode.Add(divNode);
-                }
-
-
-
-                searcher.Filter = "(objectClass=user)";
-                searcher.SearchRoot = deptEntry;
-
-                var deptUserResults = searcher.FindAll();
-                
-
-                foreach (SearchResult userRes in deptUserResults)
-                {
-                    DirectoryEntry userEntry = userRes.GetDirectoryEntry();
-
-                    XElement userNode = new XElement("user",
-                        new XAttribute("name", userEntry.Properties["name"].Value),
-                        new XAttribute("dn", userEntry.Properties["distinguishedName"].Value));
-
-                    foreach (string prop in props)
-                        userNode.Add(new XElement(prop, userEntry.Properties[prop]));
-
-                    if (deptNode.Attribute("russName").Value == string.Empty)
-                        deptNode.Attribute("russName").SetValue(userNode.Element("department").Value);
-
-                    deptNode.Add(userNode);
-                }
-
-                xmlfile.Root.Add(deptNode);
-            }
-
-            
-            xmlfile.Save(Properties.Resources.usersXML);
-        }
-        
-		// TODO FillTree Method with autoselect after update competed
-		// FillTree(string name)
-        private void FillTree()
-        {
+			treeView.BeginUpdate();
             treeView.Nodes.Clear();
 
+			if (query == string.Empty)
+			{
+				foreach (XElement deptElem in city.Elements("dept"))
+					FillNode(treeView.Nodes.Add(deptElem.Attribute("nameRU").Value),
+						deptElem.Elements("user").ToArray());
 
-            foreach(XElement deptNode in doc.Root.Elements())
-            {
-                
-                treeView.Nodes.Add(deptNode.Attribute("dn").Value, deptNode.Attribute("russName").Value);
-                var divNodes = deptNode.Elements("subdept");
-                foreach(XElement divNode in divNodes)
-                {
-                    treeView.Nodes[deptNode.Attribute("dn").Value].Nodes.Add(divNode.Attribute("dn").Value,
-                           divNode.Attribute("name").Value);
-
-                    var userNodes = divNode.Elements();
-                    foreach(XElement userNode in userNodes)
-                    {
-                        treeView.Nodes[deptNode.Attribute("dn").Value].Nodes[divNode.Attribute("dn").Value].Nodes.Add(userNode.Attribute("dn").Value,
-                           userNode.Element("sn").Value + " " + userNode.Element ("givenName").Value);
-                    }
-                }
-                var users = deptNode.Elements("user");
-                foreach(XElement userNode in users)
-                {
-                    treeView.Nodes[deptNode.Attribute("dn").Value].Nodes.Add(userNode.Attribute("dn").Value,
-                           userNode.Element("sn").Value + " " + userNode.Element ("givenName").Value);
-                }
-            }
-            
+				FillNode(treeView, city.Elements("user").ToArray());
+			}
+			else
+			{
+				query = query.ToLower();
+				var response = city.Descendants("user")
+					.Where(t => t.Element("givenName").Value.ToLower().StartsWith(query)
+						|| t.Element("sn").Value.ToLower().StartsWith(query)
+						|| t.Attribute("name").Value.ToLower().StartsWith(query)
+						|| t.Attribute("name").Value.ToLower().Contains(" " + query));
+				FillNode(treeView, response.ToArray());
+			}
+			treeView.Sort();
+			treeView.EndUpdate();
         }
         
+		/// <summary>
+		/// Служебный метод для отрисовки дерева
+		/// </summary>
+		/// <param name="node">Родительский узел</param>
+		/// <param name="elements">Элементы для добавления</param>
+		private void FillNode(Object node, XElement[] elements)
+		{
+			foreach (XElement userElem in elements)
+			{
+				string displayName = String.Concat(
+						userElem.Element("sn").Value,
+						" ",
+						userElem.Element("givenName").Value);
+
+				displayName = displayName.Trim();
+
+				if (displayName == string.Empty)
+					displayName = userElem.Attribute("name").Value;
+
+				TreeNode userNode;
+
+				if(node is TreeNode)
+					userNode = ((TreeNode)node).Nodes.Add(displayName);
+				else
+					userNode = ((TreeView)node).Nodes.Add(displayName);
+				
+
+				userNode.Tag = new Guid(userElem.Attribute("guid").Value);
+
+				if (!Convert.ToBoolean(int.Parse(userElem.Element("userAccountControl").Value) & 0x2))
+					userNode.NodeFont = new Font(treeView.Font, FontStyle.Regular);
+				else
+					userNode.NodeFont = new Font(treeView.Font, FontStyle.Italic);
+				if (selectedUser != null && (Guid)userNode.Tag == selectedUser.Guid)
+				{
+					treeView.SelectedNode = userNode;
+					userNode.EnsureVisible();
+				}
+			}
+		}
+
         private void SearchBox_TextChanged(object sender, EventArgs e)
         {
-            
-
-            treeView.BeginUpdate();
-            treeView.Nodes.Clear();
-
-            if (searchBox.Text == string.Empty)
-            {
-                FillTree();
-            }
-            else
-            {
-                var users = doc.Root.Descendants("user")
-                    .Where(t => t.Element("givenName").Value.ToLower().StartsWith(searchBox.Text.ToLower())
-                    || t.Element("sn").Value.ToLower().StartsWith(searchBox.Text.ToLower())
-                    || t.Attribute("name").Value.ToLower().StartsWith(searchBox.Text.ToLower()))
-                    .ToList();
-
-                foreach (XElement elem in users)
-                    treeView.Nodes.Add(elem.Attribute("dn").Value, elem.Element("sn").Value + " " + elem.Element("givenName").Value);
-                
-            }
-
-            treeView.EndUpdate();
+			RenderTree(xmlDoc.Root.Elements("city")
+					.Where(t => t.Attribute("nameRU").Value == citySelector.Text)
+					.First(), searchBox.Text);
         }
 
-        // Buttons behaviour
 
+        // Buttons behaviour
         private void CreateBtn_Click(object sender, EventArgs e)
         {
-            Form detailView = new DetailView();
-            detailView.ShowDialog(this);
+            DetailView detailView = new DetailView(xmlDoc.Root.Elements("city")
+					.Where(t => t.Attribute("nameRU").Value == citySelector.Text)
+					.First());
+            detailView.ShowDialog();
+			
+			xmlDoc = XDocument.Load(Properties.Resources.XmlFile);
+			selectedUser = null;
+			RenderTree(xmlDoc.Root.Elements("city")
+					.Where(t => t.Attribute("nameRU").Value == citySelector.Text)
+					.First());
         }
 
         private void DetailBtn_Click(object sender, EventArgs e)
         {
-            Form detailView = new DetailView(SelectedUser);
+            Form detailView = new DetailView(xmlDoc.Root.Elements("city")
+					.Where(t => t.Attribute("nameRU").Value == citySelector.Text)
+					.First(), selectedUser);
             detailView.ShowDialog(this);
+
+			RenderTree(xmlDoc.Root.Elements("city")
+					.Where(t => t.Attribute("nameRU").Value == citySelector.Text)
+					.First());
+			
         }
 
-        private void TreeView_AfterSelect(object sender, TreeViewEventArgs e)
+		private void TreeView_AfterSelect(object sender, TreeViewEventArgs e)
         {
-            if (treeView.SelectedNode.Name.StartsWith("CN"))
+			treeView.BeginUpdate();
+			if (treeView.Tag != null && ((TreeNode)treeView.Tag).Tag != null)
+				((TreeNode)treeView.Tag).NodeFont = new Font(treeView.Font,
+					((TreeNode)treeView.Tag).NodeFont.Style & ~FontStyle.Bold);
+			treeView.EndUpdate();
+
+			if (treeView.SelectedNode.Tag != null)
             {
+				treeView.BeginUpdate();
 
-                SelectedUser = doc.Root.Descendants("user")
-                    .Where(t => t.Element("sn").Value + " " + t.Element("givenName").Value == treeView.SelectedNode.Text)
-                    .First();
+				treeView.Tag = treeView.SelectedNode;
 
-                SelectedEntry = new DirectoryEntry("LDAP://" + SelectedUser.Attribute("dn").Value);
+				treeView.SelectedNode.NodeFont = new Font(treeView.Font.FontFamily, (float)9.2,
+					treeView.SelectedNode.NodeFont.Style | FontStyle.Bold);
 
+				treeView.EndUpdate();
 
-                firstBox.Text = SelectedUser.Element("givenName").Value;
-                lastBox.Text = SelectedUser.Element("sn").Value;
+				selectedUser = User.Load((Guid)treeView.SelectedNode.Tag);
 
+				firstBox.Text = selectedUser.GetProperty("givenName");
+				lastBox.Text = selectedUser.GetProperty("sn");
 
-                
-                cdCheck.Checked = SelectedUser.Element("memberOf").Value.Contains(Properties.Resources.cdGroup);
-                usbDiskCheck.Checked = SelectedUser.Element("memberOf").Value.Contains(Properties.Resources.usbDiskGroup);
-                usbDeviceCheck.Checked = SelectedUser.Element("memberOf").Value.Contains(Properties.Resources.usbDeviceGroup);
+				disableBtn.Enabled = true;
 
-                if (SelectedUser.Element("memberOf").Value.Contains(Properties.Resources.internetFullAccessGroup))
-                    internetCombo.SelectedIndex = 2;
-                else
+                if (selectedUser.Enabled)
                 {
-                    if (SelectedUser.Element("memberOf").Value.Contains(Properties.Resources.internetLimitedAccessGroup))
-                        internetCombo.SelectedIndex = 1;
-                    else
-                        internetCombo.SelectedIndex = 0;
-                }
-
-                disableBtn.Enabled = true;
-
-                if (!Convert.ToBoolean(int.Parse(SelectedUser.Element("userAccountControl").Value) & 0x2))
-                {
+					disableReason.Visible = false;
                     switchPanel.Enabled = true;
                     disableBtn.Text = "Отключить аккаунт";
-                }
+					
+				}
                 else
                 {
-                    switchPanel.Enabled = false;
+					disableReason.Text = selectedUser.GetProperty("description").Trim('(').Split(')')[0];
+					disableReason.Visible = true;
+					switchPanel.Enabled = false;
                     disableBtn.Text = "Активировать аккаунт";
-                }
 
-            }
+                }
+			}
             else
             {
                 firstBox.Text = string.Empty;
                 lastBox.Text = string.Empty;
 
-                cdCheck.Checked = false;
-                usbDiskCheck.Checked = false;
-                usbDeviceCheck.Checked = false;
-
-                internetCombo.SelectedIndex = 0;
+                
                 switchPanel.Enabled = false;
                 disableBtn.Enabled = false;
+
+				selectedUser = null;
             }
+			
         }
 
-		private void UpdBtn_Click(object sender, EventArgs e)
-		{
-			string txt = string.Empty;
-			if (treeView.SelectedNode != null)
-				txt = treeView.SelectedNode.Text;
-
-			searchBox.Clear();
-			this.Enabled = false;
-
-			
-
-			DumpADtoXML();
-			doc = XDocument.Load(Properties.Resources.usersXML);
-
-			if (txt != string.Empty)
-			{
-				FillTree();
-
-				foreach (TreeNode dept in treeView.Nodes)
-				{
-					foreach (TreeNode us in dept.Nodes)
-						if (us.Text == txt)
-						{
-							treeView.SelectedNode = us;
-							treeView.SelectedNode.EnsureVisible();
-						}
-				}
-			}
+        private void UpdBtn_Click(object sender, EventArgs e)
+        {
+            this.Enabled = false;
+			xmlDoc = DumpToXml(citySelector.Text);
+			RenderTree(xmlDoc.Root.Elements("city")
+					.Where(t => t.Attribute("nameRU").Value == citySelector.Text)
+					.First());
 
 			this.Enabled = true;
-        }
-
-        private void AddGroup(DirectoryEntry user, string groupDN)
-        {
-            DirectoryEntry group = new DirectoryEntry("LDAP://" + groupDN);
-            group.Properties["member"].Add((string)user.Properties["distinguishedName"].Value);
-            group.CommitChanges();
-            group.Close();
-            user.Close();
-        }
-
-        private void RemoveGroup(DirectoryEntry user, string groupDN)
-        {
-            DirectoryEntry group = new DirectoryEntry("LDAP://" + groupDN);
-            group.Properties["member"].Remove((string)user.Properties["distinguishedName"].Value);
-            group.CommitChanges();
-            group.Close();
-            user.Close();
-        }
+		}
 
 
         private void SaveBtn_Click(object sender, EventArgs e)
         {
-            if (cdCheck.Checked)
-                AddGroup(SelectedEntry, Properties.Resources.cdGroup);
-            else
-                RemoveGroup(SelectedEntry, Properties.Resources.cdGroup);
-
-
-            if (usbDiskCheck.Checked)
-                AddGroup(SelectedEntry, Properties.Resources.usbDiskGroup);
-            else
-                RemoveGroup(SelectedEntry, Properties.Resources.usbDiskGroup);
-
-
-            if (usbDeviceCheck.Checked)
-                AddGroup(SelectedEntry, Properties.Resources.usbDeviceGroup);
-            else
-                RemoveGroup(SelectedEntry, Properties.Resources.usbDeviceGroup);
-
-
-            if (internetCombo.SelectedIndex == 1)
-                AddGroup(SelectedEntry, Properties.Resources.internetLimitedAccessGroup);
-            else
-                RemoveGroup(SelectedEntry, Properties.Resources.internetLimitedAccessGroup);
-
-
-            if (internetCombo.SelectedIndex == 2)
-                AddGroup(SelectedEntry, Properties.Resources.internetFullAccessGroup);
-            else
-                RemoveGroup(SelectedEntry, Properties.Resources.internetFullAccessGroup);
-        }
+			
+		}
 
         private void DisableBtn_Click(object sender, EventArgs e)
         {
-            int val = (int)SelectedEntry.Properties["userAccountControl"].Value;
-            string currDescription = SelectedEntry.Properties["description"].Value.ToString();
+			string descr = selectedUser.GetProperty("description");
+			try
+			{
+				if (selectedUser.Enabled)
+				{
+					DialogResult fullDeactivation = MessageBox.Show(
+							"Желаете полностью деактивировать учетную запись (увольнение) ?",
+							"Увольнение?",
+							MessageBoxButtons.YesNoCancel,
+							MessageBoxIcon.Asterisk,
+							MessageBoxDefaultButton.Button2);
 
-            if (switchPanel.Enabled)
-            {
-                DisableReasonForm form = new DisableReasonForm();
-                form.ShowDialog(this);
-                if (form.DialogResult == DialogResult.OK)
-                {
-                    SelectedEntry.Properties["userAccountControl"].Value = val | 0x2;
+					if (fullDeactivation == DialogResult.Yes)
+					{
+						DisableReasonForm form = new DisableReasonForm();
+						form.reasonTextBox.Text = "Уволен" + (selectedUser.GetProperty("extensionAttribute3")[0] == 'F' ? "a" : "");
+						form.ShowDialog(this);
+						if(form.DialogResult == DialogResult.OK)
+						{
+							descr = String.Format("(Отключен{0} {1}, {2}, причина: {3}) {4}",
+								(selectedUser.GetProperty("extensionAttribute3")[0] == 'F' ? "a" : ""),
+								DateTime.Today.ToShortDateString(),
+								Environment.UserName,
+								form.reasonTextBox.Text,
+								descr);
 
-					SelectedEntry.Properties["description"].Value = String.Format(
-						"(Временно отключена {0}, {1}, причина: {2}) {3}",
-						DateTime.Today.ToShortDateString(),
-						Environment.UserName,
-                        form.reasonTextBox.Text.ToLower(),
-                        currDescription);
+							selectedUser.Properties["description"] = descr;
+							selectedUser.CommitChanges();
+							selectedUser.Enabled = false;
+							selectedUser.Remove();
 
+							selectedUser = null;
+							RenderTree(xmlDoc.Root.Elements("city")
+					.Where(t => t.Attribute("nameRU").Value == citySelector.Text)
+					.First());
+							
+						}
+					}
+					if (fullDeactivation == DialogResult.No)
+					{
 
-                    SelectedUser.Element("userAccountControl").Value = (val | 0x2).ToString();
-                    disableBtn.Text = "Активировать аккаунт";
-                    switchPanel.Enabled = false;
-                }
-            }
-            else
-            {
-                SelectedEntry.Properties["userAccountControl"].Value = val & ~0x2;
-                SelectedEntry.Properties["description"].Value =
-                    currDescription.Substring(currDescription.LastIndexOf(')') + 2);
+						DisableReasonForm form = new DisableReasonForm();
+						form.ShowDialog(this);
 
-                SelectedUser.Element("userAccountControl").Value = (val & ~0x2).ToString();
-                disableBtn.Text = "Отключить аккаунт";
-                switchPanel.Enabled = true;
-            }
-            SelectedEntry.CommitChanges();
+						if (form.DialogResult == DialogResult.OK)
+						{
+
+							descr = String.Format("(Временно отключен{0} {1}, {2}, причина: {3}) {4}",
+								(selectedUser.GetProperty("extensionAttribute3")[0] == 'F' ? "a" : ""),
+								DateTime.Today.ToShortDateString(),
+								Environment.UserName,
+								form.reasonTextBox.Text,
+								descr);
+
+							selectedUser.Properties["description"] = descr;
+							selectedUser.CommitChanges();
+							selectedUser.Enabled = false;
+
+							disableReason.Text = descr.Trim('(').Split(')')[0];
+							disableReason.Visible = true;
+							switchPanel.Enabled = false;
+							disableBtn.Text = "Активировать аккаунт";
+							treeView.SelectedNode.NodeFont = new Font(treeView.Font, FontStyle.Italic | FontStyle.Bold);
+						}
+					}
+				}
+				else
+				{
+					descr = descr.Substring(descr.LastIndexOf(')') + 2);
+
+					selectedUser.Properties["description"] = descr;
+					selectedUser.CommitChanges();
+					selectedUser.Enabled = true;
+
+					disableReason.Visible = false;
+					switchPanel.Enabled = true;
+					disableBtn.Text = "Отключить аккаунт";
+					treeView.SelectedNode.NodeFont = new Font(treeView.Font, FontStyle.Bold);
+				}
+			}
+			catch
+			{
+				Debug.WriteLine("Не может выключить учетку, возможно нет прав", "Waning");
+				MessageBox.Show("Недостаточно прав");
+			}
         }
 
-		private void treeView_NodeMouseDoubleClick(object sender, TreeNodeMouseClickEventArgs e)
+		
+
+		private void TreeView_NodeMouseDoubleClick(object sender, TreeNodeMouseClickEventArgs e)
 		{
-			Form detailView = new DetailView(SelectedUser);
-			detailView.ShowDialog(this);
-			
+			detailBtn.PerformClick();
 		}
+
+		private void CitySelector_SelectedIndexChanged(object sender, EventArgs e)
+		{
+			try
+			{
+				RenderTree(xmlDoc.Root.Elements("city")
+					.Where(t => t.Attribute("nameRU").Value == citySelector.Text)
+					.First());
+			}
+			catch
+			{
+				Debug.WriteLine("Не может отрисовать дерево, возможно нет данных в XML");
+				xmlDoc = DumpToXml(citySelector.Text);
+				RenderTree(xmlDoc.Root.Elements("city")
+					.Where(t => t.Attribute("nameRU").Value == citySelector.Text)
+					.First());
+			}
+		}
+
+		
 	}
 }

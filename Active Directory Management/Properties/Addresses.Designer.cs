@@ -22,14 +22,14 @@ namespace Active_Directory_Management.Properties {
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "15.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    internal class Resources {
+    internal class Addresses {
         
         private static global::System.Resources.ResourceManager resourceMan;
         
         private static global::System.Globalization.CultureInfo resourceCulture;
         
         [global::System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
-        internal Resources() {
+        internal Addresses() {
         }
         
         /// <summary>
@@ -39,7 +39,7 @@ namespace Active_Directory_Management.Properties {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Active_Directory_Management.Properties.Resources", typeof(Resources).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Active_Directory_Management.Properties.Addresses", typeof(Addresses).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -61,38 +61,74 @@ namespace Active_Directory_Management.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to cities.txt.
+        ///   Looks up a localized string similar to DC=nng,DC=kz.
         /// </summary>
-        internal static string CitiesFile {
+        internal static string AktauDomain {
             get {
-                return ResourceManager.GetString("CitiesFile", resourceCulture);
+                return ResourceManager.GetString("AktauDomain", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to groups.txt.
+        ///   Looks up a localized string similar to OU=Users,OU=Aktau,DC=nng,DC=kz.
         /// </summary>
-        internal static string GroupsFile {
+        internal static string AktauUsers {
             get {
-                return ResourceManager.GetString("GroupsFile", resourceCulture);
+                return ResourceManager.GetString("AktauUsers", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to sn,givenName,middleName,extensionAttribute3,mobile,extensionAttribute2,title,description,department,physicalDeliveryOfficeName,manager,telephoneNumber,ipPhone,userAccountControl,l,st,co,postalCode,employeeType,division.
+        ///   Looks up a localized string similar to DC=ala,DC=nng,DC=kz.
         /// </summary>
-        internal static string PropertiesToLoad {
+        internal static string AlmatyDomain {
             get {
-                return ResourceManager.GetString("PropertiesToLoad", resourceCulture);
+                return ResourceManager.GetString("AlmatyDomain", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to users.xml.
+        ///   Looks up a localized string similar to OU=Users,OU=Almaty,DC=ala,DC=nng,DC=kz.
         /// </summary>
-        internal static string XmlFile {
+        internal static string AlmatyUsers {
             get {
-                return ResourceManager.GetString("XmlFile", resourceCulture);
+                return ResourceManager.GetString("AlmatyUsers", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to DC=msq,DC=nng,DC=kz.
+        /// </summary>
+        internal static string MinskDomain {
+            get {
+                return ResourceManager.GetString("MinskDomain", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to OU=Users,OU=Minsk,DC=msq,DC=nng,DC=kz.
+        /// </summary>
+        internal static string MinskUsers {
+            get {
+                return ResourceManager.GetString("MinskUsers", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to DC=ura,DC=nng,DC=kz.
+        /// </summary>
+        internal static string UralskDomain {
+            get {
+                return ResourceManager.GetString("UralskDomain", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to OU=Users,OU=Uralsk,DC=ura,DC=nng,DC=kz.
+        /// </summary>
+        internal static string UralskUsers {
+            get {
+                return ResourceManager.GetString("UralskUsers", resourceCulture);
             }
         }
     }

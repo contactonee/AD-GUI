@@ -62,6 +62,12 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BirthdayPicker.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="BirthdayPicker.Designer.cs">
+      <DependentUpon>BirthdayPicker.cs</DependentUpon>
+    </Compile>
     <Compile Include="DetailView.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -74,11 +80,17 @@
     <Compile Include="DisableReasonForm.Designer.cs">
       <DependentUpon>DisableReasonForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Groups.cs">
+    <Compile Include="GenderSelector.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Groups.Designer.cs">
-      <DependentUpon>Groups.cs</DependentUpon>
+    <Compile Include="GenderSelector.Designer.cs">
+      <DependentUpon>GenderSelector.cs</DependentUpon>
+    </Compile>
+    <Compile Include="GroupSelector.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="GroupSelector.Designer.cs">
+      <DependentUpon>GroupSelector.cs</DependentUpon>
     </Compile>
     <Compile Include="MainView.cs">
       <SubType>Form</SubType>
@@ -88,18 +100,42 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Properties\Groups.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Groups.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\Addresses.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Addresses.resx</DependentUpon>
+    </Compile>
     <Compile Include="User.cs" />
+    <EmbeddedResource Include="BirthdayPicker.resx">
+      <DependentUpon>BirthdayPicker.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="DetailView.resx">
       <DependentUpon>DetailView.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="DisableReasonForm.resx">
       <DependentUpon>DisableReasonForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Groups.resx">
-      <DependentUpon>Groups.cs</DependentUpon>
+    <EmbeddedResource Include="GenderSelector.resx">
+      <DependentUpon>GenderSelector.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="GroupSelector.resx">
+      <DependentUpon>GroupSelector.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="MainView.resx">
       <DependentUpon>MainView.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Groups.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Groups.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Addresses.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Addresses.Designer.cs</LastGenOutput>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
@@ -112,15 +148,6 @@
       <DesignTime>True</DesignTime>
     </Compile>
     <None Include="app.config" />
-    <None Include="Properties\Settings.settings">
-      <Generator>SettingsSingleFileGenerator</Generator>
-      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
-    </None>
-    <Compile Include="Properties\Settings.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Settings.settings</DependentUpon>
-      <DesignTimeSharedInput>True</DesignTimeSharedInput>
-    </Compile>
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.5.1">
