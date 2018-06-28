@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.DirectoryServices;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.Xml.Linq;
 using System.Diagnostics;
 
@@ -17,8 +16,6 @@ namespace Active_Directory_Management
 
 
 		public Dictionary<string, string> Properties { get; } = new Dictionary<string, string>();
-
-		private Dictionary<string, bool> memberOf = new Dictionary<string, bool>();
 
 		private int uac;
 		private string dn;

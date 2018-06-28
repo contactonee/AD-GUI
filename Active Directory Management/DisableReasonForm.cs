@@ -5,7 +5,6 @@ using System.Data;
 using System.Drawing;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace Active_Directory_Management
@@ -17,7 +16,7 @@ namespace Active_Directory_Management
             InitializeComponent();
         }
 
-		private void reasonTextBox_KeyUp(object sender, KeyEventArgs e)
+		private void ReasonTextBox_KeyUp(object sender, KeyEventArgs e)
 		{
 			if (e.KeyCode == Keys.Enter)
 				button1.PerformClick();
