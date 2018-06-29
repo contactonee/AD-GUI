@@ -281,10 +281,15 @@ namespace Active_Directory_Management
 				string key = prop.Key;
 				string value = prop.Value;
 
-				
+
 
 				if (value == string.Empty)
-					continue;
+				{
+					if (xmlNode.Element(key) == null)
+						xmlNode.Add(new XElement(key));
+					else
+						continue;
+				}
 
 				else if (value == null)
 				{

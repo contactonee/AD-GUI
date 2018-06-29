@@ -76,5 +76,20 @@ namespace Active_Directory_Management
 			yearBox.Text = string.Empty;
 		}
 
+
+		override public Color ForeColor
+		{
+			get
+			{
+				return dayBox.ForeColor;
+			}
+			set
+			{
+				dayBox.ForeColor = value;
+				monthBox.ForeColor = value;
+				yearBox.ForeColor = value;
+			}
+		}
+
 	}
 }

@@ -321,8 +321,7 @@ namespace Active_Directory_Management
 					.Where(t => t.Attribute("nameRU").Value == citySelector.Text)
 					.First());
             detailView.ShowDialog();
-			
-			xmlDoc = XDocument.Load(Properties.Resources.XmlFile);
+
 			selectedUser = null;
 			RenderTree(xmlDoc.Root.Elements("city")
 					.Where(t => t.Attribute("nameRU").Value == citySelector.Text)
