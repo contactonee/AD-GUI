@@ -16,22 +16,10 @@ namespace Active_Directory_Management
 			InitializeComponent();
 
 			for (int i = 1; i <= 31; i++)
-				dayBox.Items.Add(i);
+				dayBox.Items.Add(i.ToString().PadLeft(2, ' '));
 
-			monthBox.Items.AddRange(new string[] {
-				"январь",
-				"февраль",
-				"март",
-				"апрель",
-				"май",
-				"июнь",
-				"июль",
-				"август",
-				"сентябрь",
-				"октябрь",
-				"ноябрь",
-				"декабрь"
-			});
+            for (int i = 1; i <= 12; i++)
+                monthBox.Items.Add(i.ToString().PadLeft(2, ' '));
 
 			for(int i = 16; i <= 90; i++)
 				yearBox.Items.Add(DateTime.Today.Year - i);
@@ -47,7 +35,7 @@ namespace Active_Directory_Management
 				{
 					return new DateTime(
 						int.Parse(yearBox.Text),
-						monthBox.Items.IndexOf(monthBox.Text) + 1,
+						int.Parse(monthBox.Text),
 						int.Parse(dayBox.Text));
 				}
 				catch
@@ -62,8 +50,8 @@ namespace Active_Directory_Management
 
 				else
 				{
-					dayBox.Text = value.Day.ToString();
-					monthBox.SelectedIndex = value.Month - 1;
+					dayBox.Text = value.Day.ToString().PadLeft(2, ' ');
+					monthBox.Text = value.Month.ToString().PadLeft(2, ' ');
 					yearBox.Text = value.Year.ToString();
 				}
 			}

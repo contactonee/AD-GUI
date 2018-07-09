@@ -38,6 +38,7 @@ namespace Active_Directory_Management
 			// Temp dn, for searcher
 			dn = path.Properties["distinguishedName"].Value.ToString();
 
+
 			// Build Searcher 
 			DirectorySearcher searcher = new DirectorySearcher()
 			{
@@ -70,7 +71,9 @@ namespace Active_Directory_Management
 			entry.CommitChanges();
 
 			// Set standart password and require to change it on next logon
-			entry.Invoke("SetPassword", new object[] { "1234567Aa" });
+			entry.Invoke("SetPassword", new object[] { String.Format("1234567{0}{1}",
+                firstName.ToUpper()[0],
+                surname[0])});
 			entry.Properties["pwdLastSet"].Value = 0;
 			entry.CommitChanges();
 

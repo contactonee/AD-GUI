@@ -51,6 +51,7 @@ namespace Active_Directory_Management
 			try
 			{
 				xmlDoc = XDocument.Load(Properties.Resources.XmlFile);
+
 				DateTime lastUpd = DateTime.Parse(xmlDoc.Root.Attribute("lastUpdated").Value);
 				if (DateTime.Now.Subtract(lastUpd).TotalSeconds > 30)
 					throw new Exception("Too old file! (Last Update >30 seconds ago)");
@@ -70,6 +71,7 @@ namespace Active_Directory_Management
 		/// <returns>Ссылка на XDocument</returns>
 		private XDocument DumpToXml(string cityRU)
 		{
+            
 			this.Cursor = Cursors.WaitCursor;
 			this.Enabled = false;
 			
@@ -88,7 +90,7 @@ namespace Active_Directory_Management
 				// Добавление корня
 				dump.Add(new XElement("company"));
 			}
-
+            
 			XElement cityElem;
 			try
 			{
@@ -103,9 +105,10 @@ namespace Active_Directory_Management
 				Debug.WriteLine("Попытка удалить ветвь города, город не найден", "Info");
 			}
 
-			cityElem = new XElement("city",
-				new XAttribute("name", ""),
-				new XAttribute("nameRU", cityRU),
+            cityElem = new XElement("city",
+                new XAttribute("name", ""),
+                new XAttribute("nameRU", cityRU),
+                new XAttribute("dn", ""),
 				new XAttribute("country", ""),
 				new XAttribute("postalCode", ""),
 				new XAttribute("addr", ""));
@@ -116,6 +119,7 @@ namespace Active_Directory_Management
 			{
 
 				cityElem.Attribute("name").Value = cityEntry.Parent.Properties["name"].Value.ToString();
+                cityElem.Attribute("dn").Value = cityEntry.Properties["distinguishedName"].Value.ToString();
 
 				try
 				{
@@ -227,7 +231,7 @@ namespace Active_Directory_Management
 			}
 
 			dump.Save(Properties.Resources.XmlFile);
-
+            
 			this.Cursor = Cursors.Default;
 			this.Enabled = true;
 			return dump;
@@ -404,15 +408,10 @@ namespace Active_Directory_Management
 			RenderTree(xmlDoc.Root.Elements("city")
 					.Where(t => t.Attribute("nameRU").Value == citySelector.Text)
 					.First());
-
+            searchBox.Clear();
 			this.Enabled = true;
 		}
-
-
-        private void SaveBtn_Click(object sender, EventArgs e)
-        {
-			
-		}
+        
 
         private void DisableBtn_Click(object sender, EventArgs e)
         {
@@ -512,21 +511,11 @@ namespace Active_Directory_Management
 
 		private void CitySelector_SelectedIndexChanged(object sender, EventArgs e)
 		{
-			try
-			{
-				RenderTree(xmlDoc.Root.Elements("city")
-					.Where(t => t.Attribute("nameRU").Value == citySelector.Text)
-					.First());
-			}
-			catch
-			{
-				Debug.WriteLine("Не может отрисовать дерево, возможно нет данных в XML");
-				xmlDoc = DumpToXml(citySelector.Text);
-				RenderTree(xmlDoc.Root.Elements("city")
-					.Where(t => t.Attribute("nameRU").Value == citySelector.Text)
-					.First());
-			}
-		}
+            xmlDoc = DumpToXml(citySelector.Text);
+            RenderTree(xmlDoc.Root.Elements("city")
+                .Where(t => t.Attribute("nameRU").Value == citySelector.Text)
+                .First());
+        }
 
 		
 	}

@@ -135,9 +135,11 @@ namespace Active_Directory_Management
 
 			unlimitedRadio.Select();
             expirationDatePicker.Value = DateTime.Today.AddMonths(1);
-            mobileTextBox.TextMaskFormat = MaskFormat.ExcludePromptAndLiterals;
+            mobileTextBox.TextMaskFormat = MaskFormat.IncludePromptAndLiterals;
+            if (city.Attribute("name").Value == "Minsk")
+                mobileTextBox.Mask = "+375 (00) 0000000";
 
-			string[] depts = city.Elements("dept")
+            string[] depts = city.Elements("dept")
 				.Select(t => t.Attribute("nameRU").Value)
 				.ToArray();
 			if (depts.Count() > 0)
@@ -346,9 +348,15 @@ namespace Active_Directory_Management
 
 			if (user == null)
 			{
-				XElement par = city.Elements("dept")
-					.Where(t => t.Attribute("nameRU").Value == departmentCombo.Text)
-					.FirstOrDefault();
+                XElement par;
+
+                if (city.Element("dept") == null)
+                    par = city;
+
+                else
+				    par = city.Elements("dept")
+					    .Where(t => t.Attribute("nameRU").Value == departmentCombo.Text)
+					    .FirstOrDefault();
 
 				DirectoryEntry ou = new DirectoryEntry("LDAP://" + par.Attribute("dn").Value);
 
@@ -361,12 +369,14 @@ namespace Active_Directory_Management
 			user.Properties["displayName"] = displayName;
 			user.Properties["middleName"] = middlenameBox.Text;
 			user.Properties["mobile"] = mobileTextBox.Text;
-			
-			user.Properties["department"] = departmentCombo.Text;
-			user.Properties["division"] = city.Descendants("dept")
-				.Where(t => t.Attribute("nameRU").Value == departmentCombo.Text)
-				.Select(t => t.Attribute("name").Value)
-				.First();
+
+            user.Properties["department"] = departmentCombo.Text;
+
+            if (city.Element("dept") != null)
+			    user.Properties["division"] = city.Descendants("dept")
+				    .Where(t => t.Attribute("nameRU").Value == departmentCombo.Text)
+				    .Select(t => t.Attribute("name").Value)
+				    .First();
 
 			user.Properties["description"] = divCombo.Text;
 			user.Properties["title"] = posCombo.Text;
@@ -861,8 +871,7 @@ namespace Active_Directory_Management
 		private void mobileTextBox_Validating(object sender, CancelEventArgs e)
 		{
 			Debug.WriteLine(((MaskedTextBox)sender).Text);
-			if (((MaskedTextBox)sender).Text.Length < 10
-				&& ((MaskedTextBox)sender).Text.Length > 0)
+			if (((MaskedTextBox)sender).Text.Contains('_'))
 			{
 				e.Cancel = true;
 				((MaskedTextBox)sender).ForeColor = Color.Red;
@@ -878,5 +887,5 @@ namespace Active_Directory_Management
 		{
 			((BirthdayPicker)sender).ForeColor = Color.Black;
 		}
-	}
+    }
 }
