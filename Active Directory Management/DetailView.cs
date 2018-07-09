@@ -34,7 +34,8 @@ namespace Active_Directory_Management
 			InitializeComponent();
             OnLoad();
 
-        }
+			saveBtn.Enabled = false;
+		}
         public DetailView(XElement city, User user)
 		{
 			this.city = city;
@@ -101,21 +102,44 @@ namespace Active_Directory_Management
 				groupSelector.SetValue(group, user.MemberOf(entry.Properties["distinguishedName"].Value.ToString()));
 			}
 
-			changed = false;
 			saveBtn.Enabled = false;
-			
 		}
 
-        private void OnLoad()
+		private void Field_Changed(object sender, EventArgs e)
+		{
+			saveBtn.Enabled = true;
+		}
+
+		private void OnLoad()
         {
+			nameBox.TextChanged += Field_Changed;
+			surnameBox.TextChanged += Field_Changed;
+			middlenameBox.TextChanged += Field_Changed;
+			nameEnBox.TextChanged += Field_Changed;
+			surnameEnBox.TextChanged += Field_Changed;
+			birthdayPicker.Enter += Field_Changed;
+			genderSelector.Enter += Field_Changed;
+			departmentCombo.TextChanged += Field_Changed;
+			divCombo.TextChanged += Field_Changed;
+			posCombo.TextChanged += Field_Changed;
+			posEnBox.TextChanged += Field_Changed;
+			roomCombo.TextChanged += Field_Changed;
+			telCombo.TextChanged += Field_Changed;
+			managerCheck.Enter += Field_Changed;
+			groupSelector.Enter += Field_Changed;
+			groupBox3.Enter += Field_Changed;
+
+			
 			groupSelector.File = groups;
 			groupSelector.RenderList(city.Attribute("nameRU").Value, Guid.Empty);
 
 			unlimitedRadio.Select();
             expirationDatePicker.Value = DateTime.Today.AddMonths(1);
-            mobileTextBox.TextMaskFormat = MaskFormat.ExcludePromptAndLiterals;
+            mobileTextBox.TextMaskFormat = MaskFormat.IncludePromptAndLiterals;
+            if (city.Attribute("name").Value == "Minsk")
+                mobileTextBox.Mask = "+375 (00) 0000000";
 
-			string[] depts = city.Elements("dept")
+            string[] depts = city.Elements("dept")
 				.Select(t => t.Attribute("nameRU").Value)
 				.ToArray();
 			if (depts.Count() > 0)
@@ -275,14 +299,45 @@ namespace Active_Directory_Management
 
             string result = "";
             foreach (char ch in text)
-                result += dict[ch];
+				if(dict.ContainsKey(ch))
+					result += dict[ch];
 
 			return result;
         }
 
+
+
+		private bool ValidateForm()
+		{
+			bool error = false;
+
+			error |= (nameBox.Text == "");
+			error |= (surnameBox.Text == "");
+			error |= (nameEnBox.Text == "");
+			error |= (surnameEnBox.Text == "");
+			error |= (middlenameBox.Text == "");
+			error |= (birthdayPicker.Value == DateTime.MinValue);
+
+			if (departmentCombo.Enabled)
+				error |= (departmentCombo.Text == "");
+
+			error |= (roomCombo.Text == "");
+			error |= (telCombo.Text == "");
+
+			return !error;
+		}
+
         private void CreateButton(object sender, EventArgs e)
         {
-            CreateUser();
+			if(ValidateForm())
+				CreateUser();
+			else
+			{
+				MessageBox.Show("Заполните необходимые поля!",
+					"",
+					MessageBoxButtons.OK,
+					MessageBoxIcon.Warning);
+			}
         }
 
         private void CreateUser()
@@ -293,9 +348,15 @@ namespace Active_Directory_Management
 
 			if (user == null)
 			{
-				XElement par = city.Elements("dept")
-					.Where(t => t.Attribute("nameRU").Value == departmentCombo.Text)
-					.FirstOrDefault();
+                XElement par;
+
+                if (departmentCombo.Text == "")
+                    par = city;
+
+                else
+				    par = city.Elements("dept")
+					    .Where(t => t.Attribute("nameRU").Value == departmentCombo.Text)
+					    .FirstOrDefault();
 
 				DirectoryEntry ou = new DirectoryEntry("LDAP://" + par.Attribute("dn").Value);
 
@@ -308,12 +369,15 @@ namespace Active_Directory_Management
 			user.Properties["displayName"] = displayName;
 			user.Properties["middleName"] = middlenameBox.Text;
 			user.Properties["mobile"] = mobileTextBox.Text;
-			
-			user.Properties["department"] = departmentCombo.Text;
-			user.Properties["division"] = city.Descendants("dept")
-				.Where(t => t.Attribute("nameRU").Value == departmentCombo.Text)
-				.Select(t => t.Attribute("name").Value)
-				.First();
+
+			if (departmentCombo.Text == "")
+			{
+				user.Properties["department"] = departmentCombo.Text;
+				user.Properties["division"] = city.Descendants("dept")
+						.Where(t => t.Attribute("nameRU").Value == departmentCombo.Text)
+						.Select(t => t.Attribute("name").Value)
+						.First();
+			}
 
 			user.Properties["description"] = divCombo.Text;
 			user.Properties["title"] = posCombo.Text;
@@ -492,35 +556,32 @@ namespace Active_Directory_Management
 			// Mark that some fields were edited
 			Changed();
 
-			if (CheckCyrillic(nameBox.Text))
+			TextBox textBox = (TextBox)sender;
+
+			if (textBox.Name == nameEnBox.Name
+				|| textBox.Name == surnameEnBox.Name)
 			{
-				nameBox.ForeColor = Color.Black;
-				nameEnBox.Text = Translit(nameBox.Text);
+				if (CheckLatin(textBox.Text))
+					textBox.ForeColor = Color.Black;
+				else
+					textBox.ForeColor = Color.Red;
 			}
+
+
 			else
-				nameBox.ForeColor = Color.Red;
-
-		}
-        private void SurnameTextBox_TextChanged(object sender, EventArgs e)
-        {
-			// Mark that some fields were edited
-			Changed();
-
-			if (CheckCyrillic(surnameBox.Text))
 			{
-				surnameBox.ForeColor = Color.Black;
-				surnameEnBox.Text = Translit(surnameBox.Text);
+				if (CheckCyrillic(textBox.Text))
+				{
+					textBox.ForeColor = Color.Black;
+					if (textBox.Name == nameBox.Name)
+						nameEnBox.Text = Translit(textBox.Text);
+					if (textBox.Name == surnameBox.Name)
+						surnameEnBox.Text = Translit(textBox.Text);
+				}
+				else
+					textBox.ForeColor = Color.Red;
 			}
-			else
-				surnameBox.ForeColor = Color.Red;
-		}
 
-		private void LatinTextBox_TextChanged(object sender, EventArgs e)
-		{
-			if (CheckLatin(((TextBox)sender).Text))
-				((TextBox)sender).ForeColor = Color.Black;
-			else
-				((TextBox)sender).ForeColor = Color.Red;
 		}
 
         private void RoomCombo_TextChanged(object sender, EventArgs e)
@@ -546,12 +607,10 @@ namespace Active_Directory_Management
 			}
         }
 
-        
+
 		private void cancelBtn_Click(object sender, EventArgs e)
 		{
-			if (!changed)
-				this.Close();
-			else
+			if (saveBtn.Enabled)
 			{
 				DialogResult dialogResult = MessageBox.Show(
 					"Все несохраненные изменения будут потеряны",
@@ -562,6 +621,8 @@ namespace Active_Directory_Management
 				if (dialogResult == DialogResult.Yes)
 					this.Close();
 			}
+			else
+				this.Close();
 		}
 		
 
@@ -583,12 +644,6 @@ namespace Active_Directory_Management
 		}
 
 		private void middlenameBox_TextChanged(object sender, EventArgs e)
-		{
-			// Mark that some fields were edited
-			Changed();
-		}
-
-		private void mobileTextBox_MaskInputRejected(object sender, MaskInputRejectedEventArgs e)
 		{
 			// Mark that some fields were edited
 			Changed();
@@ -798,7 +853,45 @@ namespace Active_Directory_Management
 		private void birthdayPicker_Validating(object sender, CancelEventArgs e)
 		{
 			if (((BirthdayPicker)sender).Value == DateTime.MinValue)
+			{
+				((BirthdayPicker)sender).ForeColor = Color.Red;
 				e.Cancel = true;
+			}
 		}
-	}
+
+		private void Field_Leave(object sender, EventArgs e)
+		{
+			if (sender is TextBox)
+				((TextBox)sender).Text = ((TextBox)sender).Text.Trim();
+			if (sender is ComboBox)
+				((ComboBox)sender).Text = ((ComboBox)sender).Text.Trim();
+			if(sender is MaskedTextBox)
+				((MaskedTextBox)sender).Text = ((MaskedTextBox)sender).Text.Trim();
+		}
+
+		private void mobileTextBox_Validating(object sender, CancelEventArgs e)
+		{
+			// +7(___) ___ - ____
+			((MaskedTextBox)sender).TextMaskFormat = MaskFormat.ExcludePromptAndLiterals;
+			int cnt = ((MaskedTextBox)sender).Text.Length;
+			((MaskedTextBox)sender).TextMaskFormat = MaskFormat.IncludePromptAndLiterals;
+
+			Debug.WriteLine(((MaskedTextBox)sender).Text);
+			if (((MaskedTextBox)sender).Text.Contains('_') && cnt > 0)
+			{
+				e.Cancel = true;
+				((MaskedTextBox)sender).ForeColor = Color.Red;
+			}
+		}
+
+		private void mobileTextBox_TextChanged(object sender, EventArgs e)
+		{
+			((MaskedTextBox)sender).ForeColor = Color.Black;
+		}
+
+		private void birthdayPicker_Enter(object sender, EventArgs e)
+		{
+			((BirthdayPicker)sender).ForeColor = Color.Black;
+		}
+    }
 }

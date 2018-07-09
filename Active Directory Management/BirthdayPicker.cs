@@ -5,7 +5,6 @@ using System.Drawing;
 using System.Data;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace Active_Directory_Management
@@ -17,22 +16,10 @@ namespace Active_Directory_Management
 			InitializeComponent();
 
 			for (int i = 1; i <= 31; i++)
-				dayBox.Items.Add(i);
+				dayBox.Items.Add(i.ToString().PadLeft(2, '0'));
 
-			monthBox.Items.AddRange(new string[] {
-				"январь",
-				"февраль",
-				"март",
-				"апрель",
-				"май",
-				"июнь",
-				"июль",
-				"август",
-				"сентябрь",
-				"октябрь",
-				"ноябрь",
-				"декабрь"
-			});
+            for (int i = 1; i <= 12; i++)
+                monthBox.Items.Add(i.ToString().PadLeft(2, '0'));
 
 			for(int i = 16; i <= 90; i++)
 				yearBox.Items.Add(DateTime.Today.Year - i);
@@ -48,7 +35,7 @@ namespace Active_Directory_Management
 				{
 					return new DateTime(
 						int.Parse(yearBox.Text),
-						monthBox.Items.IndexOf(monthBox.Text) + 1,
+						int.Parse(monthBox.Text),
 						int.Parse(dayBox.Text));
 				}
 				catch
@@ -63,8 +50,8 @@ namespace Active_Directory_Management
 
 				else
 				{
-					dayBox.Text = value.Day.ToString();
-					monthBox.SelectedIndex = value.Month - 1;
+					dayBox.Text = value.Day.ToString().PadLeft(2, '0');
+					monthBox.Text = value.Month.ToString().PadLeft(2, '0');
 					yearBox.Text = value.Year.ToString();
 				}
 			}
@@ -75,6 +62,21 @@ namespace Active_Directory_Management
 			dayBox.Text = string.Empty;
 			monthBox.Text = string.Empty;
 			yearBox.Text = string.Empty;
+		}
+
+
+		override public Color ForeColor
+		{
+			get
+			{
+				return dayBox.ForeColor;
+			}
+			set
+			{
+				dayBox.ForeColor = value;
+				monthBox.ForeColor = value;
+				yearBox.ForeColor = value;
+			}
 		}
 
 	}

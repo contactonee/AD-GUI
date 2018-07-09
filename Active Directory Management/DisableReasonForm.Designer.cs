@@ -50,7 +50,7 @@
 			this.reasonTextBox.Name = "reasonTextBox";
 			this.reasonTextBox.Size = new System.Drawing.Size(267, 20);
 			this.reasonTextBox.TabIndex = 1;
-			this.reasonTextBox.KeyUp += new System.Windows.Forms.KeyEventHandler(this.reasonTextBox_KeyUp);
+			this.reasonTextBox.KeyUp += new System.Windows.Forms.KeyEventHandler(this.ReasonTextBox_KeyUp);
 			// 
 			// button1
 			// 

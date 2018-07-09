@@ -92,7 +92,6 @@
 			// 
 			this.treeView.Location = new System.Drawing.Point(12, 70);
 			this.treeView.Name = "treeView";
-			this.treeView.ShowRootLines = false;
 			this.treeView.Size = new System.Drawing.Size(394, 429);
 			this.treeView.TabIndex = 17;
 			this.treeView.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.TreeView_AfterSelect);
@@ -147,6 +146,7 @@
 			this.citySelector.Location = new System.Drawing.Point(57, 12);
 			this.citySelector.Name = "citySelector";
 			this.citySelector.Size = new System.Drawing.Size(268, 21);
+			this.citySelector.Sorted = true;
 			this.citySelector.TabIndex = 22;
 			this.citySelector.SelectedIndexChanged += new System.EventHandler(this.CitySelector_SelectedIndexChanged);
 			// 
@@ -185,6 +185,7 @@
 			this.Controls.Add(this.lastBox);
 			this.Controls.Add(this.firstBox);
 			this.Controls.Add(this.searchBox);
+			this.Icon = global::Active_Directory_Management.Properties.Resources.MainIcon;
 			this.Name = "MainView";
 			this.Text = "Active Directory ";
 			this.Shown += new System.EventHandler(this.MainView_Load);

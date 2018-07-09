@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.DirectoryServices;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.Xml.Linq;
 using System.Diagnostics;
 
@@ -17,8 +16,6 @@ namespace Active_Directory_Management
 
 
 		public Dictionary<string, string> Properties { get; } = new Dictionary<string, string>();
-
-		private Dictionary<string, bool> memberOf = new Dictionary<string, bool>();
 
 		private int uac;
 		private string dn;
@@ -40,6 +37,7 @@ namespace Active_Directory_Management
 
 			// Temp dn, for searcher
 			dn = path.Properties["distinguishedName"].Value.ToString();
+
 
 			// Build Searcher 
 			DirectorySearcher searcher = new DirectorySearcher()
@@ -73,7 +71,9 @@ namespace Active_Directory_Management
 			entry.CommitChanges();
 
 			// Set standart password and require to change it on next logon
-			entry.Invoke("SetPassword", new object[] { "1234567Aa" });
+			entry.Invoke("SetPassword", new object[] { String.Format("1234567{0}{1}",
+                firstName.ToUpper()[0],
+                surname[0])});
 			entry.Properties["pwdLastSet"].Value = 0;
 			entry.CommitChanges();
 
@@ -284,10 +284,15 @@ namespace Active_Directory_Management
 				string key = prop.Key;
 				string value = prop.Value;
 
-				
+
 
 				if (value == string.Empty)
-					continue;
+				{
+					if (xmlNode.Element(key) == null)
+						xmlNode.Add(new XElement(key));
+					else
+						continue;
+				}
 
 				else if (value == null)
 				{
