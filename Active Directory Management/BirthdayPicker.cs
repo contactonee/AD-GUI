@@ -16,10 +16,10 @@ namespace Active_Directory_Management
 			InitializeComponent();
 
 			for (int i = 1; i <= 31; i++)
-				dayBox.Items.Add(i.ToString().PadLeft(2, ' '));
+				dayBox.Items.Add(i.ToString().PadLeft(2, '0'));
 
             for (int i = 1; i <= 12; i++)
-                monthBox.Items.Add(i.ToString().PadLeft(2, ' '));
+                monthBox.Items.Add(i.ToString().PadLeft(2, '0'));
 
 			for(int i = 16; i <= 90; i++)
 				yearBox.Items.Add(DateTime.Today.Year - i);
@@ -50,8 +50,8 @@ namespace Active_Directory_Management
 
 				else
 				{
-					dayBox.Text = value.Day.ToString().PadLeft(2, ' ');
-					monthBox.Text = value.Month.ToString().PadLeft(2, ' ');
+					dayBox.Text = value.Day.ToString().PadLeft(2, '0');
+					monthBox.Text = value.Month.ToString().PadLeft(2, '0');
 					yearBox.Text = value.Year.ToString();
 				}
 			}

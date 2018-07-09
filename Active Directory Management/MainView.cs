@@ -48,19 +48,6 @@ namespace Active_Directory_Management
 		}
 		private void MainView_Load(object sender, EventArgs e)
 		{
-			try
-			{
-				xmlDoc = XDocument.Load(Properties.Resources.XmlFile);
-
-				DateTime lastUpd = DateTime.Parse(xmlDoc.Root.Attribute("lastUpdated").Value);
-				if (DateTime.Now.Subtract(lastUpd).TotalSeconds > 30)
-					throw new Exception("Too old file! (Last Update >30 seconds ago)");
-			}
-			catch (Exception ex)
-			{
-				Debug.WriteLine(ex.Message);
-				xmlDoc = DumpToXml(cityOuPath.Keys.First());
-			}
 			citySelector.SelectedIndex = 0;
 		}
 
@@ -516,7 +503,5 @@ namespace Active_Directory_Management
                 .Where(t => t.Attribute("nameRU").Value == citySelector.Text)
                 .First());
         }
-
-		
 	}
 }

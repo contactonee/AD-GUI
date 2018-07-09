@@ -92,7 +92,6 @@
 			// 
 			this.treeView.Location = new System.Drawing.Point(12, 70);
 			this.treeView.Name = "treeView";
-			this.treeView.ShowRootLines = false;
 			this.treeView.Size = new System.Drawing.Size(394, 429);
 			this.treeView.TabIndex = 17;
 			this.treeView.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.TreeView_AfterSelect);

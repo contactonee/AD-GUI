@@ -319,7 +319,7 @@ namespace Active_Directory_Management
 			error |= (birthdayPicker.Value == DateTime.MinValue);
 
 			if (departmentCombo.Enabled)
-				error |= (departmentCombo.SelectedIndex == 0);
+				error |= (departmentCombo.Text == "");
 
 			error |= (roomCombo.Text == "");
 			error |= (telCombo.Text == "");
@@ -350,7 +350,7 @@ namespace Active_Directory_Management
 			{
                 XElement par;
 
-                if (city.Element("dept") == null)
+                if (departmentCombo.Text == "")
                     par = city;
 
                 else
@@ -370,13 +370,14 @@ namespace Active_Directory_Management
 			user.Properties["middleName"] = middlenameBox.Text;
 			user.Properties["mobile"] = mobileTextBox.Text;
 
-            user.Properties["department"] = departmentCombo.Text;
-
-            if (city.Element("dept") != null)
-			    user.Properties["division"] = city.Descendants("dept")
-				    .Where(t => t.Attribute("nameRU").Value == departmentCombo.Text)
-				    .Select(t => t.Attribute("name").Value)
-				    .First();
+			if (departmentCombo.Text == "")
+			{
+				user.Properties["department"] = departmentCombo.Text;
+				user.Properties["division"] = city.Descendants("dept")
+						.Where(t => t.Attribute("nameRU").Value == departmentCombo.Text)
+						.Select(t => t.Attribute("name").Value)
+						.First();
+			}
 
 			user.Properties["description"] = divCombo.Text;
 			user.Properties["title"] = posCombo.Text;
@@ -870,8 +871,13 @@ namespace Active_Directory_Management
 
 		private void mobileTextBox_Validating(object sender, CancelEventArgs e)
 		{
+			// +7(___) ___ - ____
+			((MaskedTextBox)sender).TextMaskFormat = MaskFormat.ExcludePromptAndLiterals;
+			int cnt = ((MaskedTextBox)sender).Text.Length;
+			((MaskedTextBox)sender).TextMaskFormat = MaskFormat.IncludePromptAndLiterals;
+
 			Debug.WriteLine(((MaskedTextBox)sender).Text);
-			if (((MaskedTextBox)sender).Text.Contains('_'))
+			if (((MaskedTextBox)sender).Text.Contains('_') && cnt > 0)
 			{
 				e.Cancel = true;
 				((MaskedTextBox)sender).ForeColor = Color.Red;
