@@ -368,9 +368,10 @@ namespace Active_Directory_Management
 			user.Properties["sn"] = surnameBox.Text;
 			user.Properties["displayName"] = displayName;
 			user.Properties["middleName"] = middlenameBox.Text;
-			user.Properties["mobile"] = mobileTextBox.Text;
+			if(!user.Properties["mobile"].Contains('_'))
+                user.Properties["mobile"] = mobileTextBox.Text;
 
-			if (departmentCombo.Text == "")
+			if (departmentCombo.Text != "")
 			{
 				user.Properties["department"] = departmentCombo.Text;
 				user.Properties["division"] = city.Descendants("dept")

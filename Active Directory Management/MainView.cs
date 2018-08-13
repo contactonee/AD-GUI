@@ -30,10 +30,10 @@ namespace Active_Directory_Management
         public MainView()
         {
             InitializeComponent();
-			
 
-			// Подгрузка списка городов
-			cityOuPath = new Dictionary<string, string>();
+
+            // Подгрузка списка городов
+            cityOuPath = new Dictionary<string, string>();
 			foreach (string line in System.IO.File.ReadAllLines("cities.csv"))
 			{
 				string name = line.Split(';')[0];
